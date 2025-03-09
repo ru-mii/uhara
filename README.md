@@ -3,8 +3,6 @@ Livesplit asl support library.
 
 ## [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
 
-## documentation
-https://github.com/ru-mii/uhara/tree/main/doc
+## [DOCUMENTATION](https://github.com/ru-mii/uhara/tree/main/doc)
 
-## changelog
-https://github.com/ru-mii/uhara/tree/main/clog
+## [CHANGELOG](https://github.com/ru-mii/uhara/tree/main/clog)
