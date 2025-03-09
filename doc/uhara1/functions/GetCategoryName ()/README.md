@@ -7,6 +7,6 @@ string GetCategoryName(
 None   
 ## Return value
 Returns selected category name.   
-Returns an empty string if failed.
+Returns null if failed.
 ## Remarks
 None
