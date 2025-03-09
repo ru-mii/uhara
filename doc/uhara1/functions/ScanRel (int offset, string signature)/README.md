@@ -9,7 +9,7 @@ IntPtr ScanSingle(
 **[in] offset**   
 Offset in bytes to the relative value in the assembly instruction.   
 <br>
-**[in] signature**
+**[in] signature**   
 Scan signature in this format "48 8B !3D ?? ?? ?? ?? 48 8B 72 ?? 48 !85 F6".   
 ## Return value
 Returns virtual address of the relative referenced value in the assembly instruction.
