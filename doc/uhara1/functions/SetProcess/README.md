@@ -6,7 +6,7 @@ void SetProcess(
 ```
 
 ## Parameters
-**[in] process**
+**[in] process**   
 A process of the game.
 
 ## Return value
