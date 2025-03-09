@@ -1,6 +1,6 @@
 ## Syntax
 ```c#
-string ScanSingle(
+string GetCategoryName(
 );
 ```   
 ## Parameters
