@@ -9,5 +9,5 @@ startup
 ```
 Functions would then be used with the created var, for example:
 ```
-vars.Uhara.Example(5);
+vars.Uhara.ExampleFunction(5);
 ```
