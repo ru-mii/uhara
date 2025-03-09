@@ -5,12 +5,15 @@ void SetProcess(
 );
 ```   
 
+
 ## Parameters
 **[in] process**   
 A process of the game.   
 
+
 ## Return value
 Function does not return a value.   
+
 
 ## Remarks
 In most cases would be used as a frist line in the init to pass the game's process grabbed by LiveSplit.
