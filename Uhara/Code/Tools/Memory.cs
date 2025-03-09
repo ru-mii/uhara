@@ -16,7 +16,7 @@ internal class UMemory : UShared
 
         ulong baseAddress = (ulong)Instance.MainModule.BaseAddress;
         byte[] peHeader = ReadMemoryBytes(Instance, baseAddress, 0x1000);
-        List<ulong[]> readSections = GetReadableSections(peHeader);
+        List<ulong[]> readSections = GetPESections(peHeader);
 
         foreach (ulong[] section in readSections)
         {
@@ -41,7 +41,7 @@ internal class UMemory : UShared
 
         ulong baseAddress = (ulong)Instance.MainModule.BaseAddress;
         byte[] peHeader = ReadMemoryBytes(Instance, baseAddress, 0x1000);
-        List<ulong[]> readSections = GetReadableSections(peHeader);
+        List<ulong[]> readSections = GetPESections(peHeader);
 
         foreach (ulong[] section in readSections)
         {
@@ -138,9 +138,9 @@ internal class UMemory : UShared
         return null;
     }
 
-    internal static List<ulong[]> GetReadableSections(byte[] peHeader)
+    internal static List<ulong[]> GetPESections(byte[] peHeader)
     {
-        List<ulong[]> readableSections = new List<ulong[]>();
+        List<ulong[]> sections = new List<ulong[]>();
         ulong baseAddress = (ulong)Instance.MainModule.BaseAddress;
 
         int peHeaderOffset = BitConverter.ToInt32(peHeader, 0x3C);
@@ -159,9 +159,9 @@ internal class UMemory : UShared
             sectionAddresses[1] = virtualSize;
 
             extractSectionOffset += 0x28;
-            readableSections.Add(sectionAddresses);
+            sections.Add(sectionAddresses);
         }
 
-        return readableSections;
+        return sections;
     }
 }
