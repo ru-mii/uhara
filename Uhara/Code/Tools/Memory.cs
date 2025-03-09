@@ -152,18 +152,7 @@ internal class UMemory : UShared
 
         for (int i = 0; i < sectionCount; i++)
         {
-            int zeroCounter = 0;
-            int extractSectionOffset = 0;
-
-            for (int j = startSectionOffset; j < peHeader.Length; j++)
-            {
-                if (peHeader[j] == 0) zeroCounter++;
-                if (zeroCounter > 0 && (j - startSectionOffset) % 4 == 0)
-                {
-                    extractSectionOffset = j;
-                    break;
-                }
-            }
+            int extractSectionOffset = startSectionOffset + 0x8;
             startSectionOffset += 0x28;
 
             uint virtualSize = BitConverter.ToUInt32(peHeader, extractSectionOffset);
