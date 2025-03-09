@@ -1,4 +1,9 @@
 ## Syntax
+```c#
+void SetProcess(
+[in] Process process
+);
+```
 
 ## Parameters
 
