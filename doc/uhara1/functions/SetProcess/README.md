@@ -10,12 +10,12 @@ A process of the game.
 ## Return value
 Function does not return a value.   
 ## Remarks
-In most cases would be used as a frist line in the init to pass the game's process grabbed by LiveSplit.
+Assings passed Process object to Uhara and is then used for every operation that would require game's process.
 ```c#
 init
 {
     SetProcess(game);
 }
 ```
-Assings passed Process object to Uhara and is then used for every operation that would require game's process.   
+In most cases would be used as a frist line in the init to pass the game's process grabbed by LiveSplit.   
 This is not required as Uhara reads it with reflection but should be used if any compatibility issues arrive or in other edge cases.
