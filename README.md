@@ -5,4 +5,4 @@ Livesplit asl support library.
 
 ## [DOCUMENTATION](https://github.com/ru-mii/uhara/tree/main/doc)
 
-## [CHANGELOG](https://github.com/ru-mii/uhara/tree/main/clog)
+## [CHANGELOG](https://github.com/ru-mii/uhara/blob/main/clog/README.md)
