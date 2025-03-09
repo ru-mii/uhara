@@ -152,16 +152,16 @@ internal class UMemory : UShared
 
         for (int i = 0; i < sectionCount; i++)
         {
+            int zeroCounter = 0;
             int extractSectionOffset = 0;
+
             for (int j = startSectionOffset; j < peHeader.Length; j++)
             {
-                if (peHeader[j] == 0)
+                if (peHeader[j] == 0) zeroCounter++;
+                if (zeroCounter > 0 && (j - startSectionOffset) % 4 == 0)
                 {
-                    if ((j - startSectionOffset) % 4 == 0)
-                    {
-                        extractSectionOffset = j;
-                        break;
-                    }
+                    extractSectionOffset = j;
+                    break;
                 }
             }
             startSectionOffset += 0x28;
@@ -172,6 +172,8 @@ internal class UMemory : UShared
             ulong[] sectionAddresses = new ulong[2];
             sectionAddresses[0] = baseAddress + virtualAddress;
             sectionAddresses[1] = virtualSize;
+
+            UProgram.Print(sectionAddresses[0].ToString("X") + " " + sectionAddresses[1].ToString("X"));
 
             readableSections.Add(sectionAddresses);
         }
