@@ -1,4 +1,4 @@
-**[SETUP]**
+**SETUP**
 
 ```startup
 {
