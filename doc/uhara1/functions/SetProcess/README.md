@@ -17,7 +17,7 @@ In most cases would be used as a frist line in the init to pass the game's proce
 ```c#
 init
 {
-  SetProcess(game);
+    SetProcess(game);
 }
 ```
 Assings passed Process object to Uhara and is then used for every operation that would require game's process.
