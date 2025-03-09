@@ -1,5 +1,4 @@
-**SETUP**
-
+**Setup*
 ```
 startup
 {
