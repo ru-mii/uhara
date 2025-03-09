@@ -1,7 +1,7 @@
 # uhara
 Livesplit asl support library.
 
-https://github.com/ru-mii/uhara/tree/main/bin
+[COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
 
 ## documentation
 https://github.com/ru-mii/uhara/tree/main/doc
