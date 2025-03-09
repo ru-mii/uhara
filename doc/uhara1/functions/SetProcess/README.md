@@ -3,8 +3,7 @@
 void SetProcess(
 [in] Process process
 );
-```
-&nbsp;
+```   
 ## Parameters
 **[in] process**   
 A process of the game.   
