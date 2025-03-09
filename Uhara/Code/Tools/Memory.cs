@@ -148,13 +148,10 @@ internal class UMemory : UShared
         int optionalHeaderSize = BitConverter.ToInt16(peHeader, peHeaderOffset + 0x14);
         int sectionHeaderOffset = peHeaderOffset + 0x18 + optionalHeaderSize;
 
-        int startSectionOffset = sectionHeaderOffset;
+        int extractSectionOffset = sectionHeaderOffset + 0x8;
 
         for (int i = 0; i < sectionCount; i++)
         {
-            int extractSectionOffset = startSectionOffset + 0x8;
-            startSectionOffset += 0x28;
-
             uint virtualSize = BitConverter.ToUInt32(peHeader, extractSectionOffset);
             uint virtualAddress = BitConverter.ToUInt32(peHeader, extractSectionOffset + 0x04);
 
@@ -162,8 +159,7 @@ internal class UMemory : UShared
             sectionAddresses[0] = baseAddress + virtualAddress;
             sectionAddresses[1] = virtualSize;
 
-            UProgram.Print(sectionAddresses[0].ToString("X") + " " + sectionAddresses[1].ToString("X"));
-
+            extractSectionOffset += 0x28;
             readableSections.Add(sectionAddresses);
         }
 
