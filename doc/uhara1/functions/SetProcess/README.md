@@ -9,6 +9,7 @@ void SetProcess(
 **[in] process**   
 A process of the game.
 &nbsp;
+=========================
 ## Return value
 Function does not return a value.
 &nbsp;
