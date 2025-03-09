@@ -4,14 +4,14 @@ void SetProcess(
 [in] Process process
 );
 ```
-
+<br>
 ## Parameters
 **[in] process**   
 A process of the game.   
-
+<br>
 ## Return value
 Function does not return a value.
-
+<br>
 ## Remarks
 In most cases would be used as a frist line in the init to pass the game's process grabbed by LiveSplit.
 ```c#
