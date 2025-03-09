@@ -1,6 +1,6 @@
 ### Setup
-- Loads library and assigns an instance to the chosen variable
-- "Uhara" naming in "vars.Uhara" is optional and can be changed to any other name for example "vars.FunStuff"
+Loads library and assigns an instance to the chosen variable.
+"Uhara" naming in "vars.Uhara" is optional and can be changed to any other name for example "vars.FunStuff".
 ```c#
 startup
 {
