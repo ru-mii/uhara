@@ -8,7 +8,7 @@ void SetProcess(
 **[in] process**   
 A process of the game.   
 ## Return value
-Function does not return a value.   
+None
 ## Remarks
 Assings passed Process object to Uhara and is then used for every operation that would require game's process.
 ```c#
