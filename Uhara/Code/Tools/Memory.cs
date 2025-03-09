@@ -147,7 +147,6 @@ internal class UMemory : UShared
         int sectionCount = BitConverter.ToInt16(peHeader, peHeaderOffset + 0x6);
         int optionalHeaderSize = BitConverter.ToInt16(peHeader, peHeaderOffset + 0x14);
         int sectionHeaderOffset = peHeaderOffset + 0x18 + optionalHeaderSize;
-
         int extractSectionOffset = sectionHeaderOffset + 0x8;
 
         for (int i = 0; i < sectionCount; i++)
