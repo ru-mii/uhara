@@ -17,5 +17,5 @@ init
     SetProcess(game);
 }
 ```
-Assings passed Process object to Uhara and is then used for every operation that would require game's process.
+Assings passed Process object to Uhara and is then used for every operation that would require game's process.   
 This is not required as Uhara reads it with reflection but should be used if any compatibility issues arrive or in other edge cases.
