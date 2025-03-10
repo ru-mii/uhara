@@ -21,7 +21,8 @@ one before (1) [stable]
 * no code logic changes
 * compatible bug fixes
 
-Older versions would have no changes at all.
+Older versions would have no changes at all.   
+This template will apply when current version reaches 3.
 
 ### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
 
