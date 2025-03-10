@@ -17,7 +17,7 @@ previous (2) [beta]
 * no code logic changes
 * incompatible bug fixes
 
-one before (1) [stable]
+two before (1) [stable]
 * no new features
 * no code logic changes
 * compatible bug fixes
