@@ -2,7 +2,7 @@
 Livesplit asl support library.
 
 # Reasoning for versions
-Compatible changes = cannot break and cause compatibility issues to ALL of the existing asl scripts
+Compatible changes = cannot break and cause compatibility issues to ANY of the existing asl scripts
 
 Let's say the current version is uhara3, updates would work as follows:
 
