@@ -13,7 +13,7 @@ public partial class Main
         try
         {
             if (CheckSetInstance())
-                return (IntPtr)UMemory.ScanSingle(signature);
+                return (IntPtr)UMemory.ScanSingle(Instance, signature);
         }
         catch { }
         return IntPtr.Zero;
@@ -24,7 +24,7 @@ public partial class Main
         try
         {
             if (CheckSetInstance())
-                return (IntPtr)UMemory.ScanRel(offset, signature);
+                return (IntPtr)UMemory.ScanRel(Instance, offset, signature);
         }
         catch { }
         return IntPtr.Zero;

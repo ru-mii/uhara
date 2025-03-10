@@ -70,6 +70,7 @@
     <Compile Include="Code\Tools\Saves.cs" />
     <Compile Include="Code\Tools\Shared.cs" />
     <Compile Include="Code\Tools\Signature.cs" />
+    <Compile Include="Code\Tools\Symbol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
