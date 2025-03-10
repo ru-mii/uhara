@@ -21,7 +21,7 @@ one before (1) [stable]
 * no code logic changes
 * compatible bug fixes
 
-Older versions would have no changes at all moving forward.
+Older versions would have no changes at all.
 
 ### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
 
