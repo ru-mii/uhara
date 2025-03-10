@@ -23,6 +23,8 @@ one before (1) [stable]
 
 Older versions would have no changes at all.
 
+==============================================
+
 ### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
 
 ### [DOCUMENTATION](https://github.com/ru-mii/uhara/tree/main/doc)
