@@ -4,6 +4,7 @@ Livesplit asl support library.
 # Reasoning for versions
 Compatible changes = cannot break and cause compatibility issues to ANY of the existing asl scripts
 
+This template will apply when current version reaches 3, until then treat them all as beta with new features.
 Let's say the current version is uhara3, updates would work as follows:
 
 current (3) [edge]
@@ -22,7 +23,6 @@ one before (1) [stable]
 * compatible bug fixes
 
 Older versions would have no changes at all.   
-This template will apply when current version reaches 3.
 
 ### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
 
