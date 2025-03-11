@@ -28,4 +28,4 @@ two before (1) [stable]
 * no code logic changes
 * compatible bug fixes
 
-Older versions would no longer get updates.
+Older versions would receive no further updates.
