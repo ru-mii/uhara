@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-internal class UMemory : UShared
+internal class UMemory
 {
     internal static ulong ScanSingle(Process process, string signature)
     {

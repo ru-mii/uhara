@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public partial class Main
+public partial class Main : Shared
 {
     public IntPtr ScanSingle(string signature)
     {
