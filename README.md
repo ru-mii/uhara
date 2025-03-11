@@ -1,6 +1,12 @@
 # uhara
 Livesplit asl support library.
 
+### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
+
+### [DOCUMENTATION](https://github.com/ru-mii/uhara/tree/main/doc)
+
+### [CHANGELOG](https://github.com/ru-mii/uhara/blob/main/clog/README.md)
+
 # Reasoning for versions
 Compatible changes = cannot break and cause compatibility issues to ANY of the existing asl scripts
 
@@ -22,10 +28,4 @@ two before (1) [stable]
 * no code logic changes
 * compatible bug fixes
 
-Older versions would have no changes at all.   
-
-### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
-
-### [DOCUMENTATION](https://github.com/ru-mii/uhara/tree/main/doc)
-
-### [CHANGELOG](https://github.com/ru-mii/uhara/blob/main/clog/README.md)
+Older versions would have no changes at all.
