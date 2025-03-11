@@ -14,17 +14,17 @@ This template will apply when current version reaches 3, until then treat them a
 Let's say the current version is uhara3, updates would work as follows:
 
 current (3) [edge]
-* new incompatible features
+* incompatible features
 * incompatible code logic changes
 * incompatible bug fixes
 
 previous (2) [beta]
-* no new features
+* no features
 * no code logic changes
 * incompatible bug fixes
 
 two before (1) [stable]
-* no new features
+* no features
 * no code logic changes
 * compatible bug fixes
 
