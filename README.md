@@ -1,4 +1,4 @@
-# uhara
+# uhara1
 Livesplit asl support library.
 
 ### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin)
