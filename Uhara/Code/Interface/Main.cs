@@ -1,35 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public partial class Main : Shared
+public partial class Main : UShared
 {
-    public dynamic CreateTool(string name)
+    public Main()
     {
-        name = name.ToLower();
-
-        if (name == "unity" ||
-        name == "unity3d")
+        try
         {
-            return new UUnity();
-        }
+            ReflectGrabs();
+            Vars.Uhara = this;
 
-        else return null;
+            Assembly liveSplitAssembly = Assembly.Load("LiveSplit.Core");
+            Type extensionMethodsType = liveSplitAssembly.GetType("LiveSplit.ComponentUtil.ExtensionMethods");
+
+            _RefAllocateMemory = extensionMethodsType.GetMethod("AllocateMemory", new Type[] { typeof(Process), typeof(int) });
+            _RefWriteBytes = extensionMethodsType.GetMethod("WriteBytes", new Type[] { typeof(Process), typeof(IntPtr), typeof(byte[]) });
+            _RefCreateThread = extensionMethodsType.GetMethod("CreateThread", new Type[] { typeof(Process), typeof(IntPtr) });
+        }
+        catch { }
+    }
+
+    public dynamic CreateTool(string grand, string sub)
+    {
+        try
+        {
+            if (ReflectGrabs())
+            {
+                grand = grand.ToLower();
+                sub = sub.ToLower();
+
+                if (grand == "unitycs")
+                {
+                    if (sub == "jitsave")
+                    {
+                        return new UnityCS_JitSave();
+                    }
+                }
+            }
+        }
+        catch { }
+        return null;
     }
 
     public void SetProcess(Process process)
     {
         Instance = process;
-    }
-
-    public Main ()
-    {
-        
     }
 }

@@ -7,19 +7,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-internal class UMemory
+internal class UMemory : UShared
 {
-    internal static ulong ScanSingle(Process process, string signature)
+    internal static ulong ScanSingle(string signature)
     {
         byte[] searchBytes = USignature.GetBytes(signature);
         string searchMask = USignature.GetMask(signature);
 
-        ulong baseAddress = (ulong)process.MainModule.BaseAddress;
-        List<ulong[]> readSections = GetPESections(process);
+        ulong baseAddress = (ulong)Instance.MainModule.BaseAddress;
+        byte[] peHeader = ReadMemoryBytes(Instance, baseAddress, 0x1000);
+        List<ulong[]> readSections = GetReadableSections(peHeader);
 
         foreach (ulong[] section in readSections)
         {
-            byte[] sectionBytes = ReadMemoryBytes(process, section[0], (int)section[1]);
+            byte[] sectionBytes = ReadMemoryBytes(Instance, section[0], (int)section[1]);
             if (sectionBytes != null && sectionBytes.Length > 0)
             {
                 int searchOffset = FindInArray(sectionBytes, searchBytes, searchMask);
@@ -33,17 +34,18 @@ internal class UMemory
         return 0;
     }
 
-    internal static ulong ScanRel(Process process, int offset, string signature)
+    internal static ulong ScanRel(int offset, string signature)
     {
         byte[] searchBytes = USignature.GetBytes(signature);
         string searchMask = USignature.GetMask(signature);
 
-        ulong baseAddress = (ulong)process.MainModule.BaseAddress;
-        List<ulong[]> readSections = GetPESections(process);
+        ulong baseAddress = (ulong)Instance.MainModule.BaseAddress;
+        byte[] peHeader = ReadMemoryBytes(Instance, baseAddress, 0x1000);
+        List<ulong[]> readSections = GetReadableSections(peHeader);
 
         foreach (ulong[] section in readSections)
         {
-            byte[] sectionBytes = ReadMemoryBytes(process, section[0], (int)section[1]);
+            byte[] sectionBytes = ReadMemoryBytes(Instance, section[0], (int)section[1]);
             if (sectionBytes != null && sectionBytes.Length > 0)
             {
                 int searchOffset = FindInArray(sectionBytes, searchBytes, searchMask);
@@ -51,7 +53,7 @@ internal class UMemory
                 {
                     ulong searchAddress = section[0] + (ulong)searchOffset;
                     ulong relativeAddress = searchAddress + (ulong)offset;
-                    long relativeValue = ReadMemory<int>(process, relativeAddress);
+                    long relativeValue = ReadMemory<int>(Instance, relativeAddress);
                     ulong destinationAddress = (ulong)((long)searchAddress + relativeValue + offset + 4);
                     return destinationAddress;
                 }
@@ -59,35 +61,6 @@ internal class UMemory
         }
 
         return 0;
-    }
-
-    internal static List<ulong[]> GetPESections(Process process)
-    {
-        List<ulong[]> sections = new List<ulong[]>();
-        ulong baseAddress = (ulong)process.MainModule.BaseAddress;
-        byte[] peHeader = ReadMemoryBytes(process, baseAddress, 0x1000);
-        int peHeaderOffset = BitConverter.ToInt32(peHeader, 0x3C);
-        int sectionCount = BitConverter.ToInt16(peHeader, peHeaderOffset + 0x6);
-        int optionalHeaderSize = BitConverter.ToInt16(peHeader, peHeaderOffset + 0x14);
-        int sectionHeaderOffset = peHeaderOffset + 0x18 + optionalHeaderSize;
-        int newPeHeaderSize = sectionHeaderOffset + (0x28 * sectionCount);
-        int extractSectionOffset = sectionHeaderOffset + 0x8;
-        peHeader = ReadMemoryBytes(process, baseAddress, newPeHeaderSize);
-
-        for (int i = 0; i < sectionCount; i++)
-        {
-            uint virtualSize = BitConverter.ToUInt32(peHeader, extractSectionOffset);
-            uint virtualAddress = BitConverter.ToUInt32(peHeader, extractSectionOffset + 0x04);
-
-            ulong[] sectionAddresses = new ulong[2];
-            sectionAddresses[0] = baseAddress + virtualAddress;
-            sectionAddresses[1] = virtualSize;
-
-            extractSectionOffset += 0x28;
-            sections.Add(sectionAddresses);
-        }
-
-        return sections;
     }
 
     internal static int FindInArray(byte[] chunkData, byte[] byteSignature, string mask = "", int startPosition = 0)
@@ -163,5 +136,46 @@ internal class UMemory
         if (UImports.ReadProcessMemory(process.Handle, address, data, data.Length, out _))
             return data;
         return null;
+    }
+
+    internal static List<ulong[]> GetReadableSections(byte[] peHeader)
+    {
+        List<ulong[]> readableSections = new List<ulong[]>();
+        ulong baseAddress = (ulong)Instance.MainModule.BaseAddress;
+
+        int peHeaderOffset = BitConverter.ToInt32(peHeader, 0x3C);
+        int sectionCount = BitConverter.ToInt16(peHeader, peHeaderOffset + 0x6);
+        int optionalHeaderSize = BitConverter.ToInt16(peHeader, peHeaderOffset + 0x14);
+        int sectionHeaderOffset = peHeaderOffset + 0x18 + optionalHeaderSize;
+
+        int startSectionOffset = sectionHeaderOffset;
+
+        for (int i = 0; i < sectionCount; i++)
+        {
+            int extractSectionOffset = 0;
+            for (int j = startSectionOffset; j < peHeader.Length; j++)
+            {
+                if (peHeader[j] == 0)
+                {
+                    if ((j - startSectionOffset) % 4 == 0)
+                    {
+                        extractSectionOffset = j;
+                        break;
+                    }
+                }
+            }
+            startSectionOffset += 0x28;
+
+            uint virtualSize = BitConverter.ToUInt32(peHeader, extractSectionOffset);
+            uint virtualAddress = BitConverter.ToUInt32(peHeader, extractSectionOffset + 0x04);
+
+            ulong[] sectionAddresses = new ulong[2];
+            sectionAddresses[0] = baseAddress + virtualAddress;
+            sectionAddresses[1] = virtualSize;
+
+            readableSections.Add(sectionAddresses);
+        }
+
+        return readableSections;
     }
 }

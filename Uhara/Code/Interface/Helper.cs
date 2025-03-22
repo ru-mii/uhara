@@ -6,14 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public partial class Main : Shared
+public partial class Main
 {
     public IntPtr ScanSingle(string signature)
     {
         try
         {
-            if (CheckSetInstance())
-                return (IntPtr)UMemory.ScanSingle(Instance, signature);
+            if (ReflectGrabs())
+                return (IntPtr)UMemory.ScanSingle(signature);
         }
         catch { }
         return IntPtr.Zero;
@@ -23,8 +23,8 @@ public partial class Main : Shared
     {
         try
         {
-            if (CheckSetInstance())
-                return (IntPtr)UMemory.ScanRel(Instance, offset, signature);
+            if (ReflectGrabs())
+                return (IntPtr)UMemory.ScanRel(offset, signature);
         }
         catch { }
         return IntPtr.Zero;
