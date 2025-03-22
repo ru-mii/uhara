@@ -13,6 +13,17 @@ public class UnityCS_JitSave : UShared
     ulong Arguments = 0;
     ulong Output = 0;
 
+    public IntPtr Add(string _namespace, string _class, string _method, short overwriteSize)
+    {
+        try
+        {
+            return Add("Assembly-CSharp.dll", _namespace, _class, _method, 0, 0, overwriteSize,
+                new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+        }
+        catch { }
+        return IntPtr.Zero;
+    }
+
     public IntPtr Add(string _class, string _method, short overwriteSize)
     {
         try

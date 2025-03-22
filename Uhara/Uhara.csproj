@@ -63,21 +63,22 @@
     <Compile Include="Code\Interface\Helper.cs" />
     <Compile Include="Code\Interface\Main.cs" />
     <Compile Include="Code\Interface\Shared.cs" />
+    <Compile Include="Code\Other\AsmBlocks.cs" />
+    <Compile Include="Code\Tools\Array.cs" />
     <Compile Include="Code\Tools\DynamicVars.cs" />
     <Compile Include="Code\Tools\Imports.cs" />
     <Compile Include="Code\Tools\Memory.cs" />
+    <Compile Include="Code\Tools\Path.cs" />
     <Compile Include="Code\Tools\Process.cs" />
     <Compile Include="Code\Tools\Program.cs" />
     <Compile Include="Code\Tools\Reflection.cs" />
     <Compile Include="Code\Tools\Saves.cs" />
     <Compile Include="Code\Tools\Signature.cs" />
-    <Compile Include="Code\Tools\Symbol.cs" />
-    <Compile Include="Code\UnityCS\URegSnap.cs" />
-    <Compile Include="Code\UnityCS\UnityCS.cs" />
+    <Compile Include="Code\UnityCS\JitSave.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara1"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara2"</PostBuildEvent>
   </PropertyGroup>
 </Project>
