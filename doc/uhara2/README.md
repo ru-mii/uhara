@@ -1,13 +1,12 @@
 ### Setup
-Loads library and assigns an instance to the chosen variable.
-"Uhara" naming in "vars.Uhara" is optional and can be changed to any other name for example "vars.FunStuff".
+Loads library and assigns an instance to vars.Uhara.
 ```c#
 startup
 {
-    vars.Uhara = Assembly.Load(File.ReadAllBytes("Components/uhara1")).CreateInstance("Main");
+    Assembly.Load(File.ReadAllBytes("Components/uhara1")).CreateInstance("Main");
 }
 ```
-Functions would then be used with the created var, for example:
+Functions would then be used with the var, for example:
 ```
 vars.Uhara.ExampleFunction(5);
 ```
