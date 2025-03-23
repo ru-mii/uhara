@@ -7,6 +7,9 @@ Livesplit asl support library, 32-bit games are not supported.
 
 ### [CHANGELOG](https://github.com/ru-mii/uhara/blob/main/clog/README.md)
 
+# Autosplitters that use Uhara
+[Monster Hunter Wilds](https://raw.githubusercontent.com/TheDementedSalad/Monster-Hunter-Wilds-Autosplitter/refs/heads/main/Monster%20Hunter%20Wilds.asl)   
+
 # Reasoning for versions
 Compatible changes = cannot break and cause compatibility issues to ANY of the existing asl scripts
 
