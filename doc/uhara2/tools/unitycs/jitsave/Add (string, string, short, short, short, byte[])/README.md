@@ -1,8 +1,6 @@
 ## Syntax
 ```c#
 IntPtr Add(
-[in] string _assembly
-[in] string _namespace
 [in] string _class
 [in] string _method
 [in] short paramCount
