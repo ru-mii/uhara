@@ -1,5 +1,5 @@
 ### Setup
-Loads library and assigns an instance to vars.Uhara.
+Loads library, in the backend the code assigns an instance to vars.Uhara
 ```c#
 startup
 {
