@@ -13,7 +13,7 @@ IntPtr Add(
 ```   
 ## Parameters
 **[in] _assembly**   
-Relative path from the game exe to the assembly file that contains the method.   
+Name of the assembly file that holds used method, usually "Assembly-CSharpd.ll".
 <br>
 **[in] _namespace**   
 Namespace that method belongs to.   
