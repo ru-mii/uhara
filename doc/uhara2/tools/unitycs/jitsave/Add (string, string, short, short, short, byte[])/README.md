@@ -13,6 +13,8 @@ IntPtr Add(
 **[in] _class**   
 Class that method belongs to.   
 <br>
+**[in] _method**   
+Method name.   
 **[in] paramCount**   
 Parameter count of the method.   
 <br>
