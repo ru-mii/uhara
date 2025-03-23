@@ -15,4 +15,4 @@ Sub category of the tool.
 Returns object with type of created tool.
 Returns null if failed or not found.   
 ## Remarks
-Has to be used to use tool functions.
+Has to be used to use specific tool functions.
