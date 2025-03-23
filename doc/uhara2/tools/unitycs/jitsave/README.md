@@ -3,5 +3,5 @@ To create this tool, use:
 vars.JitSave = vars.Uhara.CreateTool("UnityCS", "JitSave");
 ```
 Functions would then be used through vars.JitSave   
---------------------------------
+<br>
 Compiles and hooks method, returns address for rip-8 of injected asm.
