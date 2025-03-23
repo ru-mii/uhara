@@ -13,7 +13,7 @@ IntPtr Add(
 ```   
 ## Parameters
 **[in] _assembly**   
-Name of the assembly file that holds used method, usually "Assembly-CSharpd.dll".   
+Name of the assembly file that holds used method, usually "Assembly-CSharp.dll".   
 <br>
 **[in] _namespace**   
 Namespace that method belongs to.   
