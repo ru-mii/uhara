@@ -7,7 +7,7 @@ IntPtr CreateTool(
 ```   
 ## Parameters
 **[in] grand**   
-Broad tool name. 
+Broad tool name.   
 <br>
 **[in] sub**   
 Sub category of the tool.
