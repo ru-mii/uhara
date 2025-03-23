@@ -32,5 +32,6 @@ Returns IntPtr.Zero if failed.
 ## Remarks
 Overload for 
 [Add (string, string, string, string, short, short, short, byte[])](https://github.com/ru-mii/uhara/tree/main/doc/uhara2/tools/unitycs/jitsave/Add%20(string%2C%20string%2C%20string%2C%20string%2C%20short%2C%20short%2C%20short%2C%20byte%5B%5D))   
+Default parameter values:   
 _assembly = "Assembly-CSharp.dll"   
 _namespace = ""
