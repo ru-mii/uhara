@@ -35,18 +35,18 @@ public class UnityCS_JitSave : UShared
         return IntPtr.Zero;
     }
 
-    public IntPtr Add(string _class, string _method, short paramCount, short offset, short overwriteSize, byte[] bytes)
+    public IntPtr Add(string _class, string _method, short paramCount, short hookOffset, short overwriteSize, byte[] bytes)
     {
         try
         {
-            return Add("Assembly-CSharp.dll", "", _class, _method, paramCount, offset, overwriteSize, bytes);
+            return Add("Assembly-CSharp.dll", "", _class, _method, paramCount, hookOffset, overwriteSize, bytes);
         }
         catch { }
         return IntPtr.Zero;
     }
 
     public IntPtr Add(string _assembly, string _namespace, string _class, string _method, short paramCount,
-    short offset, short overwriteSize, byte[] bytes)
+    short hookOffset, short overwriteSize, byte[] bytes)
     {
         try
         {
@@ -69,7 +69,7 @@ public class UnityCS_JitSave : UShared
                 byte[] arg4 = UProgram.StringToMultibyte(_method);
                 byte[] arg5 = BitConverter.GetBytes(paramCount);
 
-                byte[] _offset = BitConverter.GetBytes(offset);
+                byte[] _offset = BitConverter.GetBytes(hookOffset);
                 byte[] _overwriteSize = BitConverter.GetBytes(overwriteSize);
                 byte[] _bytesSize = BitConverter.GetBytes((short)bytes.Length);
                 byte[] arg6 = UArray.Merge(_offset, _overwriteSize, _bytesSize, bytes);
