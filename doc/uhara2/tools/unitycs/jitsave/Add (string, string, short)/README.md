@@ -13,9 +13,6 @@ Class that method belongs to.
 **[in] _method**   
 Method name.   
 <br>
-**[in] paramCount**   
-Parameter count of the method.   
-<br>
 **[in] overwriteSize**   
 Minimum required byte steal size to preserve correct code execution with long jump, can't be less than 14.   
 ## Return value
