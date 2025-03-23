@@ -30,7 +30,7 @@ Injected asm code.
 Address that points at the injected code minus 8 bytes.
 Returns IntPtr.Zero if failed.   
 ## Remarks
-Overload of 
+Overload for 
 [Add (string, string, string, string, short, short, short, byte[])](https://github.com/ru-mii/uhara/tree/main/doc/uhara2/tools/unitycs/jitsave/Add%20(string%2C%20string%2C%20string%2C%20string%2C%20short%2C%20short%2C%20short%2C%20byte%5B%5D))   
 _assembly = "Assembly-CSharp.dll"   
 _namespace = ""
