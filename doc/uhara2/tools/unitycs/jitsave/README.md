@@ -1,4 +1,5 @@
 To create this tool, use:
 ```c#
-vars.Uhara.CreateTool("UnityCS", "JitSave");
+vars.JitSave = vars.Uhara.CreateTool("UnityCS", "JitSave");
 ```
+Functions would then be used through vars.JitSave
