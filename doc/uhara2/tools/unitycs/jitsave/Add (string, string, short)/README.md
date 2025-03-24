@@ -16,7 +16,7 @@ Method name.
 **[in] overwriteSize**   
 Minimum required byte steal size to preserve correct code execution with long jump, can't be less than 14.   
 ## Return value
-Address that points at the injected code minus 8 bytes.
+Address that points at the injected code minus 8 bytes.   
 Returns IntPtr.Zero if failed.   
 ## Remarks
 Overload for 
