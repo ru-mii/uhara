@@ -121,7 +121,7 @@ public class UnityCPP_JitSave : UShared
         if (Allocated != 0)
         {
             USaves.Set(instName, Allocated.ToString());
-            RefWriteBytes(Instance, Allocated, AsmBlocks.UnityCS_JitSave);
+            RefWriteBytes(Instance, Allocated, AsmBlocks.UnityCPP_JitSave);
             RefCreateThread(Instance, Allocated + 0x8);
             Arguments = Allocated + 0x2000;
             Output = Allocated + 0x3002;
