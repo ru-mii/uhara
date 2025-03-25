@@ -13,22 +13,40 @@ public class UnityCS_JitSave : UShared
     ulong Arguments = 0;
     ulong Output = 0;
 
-    public IntPtr Add(string _namespace, string _class, string _method, short overwriteSize)
+    public IntPtr AddFlag(string _class, string _method, short overwriteSize)
+    {
+        return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,
+            new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+    }
+
+    // 48 83 05 F0 FF FF FF 01
+    public IntPtr AddInstance(string _class, string _method)
     {
         try
         {
-            return Add("Assembly-CSharp.dll", _namespace, _class, _method, 0, 0, overwriteSize,
+            return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, 15,
                 new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
         }
         catch { }
         return IntPtr.Zero;
     }
 
-    public IntPtr Add(string _class, string _method, short overwriteSize)
+    public IntPtr AddInstance(string _class, string _method, short overwriteSize)
     {
         try
         {
             return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,
+                new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+        }
+        catch { }
+        return IntPtr.Zero;
+    }
+
+    public IntPtr AddInstance(string _namespace, string _class, string _method, short overwriteSize)
+    {
+        try
+        {
+            return Add("Assembly-CSharp.dll", _namespace, _class, _method, 0, 0, overwriteSize,
                 new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
         }
         catch { }
