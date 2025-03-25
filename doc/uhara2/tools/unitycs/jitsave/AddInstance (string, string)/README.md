@@ -22,5 +22,5 @@ _assembly = "Assembly-CSharp.dll"
 _namespace = ""   
 paramCount = 0   
 hookOffset = 0   
-overwriteSize = 0   
+overwriteSize = 15   
 bytes = new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 } (mov [rip-8], rdi; nop)
