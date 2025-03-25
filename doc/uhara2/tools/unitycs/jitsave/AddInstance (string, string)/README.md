@@ -1,6 +1,6 @@
 ## Syntax
 ```c#
-IntPtr Add(
+IntPtr AddInstance(
 [in] string _class
 [in] string _method
 );
