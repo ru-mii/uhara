@@ -19,7 +19,6 @@ public class UnityCS_JitSave : UShared
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
-    // 48 83 05 F0 FF FF FF 01
     public IntPtr AddInstance(string _class, string _method)
     {
         try
