@@ -1,6 +1,6 @@
 ## Syntax
 ```c#
-IntPtr AddInstance(
+IntPtr Add(
 [in] string _class
 [in] string _method
 [in] short overwriteSize
