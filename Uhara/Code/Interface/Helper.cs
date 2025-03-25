@@ -12,7 +12,7 @@ public partial class Main
     {
         try
         {
-            if (ReflectGrabs())
+            if (GetSetValues())
                 return (IntPtr)UMemory.ScanSingle(signature);
         }
         catch { }
@@ -23,7 +23,7 @@ public partial class Main
     {
         try
         {
-            if (ReflectGrabs())
+            if (GetSetValues())
                 return (IntPtr)UMemory.ScanRel(offset, signature);
         }
         catch { }

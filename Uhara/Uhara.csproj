@@ -74,6 +74,7 @@
     <Compile Include="Code\Tools\Reflection.cs" />
     <Compile Include="Code\Tools\Saves.cs" />
     <Compile Include="Code\Tools\Signature.cs" />
+    <Compile Include="Code\UnityCPP\JitSave.cs" />
     <Compile Include="Code\UnityCS\JitSave.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

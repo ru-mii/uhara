@@ -14,7 +14,7 @@ public class UShared
     internal static Process Instance = null;
     internal static dynamic Vars;
 
-    internal static bool ReflectGrabs()
+    internal static bool GetSetValues()
     {
         try
         {

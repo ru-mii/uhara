@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public class UnityCS_JitSave : UShared
+public class UnityCPP_JitSave : UShared
 {
     ulong Allocated = 0;
     ulong Arguments = 0;
@@ -71,16 +71,7 @@ public class UnityCS_JitSave : UShared
             {
                 // ---
                 if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
-
-                string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
-                string assemblyPath = UPath.FindFile(exeDir, _assembly);
-
-                if (assemblyPath == "") return IntPtr.Zero;
-
-                string assemblyRelativePath = assemblyPath.Replace(exeDir, "");
-                assemblyRelativePath = assemblyRelativePath.Substring(1);
-
-                byte[] arg1 = UProgram.StringToMultibyte(assemblyRelativePath);
+                byte[] arg1 = UProgram.StringToMultibyte(_assembly);
                 byte[] arg2 = UProgram.StringToMultibyte(_namespace);
                 byte[] arg3 = UProgram.StringToMultibyte(_class);
                 byte[] arg4 = UProgram.StringToMultibyte(_method);
@@ -111,9 +102,9 @@ public class UnityCS_JitSave : UShared
         return IntPtr.Zero;
     }
 
-    public UnityCS_JitSave()
+    public UnityCPP_JitSave()
     {
-        string instName = "UnityCS.JitSave";
+        string instName = "UnityCPP.JitSave";
 
         ulong lastAddress = 0;
         if (ulong.TryParse(USaves.Get(instName), out lastAddress) && lastAddress != 0)

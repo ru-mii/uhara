@@ -17,7 +17,7 @@ public partial class Main : UShared
     {
         try
         {
-            ReflectGrabs();
+            GetSetValues();
             Vars.Uhara = this;
 
             Assembly liveSplitAssembly = Assembly.Load("LiveSplit.Core");
@@ -34,7 +34,7 @@ public partial class Main : UShared
     {
         try
         {
-            if (ReflectGrabs())
+            if (GetSetValues())
             {
                 grand = grand.ToLower();
                 sub = sub.ToLower();
