@@ -9,6 +9,37 @@ using System.Windows.Forms;
 
 internal class UMemory : UShared
 {
+    internal static byte[] GetByteArray(string signature)
+    {
+        signature = signature.Replace(" ", "").Replace("!", "");
+        byte[] byteArray = new byte[signature.Length / 2];
+
+        for (int i = 0; i < byteArray.Length; i++)
+        {
+            string byteValue = signature.Substring(i * 2, 2);
+
+            if (byteValue != "??")
+            {
+                if (!IsCharHex(byteValue[0]) || !IsCharHex(byteValue[1])) return null;
+                else byteArray[i] = Convert.ToByte(byteValue, 16);
+            }
+            else byteArray[i] = 0x00;
+        }
+
+        return byteArray;
+    }
+
+    private static bool IsCharHex(char character)
+    {
+        if (!((character >= '0' && character <= '9') ||
+        (character >= 'A' && character <= 'F') ||
+        (character >= 'a' && character <= 'f')))
+        {
+            return false;
+        }
+        return true;
+    }
+
     internal static ulong ScanSingle(string signature)
     {
         byte[] searchBytes = USignature.GetBytes(signature);

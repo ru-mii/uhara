@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public class UnityCS_JitSave : UShared
+public class Unity1 : UShared
 {
     ulong Allocated = 0;
     ulong Arguments = 0;
@@ -19,7 +19,7 @@ public class UnityCS_JitSave : UShared
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
-    public IntPtr AddInstance(string _class, string _method)
+    public IntPtr AddInst(string _class, string _method)
     {
         try
         {
@@ -30,7 +30,7 @@ public class UnityCS_JitSave : UShared
         return IntPtr.Zero;
     }
 
-    public IntPtr AddInstance(string _class, string _method, short overwriteSize)
+    public IntPtr AddInst(string _class, string _method, short overwriteSize)
     {
         try
         {
@@ -41,7 +41,7 @@ public class UnityCS_JitSave : UShared
         return IntPtr.Zero;
     }
 
-    public IntPtr AddInstance(string _namespace, string _class, string _method, short overwriteSize)
+    public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
         try
         {
@@ -111,7 +111,7 @@ public class UnityCS_JitSave : UShared
         return IntPtr.Zero;
     }
 
-    public UnityCS_JitSave()
+    public Unity1()
     {
         string instName = "UnityCS.JitSave";
 
@@ -126,7 +126,7 @@ public class UnityCS_JitSave : UShared
             }
         }
 
-        Allocated = RefAllocateMemory(Instance, 0x5000);
+        Allocated = RefAllocateMemory(Instance, 0x6000);
         if (Allocated != 0)
         {
             USaves.Set(instName, Allocated.ToString());
