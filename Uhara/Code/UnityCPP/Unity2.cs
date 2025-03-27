@@ -13,34 +13,46 @@ public class Unity2 : UShared
     ulong Cat = 0; // Arguments
     ulong Lion = 0; // Output
 
+    public IntPtr AddFlag(string _class)
+    {
+        return Add("Assembly-CSharp.dll", "", _class, "Start", 0, 0, 15,
+            new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+    }
+
     public IntPtr AddFlag(string _class, string _method)
     {
         return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, 15,
-            UMemory.GetByteArray("48 83 05 F0 FF FF FF 01"));
+            new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
         return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,
-            UMemory.GetByteArray("48 83 05 F0 FF FF FF 01"));
+            new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+    }
+
+    public IntPtr AddInst(string _class)
+    {
+        return Add("Assembly-CSharp.dll", "", _class, "Update", 0, 0, 15,
+            new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method)
     {
         return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, 15,
-            UMemory.GetByteArray("48 89 3D F1 FF FF FF 90"));
+            new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method, short overwriteSize)
     {
         return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,
-            UMemory.GetByteArray("48 89 3D F1 FF FF FF 90"));
+            new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
         return Add("Assembly-CSharp.dll", _namespace, _class, _method, 0, 0, overwriteSize,
-            UMemory.GetByteArray("48 89 3D F1 FF FF FF 90"));
+            new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr Add(string _class, string _method, short paramCount, short hookOffset, short overwriteSize, byte[] bytes)

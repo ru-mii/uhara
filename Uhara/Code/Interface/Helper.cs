@@ -34,12 +34,14 @@ public partial class Main
     {
         try
         {
-            return UReflection.GetValue(UReflection.GetValue(Application.OpenForms["TimerForm"],
+            string category = UReflection.GetValue(UReflection.GetValue(Application.OpenForms["TimerForm"],
             "<CurrentState>k__BackingField",
             "<Run>k__BackingField",
             "categoryName")).ToString();
+
+            return category ?? "";
         }
         catch { }
-        return null;
+        return "";
     }
 }
