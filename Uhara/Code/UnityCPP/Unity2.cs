@@ -13,6 +13,12 @@ public class Unity2 : UShared
     ulong Cat = 0; // Arguments
     ulong Lion = 0; // Output
 
+    public IntPtr AddFlag(string _class, string _method)
+    {
+        return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, 15,
+            UMemory.GetByteArray("48 83 05 F0 FF FF FF 01"));
+    }
+
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
         return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,

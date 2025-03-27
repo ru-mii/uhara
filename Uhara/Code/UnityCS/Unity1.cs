@@ -13,10 +13,27 @@ public class Unity1 : UShared
     ulong Arguments = 0;
     ulong Output = 0;
 
+    public IntPtr AddFlag(string _class, string _method)
+    {
+        return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, 15,
+            new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+    }
+
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
         return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+    }
+
+    public IntPtr AddInst(string _class)
+    {
+        try
+        {
+            return Add("Assembly-CSharp.dll", "", _class, "Update", 0, 0, 15,
+                new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+        }
+        catch { }
+        return IntPtr.Zero;
     }
 
     public IntPtr AddInst(string _class, string _method)
