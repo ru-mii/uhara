@@ -1,4 +1,4 @@
-# uhara2
+# uhara3
 Livesplit asl support library, 32-bit games are not supported.
 
 ### [COMPILED](https://github.com/ru-mii/uhara/tree/main/bin) - [DOCUMENTATION](https://github.com/ru-mii/uhara/tree/main/doc) - [CHANGELOG](https://github.com/ru-mii/uhara/blob/main/clog/README.md)
