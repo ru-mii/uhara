@@ -57,7 +57,7 @@ internal class UMemory : UShared
                 int searchOffset = FindInArray(sectionBytes, searchBytes, searchMask);
                 if (searchOffset != -1)
                 {
-                    return baseAddress + (ulong)searchOffset;
+                    return section[0] + (ulong)searchOffset;
                 }
             }
         }

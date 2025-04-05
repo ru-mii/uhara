@@ -8,6 +8,13 @@ using System.Windows.Forms;
 
 internal class UProcess
 {
+    internal static ulong GetTime(Process process)
+    {
+        ulong startTime = (ulong)((DateTimeOffset)process.StartTime).ToUnixTimeMilliseconds();
+        ulong currentTime = (ulong)((DateTimeOffset)DateTime.Now).ToUnixTimeMilliseconds();
+        return currentTime - startTime;
+    }
+
     internal static bool IsAlive(Process process)
     {
         try
