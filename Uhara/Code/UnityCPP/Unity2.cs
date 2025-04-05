@@ -13,51 +13,66 @@ public class Unity2 : UShared
     ulong Cat = 0; // Arguments
     ulong Lion = 0; // Output
 
+    private string DefAssembly = "Assembly-CSharp.dll";
+    private string DefNamespace = "";
+
+    public void SetOuter(string _assembly, string _namespace = "")
+    {
+        DefAssembly = _assembly;
+        DefNamespace = _namespace;
+    }
+
     public IntPtr AddFlag(string _class)
     {
-        return Add("Assembly-CSharp.dll", "", _class, "Start", 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, "Start", 0, 0, 15,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method)
     {
-        return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 15,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
-        return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
+            new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+    }
+
+    public IntPtr AddFlag(string _class, string _method, short paramCount, short hookOffset, short overwriteSize)
+    {
+        return Add(DefAssembly, DefNamespace, _class, _method, paramCount, hookOffset, overwriteSize,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddInst(string _class)
     {
-        return Add("Assembly-CSharp.dll", "", _class, "Update", 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 15,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method)
     {
-        return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 15,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method, short overwriteSize)
     {
-        return Add("Assembly-CSharp.dll", "", _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
-        return Add("Assembly-CSharp.dll", _namespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, _namespace, _class, _method, 0, 0, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr Add(string _class, string _method, short paramCount, short hookOffset, short overwriteSize, byte[] bytes)
     {
-        return Add("Assembly-CSharp.dll", "", _class, _method, paramCount, hookOffset, overwriteSize, bytes);
+        return Add(DefAssembly, DefNamespace, _class, _method, paramCount, hookOffset, overwriteSize, bytes);
     }
 
     public IntPtr Add(string _assembly, string _namespace, string _class, string _method, short paramCount,
@@ -65,7 +80,7 @@ public class Unity2 : UShared
     {
         try
         {
-            if (GetSetValues())
+            if (CheckSetProcessAndValues())
             {
                 // ---
                 if (!_assembly.EndsWith(".dll")) _assembly += ".dll";

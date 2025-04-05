@@ -76,7 +76,7 @@ public partial class Main
     {
         try
         {
-            if (GetSetValues())
+            if (CheckSetProcessAndValues())
                 return (IntPtr)UMemory.ScanSingle(signature);
         }
         catch { }
@@ -87,7 +87,7 @@ public partial class Main
     {
         try
         {
-            if (GetSetValues())
+            if (CheckSetProcessAndValues())
                 return (IntPtr)UMemory.ScanRel(offset, signature);
         }
         catch { }

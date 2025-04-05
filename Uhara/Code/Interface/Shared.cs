@@ -14,7 +14,7 @@ public class UShared
     internal static Process Instance = null;
     internal static dynamic Vars;
 
-    internal static bool GetSetValues()
+    internal static bool CheckSetProcessAndValues()
     {
         try
         {

@@ -81,7 +81,7 @@ public class Unity1 : UShared
     {
         try
         {
-            if (GetSetValues())
+            if (CheckSetProcessAndValues())
             {
                 // ---
                 if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
