@@ -7,6 +7,7 @@ Livesplit asl support library, 32-bit games are not supported.
 ### [Monster Hunter Wilds](https://raw.githubusercontent.com/TheDementedSalad/Monster-Hunter-Wilds-Autosplitter/refs/heads/main/Monster%20Hunter%20Wilds.asl)   
 ### [Coffee At Night](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/Coffee%20At%20Night/CoffeeAtNight.asl)   
 ### [ENA: Dream BBQ](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/Ena%20Dream%20BBQ/EnaDreamBBQ.asl)   
+### [SuperSorry](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/SuperSorry/SuperSorry.asl)   
 
 # Reasoning for versions
 Compatible changes = cannot break and cause compatibility issues to ANY of the existing asl scripts
