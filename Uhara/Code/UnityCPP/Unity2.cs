@@ -24,19 +24,19 @@ public class Unity2 : UShared
 
     public IntPtr AddFlag(string _class)
     {
-        return Add(DefAssembly, DefNamespace, _class, "Start", 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, "Start", 0, 1, 14,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, 14,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, overwriteSize,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
@@ -48,25 +48,25 @@ public class Unity2 : UShared
 
     public IntPtr AddInst(string _class)
     {
-        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 1, 14,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, 14,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, _namespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, _namespace, _class, _method, 0, 1, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 

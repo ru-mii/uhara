@@ -25,19 +25,19 @@ public class Unity1 : UShared
 
     public IntPtr AddFlag(string _class)
     {
-        return Add(DefAssembly, DefNamespace, _class, "Start", 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, "Start", 0, 1, 14,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, 14,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, overwriteSize,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
@@ -49,25 +49,25 @@ public class Unity1 : UShared
 
     public IntPtr AddInst(string _class)
     {
-        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 1, 14,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 15,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, 14,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, _namespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, _namespace, _class, _method, 0, 1, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
@@ -125,16 +125,21 @@ public class Unity1 : UShared
         return IntPtr.Zero;
     }
 
+    public void ProcessQueue()
+    {
+        RefCreateThread(Instance, Allocated + 0x8);
+    }
+
     public Unity1()
     {
-        string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
-        if (UPath.FindFile(exeDir, "winhttp.dll") != "")
-        {
-            UProgram.Print("UHARA: BepInEx detected, adding delays to prevent issues.");
-            UProgram.Print("UHARA: To get rid of this warning disable BepInEx.");
-            ulong procTime = UProcess.GetTime(Instance);
-            if (procTime < 5000) Thread.Sleep(5000 - (int)procTime);
-        }
+        //string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
+        //if (UPath.FindFile(exeDir, "winhttp.dll") != "")
+        //{
+        //UProgram.Print("UHARA: BepInEx detected, adding delays to prevent issues.");
+        //UProgram.Print("UHARA: To get rid of this warning disable BepInEx.");
+        //ulong procTime = UProcess.GetTime(Instance);
+        //if (procTime < 5000) Thread.Sleep(5000 - (int)procTime);
+        //}
 
         string instName = "UnityCS.JitSave";
 
@@ -153,10 +158,21 @@ public class Unity1 : UShared
         if (Allocated != 0)
         {
             USaves.Set(instName, Allocated.ToString());
-            RefWriteBytes(Instance, Allocated, AsmBlocks.UnityCS_JitSave);
-            RefCreateThread(Instance, Allocated + 0x8);
+
+            byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCS_JitSave);
+            RefWriteBytes(Instance, Allocated, asmDecoded);
+
             Arguments = Allocated + 0x2000;
             Output = Allocated + 0x3002;
         }
+    }
+
+    private byte[] DecodeAsmBlock(byte[] asmBlock)
+    {
+        List<byte> decoded = new List<byte>();
+        for (int i = 0; i < asmBlock.Length; i++)
+            if (i % 2 == 0) decoded.Add(asmBlock[i]);
+
+        return decoded.ToArray();
     }
 }
