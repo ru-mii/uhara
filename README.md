@@ -1,4 +1,4 @@
-# uhara3
+# uhara5
 Livesplit asl support library, 32-bit games are not supported.
 
 ### [Compiled](https://github.com/ru-mii/uhara/tree/main/bin) - [Documentation](https://github.com/ru-mii/uhara/tree/main/doc)   
@@ -8,6 +8,7 @@ Livesplit asl support library, 32-bit games are not supported.
 ### [Coffee At Night](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/Coffee%20At%20Night/CoffeeAtNight.asl)   
 ### [ENA: Dream BBQ](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/Ena%20Dream%20BBQ/EnaDreamBBQ.asl)   
 ### [SuperSorry](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/SuperSorry/SuperSorry.asl)   
+### [Awaria](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/Awaria/Awaria.asl)   
 
 # Reasoning for versions
 Compatible changes = cannot break and cause compatibility issues to ANY of the existing asl scripts
