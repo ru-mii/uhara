@@ -127,7 +127,11 @@ public class Unity1 : UShared
 
     public void ProcessQueue()
     {
-        RefCreateThread(Instance, Allocated + 0x8);
+        try
+        {
+            RefCreateThread(Instance, Allocated + 0x8);
+        }
+        catch {}
     }
 
     public Unity1()
@@ -140,6 +144,8 @@ public class Unity1 : UShared
         //ulong procTime = UProcess.GetTime(Instance);
         //if (procTime < 5000) Thread.Sleep(5000 - (int)procTime);
         //}
+
+        //Thread.Sleep(3000);
 
         string instName = "UnityCS.JitSave";
 
