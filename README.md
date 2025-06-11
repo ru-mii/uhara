@@ -1,5 +1,5 @@
 # uhara5
-Livesplit asl support library, 32-bit games are not supported.
+Livesplit asl library, 32-bit games are not supported.
 
 ### [Compiled](https://github.com/ru-mii/uhara/tree/main/bin) - [Documentation](https://github.com/ru-mii/uhara/tree/main/doc)   
 
