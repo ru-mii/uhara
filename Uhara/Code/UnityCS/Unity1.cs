@@ -71,6 +71,12 @@ public class Unity1 : UShared
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
+    public IntPtr AddInst(string _class, string _method, short paramCount, short hookOffset, short overwriteSize)
+    {
+        return Add(DefAssembly, DefNamespace, _class, _method, paramCount, hookOffset, overwriteSize,
+            new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+    }
+
     public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
         return Add(DefAssembly, _namespace, _class, _method, 0, 1, overwriteSize,
