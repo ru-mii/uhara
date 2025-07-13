@@ -10,5 +10,5 @@ Scan signature in this format "48 8B !3D ?? ?? ?? ?? 48 8B 72 ?? 48 !85 F6".
 ## Return value
 Returns virtual address at where the byte array of the signature begins.   
 Returns IntPtr.Zero if failed or not found.   
-## Remarks
+## Information
 Scans game's main module.
