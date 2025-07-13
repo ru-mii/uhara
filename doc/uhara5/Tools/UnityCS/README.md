@@ -1,1 +1,1 @@
-This tool supports 64-bit Unity games.
+This tool supports 64-bit Unity C# games.
