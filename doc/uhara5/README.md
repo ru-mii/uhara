@@ -6,7 +6,7 @@ startup
     Assembly.Load(File.ReadAllBytes("Components/uhara2")).CreateInstance("Main");
 }
 ```
-Helper functions would then be used with the var, for example:
+All functions would then be used with the var, for example:
 ```
 vars.Uhara.ExampleFunction(5);
 ```
