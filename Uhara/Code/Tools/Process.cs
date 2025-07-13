@@ -8,6 +8,26 @@ using System.Windows.Forms;
 
 internal class UProcess
 {
+    public static IntPtr CreateRemoteThread(Process process, ulong entryPointAddress, bool waitForThread = false)
+    {
+        IntPtr remoteThread = IntPtr.Zero;
+
+        if (waitForThread)
+        {
+            WaitForThread(UImports.CreateRemoteThread(process.Handle, IntPtr.Zero, 0,
+                (IntPtr)entryPointAddress, IntPtr.Zero, 0, out _));
+        }
+        else remoteThread = UImports.CreateRemoteThread(process.Handle, IntPtr.Zero, 0,
+                (IntPtr)entryPointAddress, IntPtr.Zero, 0, out _);
+
+        return remoteThread;
+    }
+
+    public static bool WaitForThread(IntPtr threadHandle, uint timeout = 0xFFFFFFFF)
+    {
+        return UImports.WaitForSingleObject(threadHandle, timeout) == 0;
+    }
+
     internal static ulong GetTime(Process process)
     {
         ulong startTime = (ulong)((DateTimeOffset)process.StartTime).ToUnixTimeMilliseconds();

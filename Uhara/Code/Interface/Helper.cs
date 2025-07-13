@@ -8,6 +8,16 @@ using System.Windows.Forms;
 
 public partial class Main
 {
+    public int GetMinimumHKOverwrite(IntPtr address, int required = 14)
+    {
+        try
+        {
+            return UInstruction.GetMinimumOverwrite(Instance, (ulong)address, required);
+        }
+        catch { }
+        return 0;
+    }
+
     public IntPtr CatchReg(IntPtr address, string register, int overwriteSize)
     {
         try

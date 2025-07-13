@@ -1,7 +1,10 @@
-﻿using System;
+﻿using SharpDisasm;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +12,13 @@ using System.Windows.Forms;
 
 internal class UMemory : UShared
 {
+    internal static void CreateAbsoluteJump(Process process, ulong source, ulong destination)
+    {
+        byte[] stub = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
+        byte[] full = UArray.Merge(stub, BitConverter.GetBytes(destination));
+        RefWriteBytes(process, source, full);
+    }
+
     internal static byte[] GetByteArray(string signature)
     {
         signature = signature.Replace(" ", "").Replace("!", "");

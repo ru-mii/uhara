@@ -39,6 +39,12 @@ public partial class Main : UShared
                 grand = grand.ToLower();
                 sub = sub.ToLower();
 
+                if (grand.Contains("unity"))
+                {
+                    if (!File.Exists("SharpDisasm.dll"))
+                        File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
+                }
+
                 if (grand == "unitycs")
                 {
                     if (sub == "jitsave")

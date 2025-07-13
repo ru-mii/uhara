@@ -1,15 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 public class Unity1 : UShared
 {
+    public class QueueItem
+    {
+        public ulong Address = 0;
+        public short HookOffset = 0;
+        public short OverwriteSize = 0;
+        public byte[] Bytes = new byte[0];
+
+        public QueueItem(ulong address, short hookOffset, short overwriteSize, byte[] bytes)
+        {
+            Address = address;
+            HookOffset = hookOffset;
+            OverwriteSize = overwriteSize;
+            Bytes = bytes;
+        }
+    }
+
+    List<QueueItem> QueueItems = new List<QueueItem>();
+
     ulong Allocated = 0;
     ulong Arguments = 0;
     ulong Output = 0;
@@ -25,19 +46,19 @@ public class Unity1 : UShared
 
     public IntPtr AddFlag(string _class)
     {
-        return Add(DefAssembly, DefNamespace, _class, "Start", 0, 1, 14,
+        return Add(DefAssembly, DefNamespace, _class, "Start", 0, 0, 0,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, 14,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 0,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
@@ -49,25 +70,25 @@ public class Unity1 : UShared
 
     public IntPtr AddInst(string _class)
     {
-        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 1, 14,
+        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 0,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 1, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, 14,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 0,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 1, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
@@ -79,7 +100,7 @@ public class Unity1 : UShared
 
     public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, _namespace, _class, _method, 0, 1, overwriteSize,
+        return Add(DefAssembly, _namespace, _class, _method, 0, 0, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
@@ -129,6 +150,7 @@ public class Unity1 : UShared
                 RefWriteBytes(Instance, Arguments + 0x8, all);
                 RefWriteBytes(Instance, Arguments + 0x2, BitConverter.GetBytes((short)all.Length));
 
+                QueueItems.Add(new QueueItem(Output + 0x8, hookOffset, overwriteSize, bytes));
                 Arguments += 0x8 + (ulong)all.Length;
                 return (IntPtr)((Output += 0x100) - 0x100);
             }
@@ -141,7 +163,34 @@ public class Unity1 : UShared
     {
         try
         {
-            RefCreateThread(Instance, Allocated + 0x8);
+            UProcess.WaitForThread(UProcess.CreateRemoteThread(Instance, Allocated + 0x8), 20000);
+
+            {
+                foreach (QueueItem item in QueueItems)
+                {
+                    ulong funcAddress = UMemory.ReadMemory<ulong>(Instance, item.Address);
+                    if (funcAddress == 0) continue;
+
+                    funcAddress += (ulong)item.HookOffset;
+
+                    RefWriteBytes(Instance, item.Address, BitConverter.GetBytes((ulong)0));
+
+                    int minimumOverwrite = item.OverwriteSize;
+                    if (minimumOverwrite == 0) minimumOverwrite =
+                            UInstruction.GetMinimumOverwrite(Instance, funcAddress, 14);
+
+                    byte[] realCode = UMemory.ReadMemoryBytes(Instance, funcAddress, minimumOverwrite);
+                    if (realCode == null) continue;
+
+                    RefWriteBytes(Instance, item.Address, item.Bytes);
+                    ulong nextAddress = item.Address + (ulong)item.Bytes.Length;
+                    RefWriteBytes(Instance, nextAddress, realCode);
+                    nextAddress += (ulong)realCode.Length;
+
+                    UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
+                    UMemory.CreateAbsoluteJump(Instance, funcAddress, item.Address);
+                }
+            }
         }
         catch {}
     }
@@ -182,6 +231,7 @@ public class Unity1 : UShared
 
             Arguments = Allocated + 0x2000;
             Output = Allocated + 0x3002;
+            QueueItems.Clear();
         }
     }
 
