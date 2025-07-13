@@ -1,7 +1,7 @@
 # uhara6
 Livesplit asl library, 32-bit games are not supported.
 
-### [Compiled](https://github.com/ru-mii/uhara/tree/main/bin) - [Documentation](https://github.com/ru-mii/uhara/tree/main/doc)   
+### [Compiled](https://github.com/ru-mii/uhara/tree/main/bin)   
 
 # Use examples
 ### [Monster Hunter Wilds](https://raw.githubusercontent.com/TheDementedSalad/Monster-Hunter-Wilds-Autosplitter/refs/heads/main/Monster%20Hunter%20Wilds.asl)   
