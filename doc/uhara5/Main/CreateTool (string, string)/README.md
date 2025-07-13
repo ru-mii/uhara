@@ -15,5 +15,5 @@ Sub category of the tool.
 Returns object with the type of created tool.   
 Returns null if failed or not found.   
 ## Remarks
-Has to be used to use specific tool functions.
+Has to be used to use specific tool functions.   
 Extracts required library dependencies to LiveSplit folder
