@@ -14,5 +14,5 @@ Sub category of the tool.
 ## Return value
 Returns object with the type of created tool.   
 Returns null if failed or not found.   
-## Remarks
+## Information
 Has to be used to use specific tool functions.   
