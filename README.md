@@ -13,4 +13,4 @@ Livesplit asl library, 32-bit games are not supported.
 # Reasoning for versions
 - new version can receive changes to previous code and new features
 - current version can receive new features but no code changes to already existing code
-- older versions probably won't be ever updated anymore
+- older versions won't be updated and are considered stable
