@@ -18,4 +18,4 @@ init
     SetProcess(game);
 }
 ```
-This is not required as Uhara reads it with reflection but should be used if any compatibility issues arrive or in other edge cases.
+This is not required as Uhara gets game process with reflection but should be used if any compatibility issues arrive or in other edge cases.
