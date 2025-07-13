@@ -8,5 +8,5 @@ None
 ## Return value
 Returns selected category name.   
 Returns null if failed.
-## Remarks
+## Information
 None
