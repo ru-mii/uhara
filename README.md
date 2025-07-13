@@ -11,6 +11,6 @@ Livesplit asl library, 32-bit games are not supported.
 ### [Awaria](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/Awaria/Awaria.asl)   
 
 # Reasoning for versions
-- new version can receive changes to previous code
+- new version can receive changes to previous code and new features
 - current version can receive new features but no code changes to already existing code
 - older versions probably won't be ever updated anymore
