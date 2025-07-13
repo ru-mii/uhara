@@ -52,13 +52,13 @@ public class Unity1 : UShared
 
     public IntPtr AddFlag(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 0,
+        return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, 0,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
     public IntPtr AddFlag(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, overwriteSize,
             new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
     }
 
@@ -82,13 +82,13 @@ public class Unity1 : UShared
 
     public IntPtr AddInst(string _class, string _method)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, 0,
+        return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, 0,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
     public IntPtr AddInst(string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, DefNamespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
@@ -100,7 +100,7 @@ public class Unity1 : UShared
 
     public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
     {
-        return Add(DefAssembly, _namespace, _class, _method, 0, 0, overwriteSize,
+        return Add(DefAssembly, _namespace, _class, _method, -1, 0, overwriteSize,
             new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
     }
 
