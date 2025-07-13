@@ -12,6 +12,48 @@ using System.Windows.Forms;
 
 internal class UMemory : UShared
 {
+    public static void FixRelative(Process process, ulong original, ulong current, int size)
+    {
+        byte[] originalBytes = ReadMemoryBytes(process, original, size);
+        byte[] currentBytes = ReadMemoryBytes(process, current, size);
+
+        Instruction[] _org = UInstruction.GetInstructions2(originalBytes);
+        Instruction[] _cur = UInstruction.GetInstructions2(originalBytes);
+
+        int total = 0;
+        for (int i = 0; i < _org.Length; i++)
+        {
+            if (total != 0) total += _org[i - 1].Bytes.Length;
+
+            string orgTxt = _org[i].ToString();
+            string curTxt = _cur[i].ToString();
+
+            if (!orgTxt.Contains("rip")) continue;
+            if (!orgTxt.Contains("dword")) continue;
+            if (!orgTxt.Contains("]")) continue;
+
+            if (orgTxt != curTxt) continue;
+
+            byte[] orgFullBytes = _org[i].Bytes;
+            byte[] curFullBytes = _cur[i].Bytes;
+
+            if (!orgFullBytes.SequenceEqual(curFullBytes)) continue;
+
+            string ripValueTxt = orgTxt.Remove(orgTxt.IndexOf("]"));
+            ripValueTxt = ripValueTxt.Substring(ripValueTxt.IndexOf("rip") + 3);
+            uint ripValue = UConvert.Parse<uint>(ripValueTxt);
+
+            if (ripValue == 0) continue;
+
+            byte[] ripValueBytes = BitConverter.GetBytes(ripValue);
+            int byteOffset = FindInArray(curFullBytes, ripValueBytes);
+
+            byte[] newRipValueBytes = BitConverter.GetBytes(ripValue - (uint)(current - original));
+
+            RefWriteBytes(process, current + (ulong)byteOffset, newRipValueBytes);
+        }
+    }
+
     internal static void CreateAbsoluteJump(Process process, ulong source, ulong destination)
     {
         byte[] stub = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };

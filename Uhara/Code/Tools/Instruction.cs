@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 
 internal class UInstruction
 {
+    public static Instruction[] GetInstructions2(byte[] bytes)
+    {
+        return new Disassembler(bytes, ArchitectureMode.x86_64,
+        0, true).Disassemble().ToArray();
+    }
+
     internal static int GetMinimumOverwrite(Process process, ulong address, int required = 5)
     {
         byte[] bytes = UMemory.ReadMemoryBytes(process, (IntPtr)address, 50);
