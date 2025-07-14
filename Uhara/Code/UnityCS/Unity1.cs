@@ -168,7 +168,7 @@ public class Unity1 : UShared
     {
         try
         {
-            UProcess.WaitForThread(UProcess.CreateRemoteThread(Instance, Allocated + 0x8), 20000);
+            UProcess.WaitForThread(UProcess.CreateRemoteThread(Instance, Allocated + 0x8), 30000);
 
             {
                 foreach (QueueItem item in QueueItems)
