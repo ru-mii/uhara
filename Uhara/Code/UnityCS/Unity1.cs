@@ -161,7 +161,7 @@ public class Unity1 : UShared
 
     public void ProcessQueue()
     {
-        new Thread(ProcessQueue).Start();
+        new Thread(_ProcessQueue).Start();
     }
 
     private void _ProcessQueue()
