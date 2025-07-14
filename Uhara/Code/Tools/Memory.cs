@@ -28,29 +28,38 @@ internal class UMemory : UShared
             string orgTxt = _org[i].ToString();
             string curTxt = _cur[i].ToString();
 
-            if (!orgTxt.Contains("rip")) continue;
-            if (!orgTxt.Contains("dword")) continue;
-            if (!orgTxt.Contains("]")) continue;
-
-            if (orgTxt != curTxt) continue;
-
             byte[] orgFullBytes = _org[i].Bytes;
             byte[] curFullBytes = _cur[i].Bytes;
 
+            if (orgTxt != curTxt) continue;
             if (!orgFullBytes.SequenceEqual(curFullBytes)) continue;
 
-            string ripValueTxt = orgTxt.Remove(orgTxt.IndexOf("]"));
-            ripValueTxt = ripValueTxt.Substring(ripValueTxt.IndexOf("rip") + 3);
-            uint ripValue = UConvert.Parse<uint>(ripValueTxt);
+            if (orgTxt.Contains("rip"))
+            {
+                if (!orgTxt.Contains("]")) continue;
 
-            if (ripValue == 0) continue;
+                string ripValueTxt = orgTxt.Remove(orgTxt.IndexOf("]"));
+                ripValueTxt = ripValueTxt.Substring(ripValueTxt.IndexOf("rip") + 3);
+                uint ripValue = UConvert.Parse<uint>(ripValueTxt);
 
-            byte[] ripValueBytes = BitConverter.GetBytes(ripValue);
-            int byteOffset = FindInArray(curFullBytes, ripValueBytes);
+                if (ripValue == 0) continue;
 
-            byte[] newRipValueBytes = BitConverter.GetBytes(ripValue - (uint)(current - original));
+                byte[] ripValueBytes = BitConverter.GetBytes(ripValue);
+                int byteOffset = FindInArray(curFullBytes, ripValueBytes);
 
-            RefWriteBytes(process, current + (ulong)byteOffset, newRipValueBytes);
+                byte[] newRipValueBytes = BitConverter.GetBytes(ripValue - (uint)(current - original));
+
+                RefWriteBytes(process, current + (ulong)(byteOffset + total), newRipValueBytes);
+            }
+            else if (orgTxt.StartsWith("call"))
+            {
+                if (orgFullBytes.Length != 5) continue;
+                if (orgTxt.StartsWith("call e") || orgTxt.StartsWith("call r")) continue;
+
+                uint ripValue = BitConverter.ToUInt32(orgFullBytes, 1);
+                byte[] newRipValueBytes = BitConverter.GetBytes(ripValue - (uint)(current - original));
+                RefWriteBytes(process, current + 1 + (ulong)total, newRipValueBytes);
+            }
         }
     }
 
