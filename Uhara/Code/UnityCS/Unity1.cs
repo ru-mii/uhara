@@ -161,6 +161,11 @@ public class Unity1 : UShared
 
     public void ProcessQueue()
     {
+        new Thread(ProcessQueue).Start();
+    }
+
+    private void _ProcessQueue()
+    {
         try
         {
             UProcess.WaitForThread(UProcess.CreateRemoteThread(Instance, Allocated + 0x8), 20000);
@@ -193,7 +198,7 @@ public class Unity1 : UShared
                 }
             }
         }
-        catch {}
+        catch { }
     }
 
     public Unity1()
