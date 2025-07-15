@@ -168,9 +168,11 @@ public class Unity1 : UShared
     {
         try
         {
-            UProcess.WaitForThread(UProcess.CreateRemoteThread(Instance, Allocated + 0x8), 30000);
+            UProgram.Print("Waiting for thread to return");
 
+            if (UProcess.WaitForThread(UProcess.CreateRemoteThread(Instance, Allocated + 0x8), 30000))
             {
+                int hooked = 0;
                 foreach (QueueItem item in QueueItems)
                 {
                     ulong funcAddress = UMemory.ReadMemory<ulong>(Instance, item.Address);
@@ -195,7 +197,10 @@ public class Unity1 : UShared
 
                     UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
                     UMemory.CreateAbsoluteJump(Instance, funcAddress, item.Address);
+                    hooked++;
                 }
+
+                UProgram.Print(hooked.ToString() + "/" + QueueItems.Count + " functions hooked successfuly");
             }
         }
         catch { }

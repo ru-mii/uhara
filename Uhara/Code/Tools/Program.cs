@@ -20,6 +20,6 @@ class UProgram
 
     internal static void Print(string message)
     {
-        UImports.OutputDebugString(message);
+        UImports.OutputDebugString("UHARA: " + message);
     }
 }
