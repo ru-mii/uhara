@@ -190,7 +190,7 @@ public class Unity1 : UShared
                     RefWriteBytes(Instance, item.Address, item.Bytes);
                     ulong nextAddress = item.Address + (ulong)item.Bytes.Length;
                     RefWriteBytes(Instance, nextAddress, realCode);
-                    try { UMemory.FixRelative(Instance, funcAddress, nextAddress, realCode.Length); } catch { }
+                    //try { UMemory.FixRelative(Instance, funcAddress, nextAddress, realCode.Length); } catch { }
                     nextAddress += (ulong)realCode.Length;
 
                     UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
