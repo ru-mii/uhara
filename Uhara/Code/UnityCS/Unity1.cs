@@ -227,7 +227,7 @@ public class Unity1 : UShared
                         try
                         {
                             RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
-                            UMemory.FreeMemory(Instance, lastAddress, AllocSize);
+                            //UMemory.FreeMemory(Instance, lastAddress, AllocSize);
                         }
                         catch { }
                     }
