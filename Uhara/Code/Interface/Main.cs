@@ -35,26 +35,26 @@ public partial class Main : UShared
         {
             if (CheckSetProcessAndValues())
             {
-                grand = grand.ToLower();
-                sub = sub.ToLower();
+                ToolName = grand.ToLower();
+                ToolCategory = sub.ToLower();
 
-                if (grand.Contains("unity"))
+                if (ToolName.Contains("unity"))
                 {
                     if (!File.Exists("SharpDisasm.dll"))
                         File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
                 }
 
-                if (grand == "unitycs")
+                if (ToolName == "unitycs")
                 {
-                    if (sub == "jitsave")
+                    if (ToolCategory == "jitsave")
                     {
                         return new Unity1();
                     }
                 }
 
-                else if (grand == "unitycpp")
+                else if (ToolName == "unitycpp")
                 {
-                    if (sub == "jitsave")
+                    if (ToolCategory == "jitsave")
                     {
                         return new Unity2();
                     }

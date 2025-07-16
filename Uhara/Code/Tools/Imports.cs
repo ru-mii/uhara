@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 class UImports
 {
     [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool VirtualFreeEx(IntPtr hProcess, IntPtr lpAddress, int dwSize, uint dwFreeType);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
     public static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, out IntPtr lpThreadId);
 
     [DllImport("kernel32.dll", SetLastError = true)]

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpDisasm;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,6 +14,8 @@ using System.Xml.Linq;
 
 public class Unity1 : UShared
 {
+    private int AllocSize = 0x6000;
+
     public class QueueItem
     {
         public ulong Address = 0;
@@ -206,6 +209,39 @@ public class Unity1 : UShared
         catch { }
     }
 
+    private byte[] FixCmp(ulong original, byte[] bytes)
+    {
+        List<byte[]> chunks = new List<byte[]>();
+        Instruction[] instrs = UInstruction.GetInstructions2(bytes);
+
+        byte[] modified = new byte[] { 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0x80, 0x38, 0x00, 0x90 };
+
+        int offset = 0;
+        for (int i = 0; i < instrs.Length; i++)
+        {
+            string insTxt = instrs[i].ToString();
+            if (instrs[i].Bytes.Length == 7)
+            {
+                if (insTxt.StartsWith("cmp byte [rip+0x") && insTxt.EndsWith("], 0x0"))
+                {
+                    ulong realValue = BitConverter.ToUInt32(instrs[i].Bytes, 2);
+                    ulong readAddress = original + realValue + (ulong)(offset + 7);
+                    UArray.Insert(modified, BitConverter.GetBytes(readAddress), 2);
+
+                    chunks.Add(modified);
+                    offset += modified.Length;
+                    continue;
+                }
+            }
+
+            chunks.Add(instrs[i].Bytes);
+            offset += instrs[i].Bytes.Length;
+        }
+
+        return UArray.Merge(chunks.ToArray());
+    }
+
     public Unity1()
     {
         //string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
@@ -219,7 +255,7 @@ public class Unity1 : UShared
 
         //Thread.Sleep(3000);
 
-        string instName = "UnityCS.JitSave";
+        string instName = ToolName + "." + ToolCategory;
 
         ulong lastAddress = 0;
         if (ulong.TryParse(USaves.Get(instName), out lastAddress) && lastAddress != 0)
@@ -228,11 +264,19 @@ public class Unity1 : UShared
             if (sigTest != null)
             {
                 byte[] sigCheck = new byte[] { 0x5E, 0x9B, 0xDB, 0x02, 0xF7, 0x39, 0x1C, 0x02 };
-                if (sigCheck.SequenceEqual(sigTest)) RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
+                if (sigCheck.SequenceEqual(sigTest))
+                {
+                    try
+                    {
+                        RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
+                        UMemory.FreeMemory(Instance, lastAddress, AllocSize);
+                    }
+                    catch { }
+                }
             }
         }
 
-        Allocated = RefAllocateMemory(Instance, 0x6000);
+        Allocated = RefAllocateMemory(Instance, AllocSize);
         if (Allocated != 0)
         {
             USaves.Set(instName, Allocated.ToString());

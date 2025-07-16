@@ -11,6 +11,8 @@ using System.Windows.Forms;
 
 public class Unity2 : UShared
 {
+    private int AllocSize = 0x6000;
+
     public class QueueItem
     {
         public ulong Address = 0;
@@ -216,7 +218,7 @@ public class Unity2 : UShared
                 {
                     ulong realValue = BitConverter.ToUInt32(instrs[i].Bytes, 2);
                     ulong readAddress = original + realValue + (ulong)(offset + 7);
-                    UArray.Insert(modified, BitConverter.GetBytes(readAddress), 3);
+                    UArray.Insert(modified, BitConverter.GetBytes(readAddress), 2);
 
                     chunks.Add(modified);
                     offset += modified.Length;
@@ -244,11 +246,19 @@ public class Unity2 : UShared
                 if (sigTest != null)
                 {
                     byte[] sigCheck = new byte[] { 0x5E, 0x9B, 0xDB, 0x02, 0xF7, 0x39, 0x1C, 0x02 };
-                    if (sigCheck.SequenceEqual(sigTest)) RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
+                    if (sigCheck.SequenceEqual(sigTest))
+                    {
+                        try
+                        {
+                            RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
+                            UMemory.FreeMemory(Instance, lastAddress, AllocSize);
+                        }
+                        catch { }
+                    }
                 }
             }
 
-            Dog = RefAllocateMemory(Instance, 0x6000);
+            Dog = RefAllocateMemory(Instance, AllocSize);
             if (Dog != 0)
             {
                 USaves.Set(instName, Dog.ToString());

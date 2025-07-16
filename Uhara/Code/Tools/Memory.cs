@@ -12,6 +12,11 @@ using System.Windows.Forms;
 
 internal class UMemory : UShared
 {
+    public static bool FreeMemory(Process process, ulong address, int size, uint type = 0x00008000)
+    {
+        return UImports.VirtualFreeEx(process.Handle, (IntPtr)address, size, type);
+    }
+
     public static void FixRelative(Process process, ulong original, ulong current, int size)
     {
         byte[] originalBytes = ReadMemoryBytes(process, original, size);

@@ -14,6 +14,9 @@ public class UShared
     internal static Process Instance = null;
     internal static dynamic Vars;
 
+    internal static string ToolName = "";
+    internal static string ToolCategory = "";
+
     internal static bool CheckSetProcessAndValues()
     {
         try
