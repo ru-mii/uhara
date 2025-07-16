@@ -209,39 +209,6 @@ public class Unity1 : UShared
         catch { }
     }
 
-    private byte[] FixCmp(ulong original, byte[] bytes)
-    {
-        List<byte[]> chunks = new List<byte[]>();
-        Instruction[] instrs = UInstruction.GetInstructions2(bytes);
-
-        byte[] modified = new byte[] { 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0x80, 0x38, 0x00, 0x90 };
-
-        int offset = 0;
-        for (int i = 0; i < instrs.Length; i++)
-        {
-            string insTxt = instrs[i].ToString();
-            if (instrs[i].Bytes.Length == 7)
-            {
-                if (insTxt.StartsWith("cmp byte [rip+0x") && insTxt.EndsWith("], 0x0"))
-                {
-                    ulong realValue = BitConverter.ToUInt32(instrs[i].Bytes, 2);
-                    ulong readAddress = original + realValue + (ulong)(offset + 7);
-                    UArray.Insert(modified, BitConverter.GetBytes(readAddress), 2);
-
-                    chunks.Add(modified);
-                    offset += modified.Length;
-                    continue;
-                }
-            }
-
-            chunks.Add(instrs[i].Bytes);
-            offset += instrs[i].Bytes.Length;
-        }
-
-        return UArray.Merge(chunks.ToArray());
-    }
-
     public Unity1()
     {
         try
