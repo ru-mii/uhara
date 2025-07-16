@@ -29,32 +29,29 @@ public partial class Main : UShared
         catch { }
     }
 
-    public dynamic CreateTool(string grand, string sub)
+    public dynamic CreateTool(string name, string module)
     {
         try
         {
             if (CheckSetProcessAndValues())
             {
-                ToolName = grand.ToLower();
-                ToolCategory = sub.ToLower();
+                if (!File.Exists("SharpDisasm.dll"))
+                    File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
 
-                if (ToolName.Contains("unity"))
-                {
-                    if (!File.Exists("SharpDisasm.dll"))
-                        File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
-                }
+                name = name.ToLower();
+                module = module.ToLower();
 
-                if (ToolName == "unitycs")
+                if (ToolNames.Unity.UnityCS.Contains(name))
                 {
-                    if (ToolCategory == "jitsave")
+                    if (ToolNames.Unity.Modules.JitSave.Contains(module))
                     {
                         return new Unity1();
                     }
                 }
 
-                else if (ToolName == "unitycpp")
+                else if (ToolNames.Unity.UnityCPP.Contains(name))
                 {
-                    if (ToolCategory == "jitsave")
+                    if (ToolNames.Unity.Modules.JitSave.Contains(module))
                     {
                         return new Unity2();
                     }

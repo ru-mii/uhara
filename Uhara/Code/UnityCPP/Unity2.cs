@@ -237,7 +237,7 @@ public class Unity2 : UShared
     {
         try
         {
-            string instName = "UnityCPP.JitSave";
+            string instName = ToolNames.Unity.UnityCPP[1] + "." + ToolNames.Unity.Modules.JitSave[1];
 
             ulong lastAddress = 0;
             if (ulong.TryParse(USaves.Get(instName), out lastAddress) && lastAddress != 0)
@@ -271,7 +271,7 @@ public class Unity2 : UShared
                 QueueItems.Clear();
             }
         }
-        catch { }
+        catch { UProgram.Print("Creating tool failed"); }
     }
 
     private byte[] DecodeAsmBlock(byte[] asmBlock)

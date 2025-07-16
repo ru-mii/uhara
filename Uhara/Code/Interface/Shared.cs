@@ -14,8 +14,21 @@ public class UShared
     internal static Process Instance = null;
     internal static dynamic Vars;
 
-    internal static string ToolName = "";
-    internal static string ToolCategory = "";
+    internal static bool DebugMode = false;
+
+    internal class ToolNames
+    {
+        internal class Unity
+        {
+            internal static readonly string[] UnityCS = new string[] { "unitycs", "unitycsharp", "unitynet" };
+            internal static readonly string[] UnityCPP = new string[] { "unitycpp", "unityil2cpp" };
+
+            internal class Modules
+            {
+                internal static readonly string[] JitSave = new string[] { "jitsave" };
+            }
+        }
+    }
 
     internal static bool CheckSetProcessAndValues()
     {

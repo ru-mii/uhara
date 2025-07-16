@@ -244,50 +244,43 @@ public class Unity1 : UShared
 
     public Unity1()
     {
-        //string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
-        //if (UPath.FindFile(exeDir, "winhttp.dll") != "")
-        //{
-        //UProgram.Print("UHARA: BepInEx detected, adding delays to prevent issues.");
-        //UProgram.Print("UHARA: To get rid of this warning disable BepInEx.");
-        //ulong procTime = UProcess.GetTime(Instance);
-        //if (procTime < 5000) Thread.Sleep(5000 - (int)procTime);
-        //}
-
-        //Thread.Sleep(3000);
-
-        string instName = ToolName + "." + ToolCategory;
-
-        ulong lastAddress = 0;
-        if (ulong.TryParse(USaves.Get(instName), out lastAddress) && lastAddress != 0)
+        try
         {
-            byte[] sigTest = UMemory.ReadMemoryBytes(Instance, lastAddress, 0x8);
-            if (sigTest != null)
+            string instName = ToolNames.Unity.UnityCS[0] + "." + ToolNames.Unity.Modules.JitSave[0];
+
+            ulong lastAddress = 0;
+            if (ulong.TryParse(USaves.Get(instName), out lastAddress) && lastAddress != 0)
             {
-                byte[] sigCheck = new byte[] { 0x5E, 0x9B, 0xDB, 0x02, 0xF7, 0x39, 0x1C, 0x02 };
-                if (sigCheck.SequenceEqual(sigTest))
+                byte[] sigTest = UMemory.ReadMemoryBytes(Instance, lastAddress, 0x8);
+                if (sigTest != null)
                 {
-                    try
+                    byte[] sigCheck = new byte[] { 0x5E, 0x9B, 0xDB, 0x02, 0xF7, 0x39, 0x1C, 0x02 };
+                    if (sigCheck.SequenceEqual(sigTest))
                     {
-                        RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
-                        UMemory.FreeMemory(Instance, lastAddress, AllocSize);
+                        try
+                        {
+                            RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
+                            UMemory.FreeMemory(Instance, lastAddress, AllocSize);
+                        }
+                        catch { }
                     }
-                    catch { }
                 }
             }
+
+            Allocated = RefAllocateMemory(Instance, AllocSize);
+            if (Allocated != 0)
+            {
+                USaves.Set(instName, Allocated.ToString());
+
+                byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCS_JitSave);
+                RefWriteBytes(Instance, Allocated, asmDecoded);
+
+                Arguments = Allocated + 0x2000;
+                Output = Allocated + 0x3002;
+                QueueItems.Clear();
+            }
         }
-
-        Allocated = RefAllocateMemory(Instance, AllocSize);
-        if (Allocated != 0)
-        {
-            USaves.Set(instName, Allocated.ToString());
-
-            byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCS_JitSave);
-            RefWriteBytes(Instance, Allocated, asmDecoded);
-
-            Arguments = Allocated + 0x2000;
-            Output = Allocated + 0x3002;
-            QueueItems.Clear();
-        }
+        catch { UProgram.Print("Creating tool failed"); }
     }
 
     private byte[] DecodeAsmBlock(byte[] asmBlock)

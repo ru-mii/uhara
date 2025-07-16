@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class UProgram
+class UProgram : UShared
 {
     internal static byte[] StringToMultibyte(string text)
     {
@@ -20,6 +20,6 @@ class UProgram
 
     internal static void Print(string message)
     {
-        UImports.OutputDebugString("UHARA: " + message);
+        if(DebugMode) UImports.OutputDebugString("UHARA: " + message);
     }
 }
