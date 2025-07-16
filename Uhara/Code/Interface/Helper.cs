@@ -78,7 +78,7 @@ public partial class Main
                 return (IntPtr)allocated;
             }
         }
-        catch (Exception ex) { UProgram.Print(ex.Message); }
+        catch { }
         return IntPtr.Zero;
     }
 
