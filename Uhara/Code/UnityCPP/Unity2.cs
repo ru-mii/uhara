@@ -13,7 +13,7 @@ public class Unity2 : UShared
 {
     private int AllocSize = 0x6000;
 
-    public class QueueItem
+    private class QueueItem
     {
         public ulong Address = 0;
         public short HookOffset = 0;

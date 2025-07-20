@@ -16,7 +16,7 @@ public class Unity1 : UShared
 {
     private int AllocSize = 0x6000;
 
-    public class QueueItem
+    private class QueueItem
     {
         public ulong Address = 0;
         public short HookOffset = 0;
@@ -215,25 +215,6 @@ public class Unity1 : UShared
         {
             string instName = ToolNames.Unity.UnityCS[0] + "." + ToolNames.Unity.Modules.JitSave[0];
 
-            ulong lastAddress = 0;
-            if (ulong.TryParse(USaves.Get(instName), out lastAddress) && lastAddress != 0)
-            {
-                byte[] sigTest = UMemory.ReadMemoryBytes(Instance, lastAddress, 0x8);
-                if (sigTest != null)
-                {
-                    byte[] sigCheck = new byte[] { 0x5E, 0x9B, 0xDB, 0x02, 0xF7, 0x39, 0x1C, 0x02 };
-                    if (sigCheck.SequenceEqual(sigTest))
-                    {
-                        try
-                        {
-                            RefWriteBytes(Instance, lastAddress, BitConverter.GetBytes((ulong)0));
-                            //UMemory.FreeMemory(Instance, lastAddress, AllocSize);
-                        }
-                        catch { }
-                    }
-                }
-            }
-
             Allocated = RefAllocateMemory(Instance, AllocSize);
             if (Allocated != 0)
             {
@@ -248,6 +229,11 @@ public class Unity1 : UShared
             }
         }
         catch { UProgram.Print("Creating tool failed"); }
+    }
+
+    private void MemoryRollback()
+    {
+
     }
 
     private byte[] DecodeAsmBlock(byte[] asmBlock)

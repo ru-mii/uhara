@@ -81,6 +81,7 @@
     <Compile Include="Code\Tools\Convert.cs" />
     <Compile Include="Code\UnityCPP\Unity2.cs" />
     <Compile Include="Code\UnityCS\Unity1.cs" />
+    <Compile Include="Code\UnrealEngine\SaveObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
