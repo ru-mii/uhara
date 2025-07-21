@@ -17,18 +17,21 @@ public partial class Tools : UShared
         {
             public class JitSave
             {
-                private int AllocSize = 0x10000;
+                private int EnvironmentAllocSize = 0x10000;
+
+                private byte[] AsmAdd1RelativeStorage = new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 }; // add [rip-8], 1
+                private byte[] AsmMovRdiRelativeStorage = new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 }; // mov [rip-8], rdi
 
                 private class QueueItem
                 {
-                    public ulong Address = 0;
+                    public ulong HookAddress = 0;
                     public short HookOffset = 0;
                     public short OverwriteSize = 0;
                     public byte[] Bytes = new byte[0];
 
                     public QueueItem(ulong address, short hookOffset, short overwriteSize, byte[] bytes)
                     {
-                        Address = address;
+                        HookAddress = address;
                         HookOffset = hookOffset;
                         OverwriteSize = overwriteSize;
                         Bytes = bytes;
@@ -52,62 +55,59 @@ public partial class Tools : UShared
 
                 public IntPtr AddFlag(string _class)
                 {
-                    return Add(DefAssembly, DefNamespace, _class, "Start", 0, 0, 0,
-                        new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+                    return Add(DefAssembly, DefNamespace, _class, "Start", 0, 0, 0, AsmAdd1RelativeStorage);
                 }
 
                 public IntPtr AddFlag(string _class, string _method)
                 {
-                    return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, 0,
-                        new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+                    return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, 0, AsmAdd1RelativeStorage);
                 }
 
                 public IntPtr AddFlag(string _class, string _method, short overwriteSize)
                 {
                     return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, overwriteSize,
-                        new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+                        AsmAdd1RelativeStorage);
                 }
 
                 public IntPtr AddFlag(string _class, string _method, short paramCount, short hookOffset, short overwriteSize)
                 {
-                    return Add(DefAssembly, DefNamespace, _class, _method, paramCount, hookOffset, overwriteSize,
-                        new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 });
+                    return Add(DefAssembly, DefNamespace, _class, _method, paramCount, hookOffset,
+                        overwriteSize, AsmAdd1RelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class)
                 {
-                    return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 0,
-                        new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+                    return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 0, AsmMovRdiRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, short overwriteSize)
                 {
                     return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, overwriteSize,
-                        new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+                        AsmMovRdiRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, string _method)
                 {
                     return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, 0,
-                        new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+                        AsmMovRdiRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, string _method, short overwriteSize)
                 {
                     return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, overwriteSize,
-                        new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+                        AsmMovRdiRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, string _method, short paramCount, short hookOffset, short overwriteSize)
                 {
                     return Add(DefAssembly, DefNamespace, _class, _method, paramCount, hookOffset, overwriteSize,
-                        new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+                        AsmMovRdiRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
                 {
                     return Add(DefAssembly, _namespace, _class, _method, -1, 0, overwriteSize,
-                        new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 });
+                        AsmMovRdiRelativeStorage);
                 }
 
                 public IntPtr Add(string _class, string _method, short paramCount, short hookOffset, short overwriteSize, byte[] bytes)
@@ -125,7 +125,15 @@ public partial class Tools : UShared
                             // ---
                             if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
 
-                            byte[] arg1 = UProgram.StringToMultibyte(_assembly);
+                            string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
+                            string assemblyPath = UPath.FindFile(exeDir, _assembly);
+
+                            if (assemblyPath == "") return IntPtr.Zero;
+
+                            string assemblyRelativePath = assemblyPath.Replace(exeDir, "");
+                            assemblyRelativePath = assemblyRelativePath.Substring(1);
+
+                            byte[] arg1 = UProgram.StringToMultibyte(assemblyRelativePath);
                             byte[] arg2 = UProgram.StringToMultibyte(_namespace);
                             byte[] arg3 = UProgram.StringToMultibyte(_class);
                             byte[] arg4 = UProgram.StringToMultibyte(_method);
@@ -173,12 +181,12 @@ public partial class Tools : UShared
                             int hooked = 0;
                             foreach (QueueItem item in QueueItems)
                             {
-                                ulong funcAddress = UMemory.ReadMemory<ulong>(Instance, item.Address);
+                                ulong funcAddress = UMemory.ReadMemory<ulong>(Instance, item.HookAddress);
                                 if (funcAddress == 0) continue;
 
                                 funcAddress += (ulong)item.HookOffset;
 
-                                RefWriteBytes(Instance, item.Address, BitConverter.GetBytes((ulong)0));
+                                RefWriteBytes(Instance, item.HookAddress, BitConverter.GetBytes((ulong)0));
 
                                 int minimumOverwrite = item.OverwriteSize;
                                 if (minimumOverwrite == 0) minimumOverwrite =
@@ -189,17 +197,17 @@ public partial class Tools : UShared
 
                                 realCode = FixCmp(funcAddress, realCode);
 
-                                RefWriteBytes(Instance, item.Address, item.Bytes);
-                                ulong nextAddress = item.Address + (ulong)item.Bytes.Length;
+                                RefWriteBytes(Instance, item.HookAddress, item.Bytes);
+                                ulong nextAddress = item.HookAddress + (ulong)item.Bytes.Length;
 
                                 RefWriteBytes(Instance, nextAddress, realCode);
                                 nextAddress += (ulong)realCode.Length;
 
                                 UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
 
-                                byte[] jumpIn = UMemory.GetCreateAbsoluteJumpBytes(Instance, funcAddress, item.Address);
+                                byte[] jumpIn = UMemory.GetCreateAbsoluteJumpBytes(Instance, funcAddress, item.HookAddress);
                                 //MemoryCleaner.AddOverwrite(funcAddress, jumpIn, realCode);
-                                UMemory.CreateAbsoluteJump(Instance, funcAddress, item.Address);
+                                UMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
 
                                 hooked++;
                             }
@@ -247,7 +255,7 @@ public partial class Tools : UShared
                 {
                     try
                     {
-                        Allocated = RefAllocateMemory(Instance, AllocSize);
+                        Allocated = RefAllocateMemory(Instance, EnvironmentAllocSize);
                         if (Allocated != 0)
                         {
                             //MemoryCleaner.AddAllocate(Allocated, AllocSize);
