@@ -125,15 +125,7 @@ public partial class Tools : UShared
                             // ---
                             if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
 
-                            string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
-                            string assemblyPath = UPath.FindFile(exeDir, _assembly);
-
-                            if (assemblyPath == "") return IntPtr.Zero;
-
-                            string assemblyRelativePath = assemblyPath.Replace(exeDir, "");
-                            assemblyRelativePath = assemblyRelativePath.Substring(1);
-
-                            byte[] arg1 = UProgram.StringToMultibyte(assemblyRelativePath);
+                            byte[] arg1 = UProgram.StringToMultibyte(_assembly);
                             byte[] arg2 = UProgram.StringToMultibyte(_namespace);
                             byte[] arg3 = UProgram.StringToMultibyte(_class);
                             byte[] arg4 = UProgram.StringToMultibyte(_method);
@@ -204,7 +196,7 @@ public partial class Tools : UShared
                                 UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
 
                                 byte[] jumpIn = UMemory.GetCreateAbsoluteJumpBytes(Instance, funcAddress, item.HookAddress);
-                                //MemoryCleaner.AddOverwrite(funcAddress, jumpIn, realCode);
+                                MemoryCleaner.AddOverwrite(funcAddress, jumpIn, realCode);
                                 UMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
 
                                 hooked++;
@@ -220,7 +212,9 @@ public partial class Tools : UShared
                 {
                     List<byte[]> chunks = new List<byte[]>();
                     Instruction[] instrs = UInstruction.GetInstructions2(bytes);
-
+                    
+                    // mov rax, address
+                    // cmp byte ptr [rax], 0
                     byte[] modified = new byte[] { 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                         0xFF, 0xFF, 0xFF, 0x80, 0x38, 0x00, 0x90 };
 
@@ -228,12 +222,14 @@ public partial class Tools : UShared
                     for (int i = 0; i < instrs.Length; i++)
                     {
                         string insTxt = instrs[i].ToString();
-                        if (instrs[i].Bytes.Length == 7)
+                        int requiredInstructionLength = 7; // cmp byte [rip+n], 0
+
+                        if (instrs[i].Bytes.Length == requiredInstructionLength)
                         {
                             if (insTxt.StartsWith("cmp byte [rip+0x") && insTxt.EndsWith("], 0x0"))
                             {
                                 ulong realValue = BitConverter.ToUInt32(instrs[i].Bytes, 2);
-                                ulong readAddress = original + realValue + (ulong)(offset + 7);
+                                ulong readAddress = original + realValue + (ulong)(offset + instrs[i].Bytes.Length);
                                 UArray.Insert(modified, BitConverter.GetBytes(readAddress), 2);
 
                                 chunks.Add(modified);
@@ -256,7 +252,7 @@ public partial class Tools : UShared
                         Allocated = RefAllocateMemory(Instance, EnvironmentAllocSize);
                         if (Allocated != 0)
                         {
-                            //MemoryCleaner.AddAllocate(Allocated, AllocSize);
+                            MemoryCleaner.AddAllocate(Allocated, EnvironmentAllocSize);
 
                             byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCPP_JitSave);
                             RefWriteBytes(Instance, Allocated, asmDecoded);
