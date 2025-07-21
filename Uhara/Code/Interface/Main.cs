@@ -12,11 +12,18 @@ using System.Windows.Forms;
 
 public partial class Main : UShared
 {
+    public bool DebugMode
+    {
+        get { return UShared.DebugMode; }
+        set { UShared.DebugMode = value; }
+    }
+
     public Main()
     {
         try
         {
             CheckSetProcessAndValues();
+            USaves.Register("rumii", "uhara");
             Vars.Uhara = this;
 
             Assembly liveSplitAssembly = Assembly.Load("LiveSplit.Core");
@@ -29,7 +36,7 @@ public partial class Main : UShared
         catch { }
     }
 
-    public dynamic CreateTool(string name, string module)
+    public dynamic CreateTool(string engine, string type, string tool)
     {
         try
         {
@@ -38,22 +45,28 @@ public partial class Main : UShared
                 if (!File.Exists("SharpDisasm.dll"))
                     File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
 
-                name = name.ToLower();
-                module = module.ToLower();
+                MemoryCleaner.Start();
 
-                if (ToolNames.Unity.UnityCS.Contains(name))
+                engine = engine.ToLower();
+                type = type.ToLower();
+                tool = tool.ToLower();
+
+                if (ToolNames._Unity.Contains(engine))
                 {
-                    if (ToolNames.Unity.Modules.JitSave.Contains(module))
+                    if (ToolNames.Unity._DotNet.Contains(type))
                     {
-                        return new Unity1();
+                        if (ToolNames.Unity.Tool._JitSave.Contains(tool))
+                        {
+                            return new Tools.Unity.DotNet.JitSave();
+                        }
                     }
-                }
 
-                else if (ToolNames.Unity.UnityCPP.Contains(name))
-                {
-                    if (ToolNames.Unity.Modules.JitSave.Contains(module))
+                    else if (ToolNames.Unity._Il2Cpp.Contains(type))
                     {
-                        return new Unity2();
+                        if (ToolNames.Unity.Tool._JitSave.Contains(tool))
+                        {
+                            return new Tools.Unity.Il2Cpp.JitSave();
+                        }
                     }
                 }
             }

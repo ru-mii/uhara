@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,18 +16,119 @@ public class UShared
     internal static Process Instance = null;
     internal static dynamic Vars;
 
-    internal static bool DebugMode = false;
+    public static bool DebugMode = true;
 
     internal class ToolNames
     {
+        internal static readonly string[] _Unity = new string[] { "unity", "unity3d" };
+
         internal class Unity
         {
-            internal static readonly string[] UnityCS = new string[] { "unitycs", "unitycsharp", "unitynet" };
-            internal static readonly string[] UnityCPP = new string[] { "unitycpp", "unityil2cpp" };
+            internal static readonly string[] _DotNet = new string[] { "cs", "dotnet", "csharp", "mono" };
+            internal static readonly string[] _Il2Cpp = new string[] { "cpp", "il2cpp" };
 
-            internal class Modules
+            internal class Tool
             {
-                internal static readonly string[] JitSave = new string[] { "jitsave" };
+                internal static readonly string[] _JitSave = new string[] { "jitsave" };
+            }
+        }
+    }
+
+    internal class MemoryCleaner
+    {
+        private static readonly string RegistryName = "MemoryCleaner";
+        private static readonly string FreeMemory = "FreeMemory";
+        private static readonly string Overwrite = "Overwrite";
+
+        public static void AddAllocate(ulong address, int size)
+        {
+            try
+            {
+                if (address == 0 || size == 0) return;
+
+                string token = UProcess.GetToken(Instance);
+                string data = "0x" + size.ToString("X");
+
+                USaves.Set(data, RegistryName, token, FreeMemory, "0x" + address.ToString("X"));
+            }
+            catch { }
+        }
+
+        public static void AddOverwrite(ulong address, byte[] validate, byte[] recover)
+        {
+            try
+            {
+                if (address == 0 || validate == null || recover == null)
+                    return;
+
+                string token = UProcess.GetToken(Instance);
+                string data = UMemory.GetSignature(validate, true) + " " +
+                    UMemory.GetSignature(recover, true);
+
+                USaves.Set(data, RegistryName, token, Overwrite, "0x" + address.ToString("X"));
+            }
+            catch { }
+        }
+
+        public static void Start()
+        {
+            if (UProcess.IsAlive(Instance))
+            {
+                string token = UProcess.GetToken(Instance);
+                string[] keys = USaves.GetKeyNames(RegistryName);
+
+                foreach (string key in keys)
+                {
+                    // overwrite
+                    {
+                        string[] values = USaves.GetValueNames(RegistryName, key, Overwrite);
+                        foreach (string value in values)
+                        {
+                            ulong address = UConvert.Parse<ulong>(value);
+                            if (address == 0) continue;
+
+                            string dataRaw = USaves.Get(RegistryName, key, Overwrite, value);
+                            if (dataRaw == null) continue;
+
+                            string[] dataSplit = dataRaw.Split(' ');
+                            if (dataSplit.Length != 2) continue;
+
+                            byte[] validate = UMemory.GetByteArray(dataSplit[0]);
+                            byte[] recover = UMemory.GetByteArray(dataSplit[1]);
+
+                            if (UMemory.ConfirmBytes(Instance, address, validate))
+                            {
+                                RefWriteBytes(Instance, address, recover);
+                                UProgram.Print("Overwrite at 0x" + address.ToString("X") +
+                                    " recovered with " + recover.Length + " bytes");
+                            }
+                        }
+                    }
+
+                    // free memory
+                    {
+                        string[] values = USaves.GetValueNames(RegistryName, key, FreeMemory);
+                        foreach (string value in values)
+                        {
+                            ulong address = UConvert.Parse<ulong>(value);
+                            if (address == 0) continue;
+
+                            string dataRaw = USaves.Get(RegistryName, key, FreeMemory, value);
+                            if (dataRaw == null) continue;
+
+                            int size = UConvert.Parse<int>(dataRaw);
+                            if (size == 0) continue;
+
+                            try
+                            {
+                                UMemory.FreeMemory(Instance, address, size);
+                                UProgram.Print("Memory freed at 0x" + address.ToString("X"));
+                            } catch { }
+                        }
+                    }
+                }
+
+                USaves.DeleteKey(RegistryName);
             }
         }
     }

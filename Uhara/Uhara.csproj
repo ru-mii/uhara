@@ -67,21 +67,20 @@
     <Compile Include="Code\Interface\Main.cs" />
     <Compile Include="Code\Interface\Shared.cs" />
     <Compile Include="Code\Other\AsmBlocks.cs" />
-    <Compile Include="Code\Tools\Array.cs" />
-    <Compile Include="Code\Tools\DynamicVars.cs" />
-    <Compile Include="Code\Tools\Imports.cs" />
-    <Compile Include="Code\Tools\Memory.cs" />
-    <Compile Include="Code\Tools\Path.cs" />
-    <Compile Include="Code\Tools\Process.cs" />
-    <Compile Include="Code\Tools\Program.cs" />
-    <Compile Include="Code\Tools\Reflection.cs" />
-    <Compile Include="Code\Tools\Saves.cs" />
-    <Compile Include="Code\Tools\Signature.cs" />
-    <Compile Include="Code\Tools\Instruction.cs" />
-    <Compile Include="Code\Tools\Convert.cs" />
-    <Compile Include="Code\UnityCPP\Unity2.cs" />
-    <Compile Include="Code\UnityCS\Unity1.cs" />
-    <Compile Include="Code\UnrealEngine\SaveObject.cs" />
+    <Compile Include="Code\Utils\Array.cs" />
+    <Compile Include="Code\Utils\DynamicVars.cs" />
+    <Compile Include="Code\Utils\Imports.cs" />
+    <Compile Include="Code\Utils\Memory.cs" />
+    <Compile Include="Code\Utils\Path.cs" />
+    <Compile Include="Code\Utils\Process.cs" />
+    <Compile Include="Code\Utils\Program.cs" />
+    <Compile Include="Code\Utils\Reflection.cs" />
+    <Compile Include="Code\Utils\Saves.cs" />
+    <Compile Include="Code\Utils\Signature.cs" />
+    <Compile Include="Code\Utils\Instruction.cs" />
+    <Compile Include="Code\Utils\Convert.cs" />
+    <Compile Include="Code\Tools\Unity\Il2Cpp\JitSave.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\JitSave.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +88,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara6"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara7"</PostBuildEvent>
   </PropertyGroup>
 </Project>
