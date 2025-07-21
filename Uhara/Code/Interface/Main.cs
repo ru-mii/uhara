@@ -12,12 +12,6 @@ using System.Windows.Forms;
 
 public partial class Main : UShared
 {
-    public bool DebugMode
-    {
-        get { return UShared.DebugMode; }
-        set { UShared.DebugMode = value; }
-    }
-
     public Main()
     {
         try
@@ -51,19 +45,19 @@ public partial class Main : UShared
                 type = type.ToLower();
                 tool = tool.ToLower();
 
-                if (ToolNames._Unity.Contains(engine))
+                if (ToolNames.Unity.Data.Contains(engine))
                 {
-                    if (ToolNames.Unity._DotNet.Contains(type))
+                    if (ToolNames.Unity.DotNet.Data.Contains(type))
                     {
-                        if (ToolNames.Unity.Tool._JitSave.Contains(tool))
+                        if (ToolNames.Unity.DotNet.JitSave.Data.Contains(tool))
                         {
                             return new Tools.Unity.DotNet.JitSave();
                         }
                     }
 
-                    else if (ToolNames.Unity._Il2Cpp.Contains(type))
+                    else if (ToolNames.Unity.Il2Cpp.Data.Contains(type))
                     {
-                        if (ToolNames.Unity.Tool._JitSave.Contains(tool))
+                        if (ToolNames.Unity.Il2Cpp.JitSave.Data.Contains(tool))
                         {
                             return new Tools.Unity.Il2Cpp.JitSave();
                         }

@@ -20,16 +20,28 @@ public class UShared
 
     internal class ToolNames
     {
-        internal static readonly string[] _Unity = new string[] { "unity", "unity3d" };
-
         internal class Unity
         {
-            internal static readonly string[] _DotNet = new string[] { "cs", "dotnet", "csharp", "mono" };
-            internal static readonly string[] _Il2Cpp = new string[] { "cpp", "il2cpp" };
+            internal static readonly string[] Data = new string[] { "unity", "unity3d" };
 
-            internal class Tool
+            internal class DotNet
             {
-                internal static readonly string[] _JitSave = new string[] { "jitsave" };
+                internal static readonly string[] Data = new string[] { "cs", "dotnet", "csharp", "mono" };
+
+                internal class JitSave
+                {
+                    internal static readonly string[] Data = new string[] { "jitsave" };
+                }
+            }
+
+            internal class Il2Cpp
+            {
+                internal static readonly string[] Data = new string[] { "cpp", "il2cpp" };
+
+                internal class JitSave
+                {
+                    internal static readonly string[] Data = new string[] { "jitsave" };
+                }
             }
         }
     }

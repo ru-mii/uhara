@@ -142,7 +142,6 @@ public partial class Tools : UShared
                             byte[] _offset = BitConverter.GetBytes(hookOffset);
                             byte[] _overwriteSize = BitConverter.GetBytes(overwriteSize);
                             byte[] _bytesSize = BitConverter.GetBytes((short)bytes.Length);
-                            byte[] arg6 = UArray.Merge(_offset, _overwriteSize, _bytesSize, bytes);
 
                             // ---
                             byte[] all = UArray.Merge(
@@ -150,8 +149,7 @@ public partial class Tools : UShared
                                 BitConverter.GetBytes((short)arg2.Length), arg2,
                                 BitConverter.GetBytes((short)arg3.Length), arg3,
                                 BitConverter.GetBytes((short)arg4.Length), arg4,
-                                BitConverter.GetBytes((short)arg5.Length), arg5,
-                                BitConverter.GetBytes((short)arg6.Length), arg6);
+                                BitConverter.GetBytes((short)arg5.Length), arg5);
 
                             RefWriteBytes(Instance, Arguments + 0x8, all);
                             RefWriteBytes(Instance, Arguments + 0x2, BitConverter.GetBytes((short)all.Length));
