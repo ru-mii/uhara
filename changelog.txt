@@ -4,3 +4,4 @@ ONLY STABLE VERSIONS HAVE A STABLE CHANGELOG
 
 uhara7
 - added memory cleaning for script reload with the same process
+- capacity of JitSave queue items increased to ~90
