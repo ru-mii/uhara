@@ -12,6 +12,50 @@ using System.Windows.Forms;
 
 internal class UMemory : UShared
 {
+    public static byte[] ConvertRelativeToAbsolute(byte[] bytes, ulong originalAddress)
+    {
+        Instruction[] instructions = UInstruction.GetInstructions2(bytes);
+        List<byte[]> newBytes = new List<byte[]>();
+
+        int offset = 0;
+        foreach (Instruction ins in instructions)
+        {
+            string txtIns = ins.ToString();
+
+            if (ins.Bytes.Length == 5)
+            {
+                if (txtIns.StartsWith("call"))
+                {
+                    ulong actualEnd = GetActualAddressFromRelative5ByteInstruction(ins.Bytes, originalAddress + (ulong)offset);
+                    newBytes.Add(GetAbsoluteCallBytes(actualEnd));
+                }
+
+                else if (txtIns.StartsWith("jmp"))
+                {
+                    ulong actualEnd = GetActualAddressFromRelative5ByteInstruction(ins.Bytes, originalAddress + (ulong)offset);
+                    newBytes.Add(GetAbsoluteJumpBytes(actualEnd));
+                }
+                else newBytes.Add(ins.Bytes);
+            }
+            else newBytes.Add(ins.Bytes);
+
+            offset += ins.Bytes.Length;
+        }
+
+        return UArray.Merge(newBytes);
+    }
+
+    public static ulong GetActualAddressFromRelative5ByteInstruction(byte[] bytes, ulong address)
+    {
+        Instruction instr = UInstruction.GetInstruction2(bytes, address);
+        if (instr.Bytes.Length == 5)
+        {
+            int value = BitConverter.ToInt32(bytes, 1);
+            return address + (ulong)(value + instr.Bytes.Length);
+        }
+        return 0;
+    }
+
     public static bool ConfirmBytes(Process process, ulong address, string signature)
     {
         return ConfirmBytes(process, address, GetByteArray(signature));
@@ -88,7 +132,7 @@ internal class UMemory : UShared
         }
     }
     
-    internal static byte[] GetCreateAbsoluteJumpBytes(Process process, ulong source, ulong destination)
+    internal static byte[] GetAbsoluteJumpBytes(ulong destination)
     {
         byte[] stub = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
         byte[] full = UArray.Merge(stub, BitConverter.GetBytes(destination));
@@ -100,6 +144,23 @@ internal class UMemory : UShared
         byte[] stub = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
         byte[] full = UArray.Merge(stub, BitConverter.GetBytes(destination));
         RefWriteBytes(process, source, full);
+    }
+
+    internal static void CreateAbsoluteCall(Process process, ulong source, ulong destination)
+    {
+        byte[] start = new byte[] { 0xEB, 0x08 };
+        byte[] address = BitConverter.GetBytes(destination);
+        byte[] end = new byte[] { 0xFF, 0x15, 0xF2, 0xFF, 0xFF, 0xFF, 0x90 };
+        byte[] full = UArray.Merge(start, address, end);
+        RefWriteBytes(process, source, full);
+    }
+
+    internal static byte[] GetAbsoluteCallBytes(ulong destination)
+    {
+        byte[] start = new byte[] { 0xEB, 0x08 };
+        byte[] address = BitConverter.GetBytes(destination);
+        byte[] end = new byte[] { 0xFF, 0x15, 0xF2, 0xFF, 0xFF, 0xFF, 0x90 };
+        return UArray.Merge(start, address, end);
     }
 
     internal static byte[] GetByteArray(string signature)

@@ -26,8 +26,15 @@ public partial class Main : UShared
             _RefAllocateMemory = extensionMethodsType.GetMethod("AllocateMemory", new Type[] { typeof(Process), typeof(int) });
             _RefWriteBytes = extensionMethodsType.GetMethod("WriteBytes", new Type[] { typeof(Process), typeof(IntPtr), typeof(byte[]) });
             _RefCreateThread = extensionMethodsType.GetMethod("CreateThread", new Type[] { typeof(Process), typeof(IntPtr) });
+
+            UniqueScriptLoadID = UProgram.GenerateRandomString(12);
         }
         catch { }
+    }
+
+    public dynamic CreateTool(string engine, string tool)
+    {
+        return CreateTool(engine, "default", tool);
     }
 
     public dynamic CreateTool(string engine, string type, string tool)
@@ -38,8 +45,6 @@ public partial class Main : UShared
             {
                 if (!File.Exists("SharpDisasm.dll"))
                     File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
-
-                MemoryCleaner.Start();
 
                 engine = engine.ToLower();
                 type = type.ToLower();
@@ -60,6 +65,17 @@ public partial class Main : UShared
                         if (ToolNames.Unity.Il2Cpp.JitSave.Data.Contains(tool))
                         {
                             return new Tools.Unity.Il2Cpp.JitSave();
+                        }
+                    }
+                }
+
+                else if (ToolNames.UnrealEngine.Data.Contains(engine))
+                {
+                    if (ToolNames.UnrealEngine.Default.Data.Contains(type))
+                    {
+                        if (ToolNames.UnrealEngine.Default.CatchInstance.Data.Contains(tool))
+                        {
+                            return new Tools.UnrealEngine.Default.CatchInstance();
                         }
                     }
                 }

@@ -207,7 +207,7 @@ public partial class Tools : UShared
 
                                 UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
 
-                                byte[] jumpIn = UMemory.GetCreateAbsoluteJumpBytes(Instance, funcAddress, item.HookAddress);
+                                byte[] jumpIn = UMemory.GetAbsoluteJumpBytes(item.HookAddress);
                                 MemoryCleaner.AddOverwrite(funcAddress, jumpIn, realCode);
                                 UMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
 

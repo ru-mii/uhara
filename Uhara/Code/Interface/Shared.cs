@@ -18,6 +18,9 @@ public class UShared
 
     public static bool DebugMode = true;
 
+    internal static bool CleanedMemory = false;
+    internal static string UniqueScriptLoadID = null;
+
     internal class ToolNames
     {
         internal class Unity
@@ -44,6 +47,21 @@ public class UShared
                 }
             }
         }
+
+        internal class UnrealEngine
+        {
+            internal static readonly string[] Data = new string[] { "unrealengine" };
+
+            internal class Default
+            {
+                internal static readonly string[] Data = new string[] { "default" };
+
+                internal class CatchInstance
+                {
+                    internal static readonly string[] Data = new string[] { "catchinstance" };
+                }
+            }
+        }
     }
 
     internal class MemoryCleaner
@@ -61,7 +79,7 @@ public class UShared
                 string token = UProcess.GetToken(Instance);
                 string data = "0x" + size.ToString("X");
 
-                USaves.Set(data, RegistryName, token, FreeMemory, "0x" + address.ToString("X"));
+                USaves.Set(data, RegistryName, token + UniqueScriptLoadID, FreeMemory, "0x" + address.ToString("X"));
             }
             catch { }
         }
@@ -77,65 +95,70 @@ public class UShared
                 string data = UMemory.GetSignature(validate, true) + " " +
                     UMemory.GetSignature(recover, true);
 
-                USaves.Set(data, RegistryName, token, Overwrite, "0x" + address.ToString("X"));
+                USaves.Set(data, RegistryName, token + UniqueScriptLoadID, Overwrite, "0x" + address.ToString("X"));
             }
             catch { }
         }
 
         public static void Start()
         {
-            if (UProcess.IsAlive(Instance))
+            if (!CleanedMemory && UProcess.IsAlive(Instance))
             {
+                CleanedMemory = true;
                 string token = UProcess.GetToken(Instance);
                 string[] keys = USaves.GetKeyNames(RegistryName);
 
                 foreach (string key in keys)
                 {
-                    // overwrite
+                    if (key.StartsWith(token) && !key.EndsWith(UniqueScriptLoadID))
                     {
-                        string[] values = USaves.GetValueNames(RegistryName, key, Overwrite);
-                        foreach (string value in values)
+                        // overwrite
                         {
-                            ulong address = UConvert.Parse<ulong>(value);
-                            if (address == 0) continue;
-
-                            string dataRaw = USaves.Get(RegistryName, key, Overwrite, value);
-                            if (dataRaw == null) continue;
-
-                            string[] dataSplit = dataRaw.Split(' ');
-                            if (dataSplit.Length != 2) continue;
-
-                            byte[] validate = UMemory.GetByteArray(dataSplit[0]);
-                            byte[] recover = UMemory.GetByteArray(dataSplit[1]);
-
-                            if (UMemory.ConfirmBytes(Instance, address, validate))
+                            string[] values = USaves.GetValueNames(RegistryName, key, Overwrite);
+                            foreach (string value in values)
                             {
-                                RefWriteBytes(Instance, address, recover);
-                                UProgram.Print("Overwrite at 0x" + address.ToString("X") +
-                                    " recovered with " + recover.Length + " bytes");
+                                ulong address = UConvert.Parse<ulong>(value);
+                                if (address == 0) continue;
+
+                                string dataRaw = USaves.Get(RegistryName, key, Overwrite, value);
+                                if (dataRaw == null) continue;
+
+                                string[] dataSplit = dataRaw.Split(' ');
+                                if (dataSplit.Length != 2) continue;
+
+                                byte[] validate = UMemory.GetByteArray(dataSplit[0]);
+                                byte[] recover = UMemory.GetByteArray(dataSplit[1]);
+
+                                if (UMemory.ConfirmBytes(Instance, address, validate))
+                                {
+                                    RefWriteBytes(Instance, address, recover);
+                                    UProgram.Print("Overwrite at 0x" + address.ToString("X") +
+                                        " recovered with " + recover.Length + " bytes");
+                                }
                             }
                         }
-                    }
 
-                    // free memory
-                    {
-                        string[] values = USaves.GetValueNames(RegistryName, key, FreeMemory);
-                        foreach (string value in values)
+                        // free memory
                         {
-                            ulong address = UConvert.Parse<ulong>(value);
-                            if (address == 0) continue;
-
-                            string dataRaw = USaves.Get(RegistryName, key, FreeMemory, value);
-                            if (dataRaw == null) continue;
-
-                            int size = UConvert.Parse<int>(dataRaw);
-                            if (size == 0) continue;
-
-                            try
+                            string[] values = USaves.GetValueNames(RegistryName, key, FreeMemory);
+                            foreach (string value in values)
                             {
-                                UMemory.FreeMemory(Instance, address, size);
-                                UProgram.Print("Memory freed at 0x" + address.ToString("X"));
-                            } catch { }
+                                ulong address = UConvert.Parse<ulong>(value);
+                                if (address == 0) continue;
+
+                                string dataRaw = USaves.Get(RegistryName, key, FreeMemory, value);
+                                if (dataRaw == null) continue;
+
+                                int size = UConvert.Parse<int>(dataRaw);
+                                if (size == 0) continue;
+
+                                try
+                                {
+                                    UMemory.FreeMemory(Instance, address, size);
+                                    UProgram.Print("Memory freed at 0x" + address.ToString("X"));
+                                }
+                                catch { }
+                            }
                         }
                     }
                 }
@@ -149,6 +172,7 @@ public class UShared
     {
         try
         {
+            MemoryCleaner.Start();
             if (UProcess.IsAlive(Instance)) return true;
 
             dynamic currState = UReflection.GetValue(UReflection.GetValue(Application.OpenForms["TimerForm"],

@@ -67,6 +67,7 @@
     <Compile Include="Code\Interface\Main.cs" />
     <Compile Include="Code\Interface\Shared.cs" />
     <Compile Include="Code\Other\AsmBlocks.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\CatchInstance.cs" />
     <Compile Include="Code\Utils\Array.cs" />
     <Compile Include="Code\Utils\DynamicVars.cs" />
     <Compile Include="Code\Utils\Imports.cs" />

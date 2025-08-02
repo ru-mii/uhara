@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 class UProgram : UShared
 {
+    internal static string GenerateRandomString(int length)
+    {
+        string text = "";
+        while (text.Length <= length)
+            text += Guid.NewGuid().ToString("N");
+
+        text = text.Remove(length);
+        return text;
+    }
+
     internal static byte[] StringToMultibyte(string text)
     {
         List<byte> array = new List<byte>();

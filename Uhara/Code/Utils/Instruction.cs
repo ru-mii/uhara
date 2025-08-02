@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 internal class UInstruction
 {
+    public static Instruction GetInstruction2(byte[] bytes, ulong address)
+    {
+        Instruction[] instructions = new Disassembler(bytes, ArchitectureMode.x86_64,
+        address, true).Disassemble().ToArray();
+
+        return instructions[0];
+    }
+
     public static Instruction[] GetInstructions2(byte[] bytes)
     {
         return new Disassembler(bytes, ArchitectureMode.x86_64,
