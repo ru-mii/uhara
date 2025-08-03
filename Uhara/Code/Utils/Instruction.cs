@@ -8,7 +8,32 @@ using System.Threading.Tasks;
 
 internal class UInstruction
 {
-    public static Instruction GetInstruction2(byte[] bytes, ulong address)
+    internal static long ExtractRipValue(Instruction instruction)
+    {
+        return ExtractRipValue(instruction.ToString());
+    }
+
+    internal static long ExtractRipValue(string instruction)
+    {
+        if (instruction.Contains("rip") && instruction.Contains("]"))
+        {
+            string converted = instruction.Substring(instruction.IndexOf("rip") + 4);
+            converted = converted.Remove(converted.IndexOf("]"));
+            return UConvert.Parse<long>(converted);
+        }
+        return 0;
+    }
+
+    internal static Instruction GetInstruction2(Process process, ulong address)
+    {
+        byte[] bytes = UMemory.ReadMemoryBytes(process, address, 50);
+        Instruction[] instructions = new Disassembler(bytes, ArchitectureMode.x86_64,
+        address, true).Disassemble().ToArray();
+
+        return instructions[0];
+    }
+
+    internal static Instruction GetInstruction2(byte[] bytes, ulong address)
     {
         Instruction[] instructions = new Disassembler(bytes, ArchitectureMode.x86_64,
         address, true).Disassemble().ToArray();
@@ -16,7 +41,7 @@ internal class UInstruction
         return instructions[0];
     }
 
-    public static Instruction[] GetInstructions2(byte[] bytes)
+    internal static Instruction[] GetInstructions2(byte[] bytes)
     {
         return new Disassembler(bytes, ArchitectureMode.x86_64,
         0, true).Disassemble().ToArray();

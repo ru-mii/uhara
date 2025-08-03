@@ -16,14 +16,16 @@ public partial class Tools :UShared
             {
                 private int EnvironmentAllocSize = 0x5000;
 
-                private ulong FNamePoolAddress = 0;
-                private ulong f_StaticConstructObject_Internal = 0;
-                private ulong f_UObjectBeginDestroy = 0;
+                private ulong FNamePool = 0;
+                private ulong StaticConstructObject_Internal = 0;
+                private ulong UObjectBeginDestroy = 0;
 
                 private ulong AllocStart = 0;
 
                 private ulong OutputEnd = 0;
                 private ulong CodeEnd = 0;
+
+                private string UEVersion;
 
                 public enum EnvOffsets
                 {
@@ -35,7 +37,18 @@ public partial class Tools :UShared
                     Output = 0x3000,
                 }
 
+                private readonly string[] SupportedUEVersions = new string[]
+                {
+                    "5.5.4.0",
+                    "5.6.0.0",
+                };
+
                 Dictionary<string, byte> QueueItems = new Dictionary<string, byte>();
+
+                public void SetUEVersion(string version)
+                {
+                    UEVersion = version;
+                }
 
                 public void SetData(IntPtr fNamePoolAddress, IntPtr staticConstructObjectAddress)
                 {
@@ -44,33 +57,40 @@ public partial class Tools :UShared
 
                 public void SetData(IntPtr fNamePoolAddress, IntPtr staticConstructObjectAddress, IntPtr beginDestroyAddress)
                 {
-                    FNamePoolAddress = (ulong)fNamePoolAddress;
-                    f_StaticConstructObject_Internal = (ulong)staticConstructObjectAddress;
-                    f_UObjectBeginDestroy = (ulong)beginDestroyAddress;
+                    FNamePool = (ulong)fNamePoolAddress;
+                    StaticConstructObject_Internal = (ulong)staticConstructObjectAddress;
+                    UObjectBeginDestroy = (ulong)beginDestroyAddress;
                 }
 
                 public IntPtr Add(string name, byte instances = 1)
                 {
-                    if (instances == 0) instances = 1;
-                    
-                    if (QueueItems.ContainsKey(name)) QueueItems[name] += instances;
-                    else QueueItems[name] = instances;
+                    try
+                    {
+                        if (instances == 0) instances = 1;
 
-                    ulong outputPointer = OutputEnd;
+                        if (QueueItems.ContainsKey(name)) QueueItems[name] += instances;
+                        else QueueItems[name] = instances;
 
-                    OutputEnd += 0x8 * (ulong)instances;
-                    return (IntPtr)outputPointer;
+                        ulong outputPointer = OutputEnd;
+
+                        OutputEnd += 0x8 * (ulong)instances;
+                        return (IntPtr)outputPointer;
+                    }
+                    catch { }
+                    return IntPtr.Zero;
                 }
 
                 public void ProcessQueue()
                 {
                     try
                     {
-                        if (FNamePoolAddress == 0)
+                        if (FNamePool == 0)
                             return;
 
-                        RefWriteBytes(Instance, AllocStart + (ulong)EnvOffsets.Data, BitConverter.GetBytes(FNamePoolAddress));
+                        // provide fnamepool to the remote thread
+                        RefWriteBytes(Instance, AllocStart + (ulong)EnvOffsets.Data, BitConverter.GetBytes(FNamePool));
 
+                        ScanForInfo();
                         WriteArguments();
                         HookFunctions();
 
@@ -78,12 +98,63 @@ public partial class Tools :UShared
                     catch { }
                 }
 
+                private void ScanForInfo()
+                {
+                    try
+                    {
+                        string processPath = Instance.MainModule.FileName;
+
+                        if (UEVersion == null)
+                            UEVersion = UProgram.GetFileVersion(processPath);
+
+                        if (UEVersion == null)
+                        {
+                            UProgram.Print("Couldn't retrieve Unreal Engine version, use SetUEVersion() "+
+                                "to set the version manuall, with 1.2.3.4 format");
+                            return;
+                        }
+
+                        if (!SupportedUEVersions.Contains(UEVersion))
+                        {
+                            UProgram.Print(UEVersion + " is not supported for " + GetType().Name + " tool, " +
+                                "use SetData(FNamePool, StaticConstructObject_Internal, UObject::BeginDestroy) " +
+                                "to provide required addresses for this tool");
+                            return;
+                        }
+
+                        if (FNamePool == 0)
+                        {
+                            USignature.AdvancedSignature signature =
+                                Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Data.FNamePool, UEVersion);
+
+                            FNamePool = UMemory.ScanSingle(signature);
+                        }
+
+                        if (StaticConstructObject_Internal == 0)
+                        {
+                            USignature.AdvancedSignature signature =
+                                Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Function.StaticConstructObject_Internal, UEVersion);
+
+                            StaticConstructObject_Internal = UMemory.ScanSingle(signature);
+                        }
+
+                        if (UObjectBeginDestroy == 0)
+                        {
+                            USignature.AdvancedSignature signature =
+                                Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Function.UObjectBeginDestroy, UEVersion);
+
+                            UObjectBeginDestroy = UMemory.ScanSingle(signature);
+                        }
+                    }
+                    catch { }
+                }
+
                 private void HookFunctions()
                 {
                     // StaticConstructObject_Internal
-                    if (f_StaticConstructObject_Internal != 0)
+                    if (StaticConstructObject_Internal != 0)
                     {
-                        byte[] pageBytes = UMemory.ReadMemoryBytes(Instance, f_StaticConstructObject_Internal, 0x1000);
+                        byte[] pageBytes = UMemory.ReadMemoryBytes(Instance, StaticConstructObject_Internal, 0x1000);
                         Instruction[] instructions = UInstruction.GetInstructions2(pageBytes);
 
                         int offset = 0;
@@ -97,7 +168,7 @@ public partial class Tools :UShared
 
                             if (txtIns == "ret")
                             {
-                                funcEnd = f_StaticConstructObject_Internal + (ulong)offset + 1;
+                                funcEnd = StaticConstructObject_Internal + (ulong)offset + 1;
 
                                 for (int j = i; j >= 0; j--)
                                 {
@@ -134,12 +205,12 @@ public partial class Tools :UShared
                     }
 
                     // UOBject::Destroy
-                    if (f_UObjectBeginDestroy != 0)
+                    if (UObjectBeginDestroy != 0)
                     {
                         ulong callToStartUhara = CodeEnd;
-                        int minimumOverwrite = UInstruction.GetMinimumOverwrite(Instance, f_UObjectBeginDestroy, 14);
-                        byte[] stolen = UMemory.ReadMemoryBytes(Instance, f_UObjectBeginDestroy, minimumOverwrite);
-                        byte[] stolenConverted = UMemory.ConvertRelativeToAbsolute(stolen, f_UObjectBeginDestroy);
+                        int minimumOverwrite = UInstruction.GetMinimumOverwrite(Instance, UObjectBeginDestroy, 14);
+                        byte[] stolen = UMemory.ReadMemoryBytes(Instance, UObjectBeginDestroy, minimumOverwrite);
+                        byte[] stolenConverted = UMemory.ConvertRelativeToAbsolute(stolen, UObjectBeginDestroy);
 
                         ulong f_StartUhara = AllocStart + (ulong)EnvOffsets.f_StartUharaUOD;
 
@@ -149,14 +220,14 @@ public partial class Tools :UShared
                         RefWriteBytes(Instance, CodeEnd, stolenConverted);
                         CodeEnd += (ulong)stolenConverted.Length;
 
-                        UMemory.CreateAbsoluteJump(Instance, CodeEnd, f_UObjectBeginDestroy + (ulong)stolenConverted.Length);
+                        UMemory.CreateAbsoluteJump(Instance, CodeEnd, UObjectBeginDestroy + (ulong)stolenConverted.Length);
                         CodeEnd += 14;
 
                         byte[] jumpIn = UMemory.GetAbsoluteJumpBytes(callToStartUhara);
-                        MemoryCleaner.AddOverwrite(f_UObjectBeginDestroy, jumpIn, stolen);
-                        UMemory.CreateAbsoluteJump(Instance, f_UObjectBeginDestroy, callToStartUhara);
+                        MemoryCleaner.AddOverwrite(UObjectBeginDestroy, jumpIn, stolen);
+                        UMemory.CreateAbsoluteJump(Instance, UObjectBeginDestroy, callToStartUhara);
 
-                        UProgram.Print("Successfully hooked BeginDestroy at 0x" + f_UObjectBeginDestroy.ToString("X"));
+                        UProgram.Print("Successfully hooked BeginDestroy at 0x" + UObjectBeginDestroy.ToString("X"));
                     }
                 }
 

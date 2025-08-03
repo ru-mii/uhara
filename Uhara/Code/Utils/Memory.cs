@@ -194,6 +194,21 @@ internal class UMemory : UShared
         return true;
     }
 
+    internal static ulong ScanSingle(USignature.AdvancedSignature signature)
+    {
+        ulong scanFirst = ScanSingle(signature.Signature);
+        if (signature.IsRelative && scanFirst != 0)
+        {
+            scanFirst = (ulong)((long)scanFirst + signature.RelativeInstructionOffset);
+            Instruction instr = UInstruction.GetInstruction2(Instance, scanFirst);
+
+            long value = UInstruction.ExtractRipValue(instr);
+            return (ulong)((long)scanFirst + value) + (ulong)instr.Bytes.Length;
+        }
+
+        return scanFirst;
+    }
+
     internal static ulong ScanSingle(string signature)
     {
         byte[] searchBytes = USignature.GetBytes(signature);

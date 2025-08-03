@@ -1,11 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 class UProgram : UShared
 {
+    internal static string GetFileVersion(string path)
+    {
+        if (File.Exists(path))
+        {
+            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(path);
+            if (versionInfo.FileVersion != null)
+            {
+                return
+                    versionInfo.FileMajorPart + "." +
+                    versionInfo.FileMinorPart + "." +
+                    versionInfo.FileBuildPart + "." +
+                    versionInfo.FilePrivatePart;
+            }
+        }
+
+        return null;
+    }
+
     internal static string GenerateRandomString(int length)
     {
         string text = "";
@@ -30,6 +50,6 @@ class UProgram : UShared
 
     internal static void Print(string message)
     {
-        if(DebugMode) UImports.OutputDebugString("UHARA: " + message);
+        if(DebugMode) UImports.OutputDebugString("[UHARA] " + message);
     }
 }

@@ -6,6 +6,20 @@ using System.Threading.Tasks;
 
 internal class USignature
 {
+    internal class AdvancedSignature
+    {
+        public string Signature { get; set; }
+        public bool IsRelative { get; set; }
+        public int RelativeInstructionOffset { get; set; }
+
+        public AdvancedSignature(string signature, bool isRelative = false, int relativeInstructionOffset = 0)
+        {
+            Signature = signature;
+            IsRelative = isRelative;
+            RelativeInstructionOffset = relativeInstructionOffset;
+        }
+    }
+
     internal static string GetSignature(byte[] array)
     {
         string hex = BitConverter.ToString(array);
@@ -23,7 +37,7 @@ internal class USignature
 
             if (byteValue != "??")
             {
-                if (!IsCharHex(byteValue[0]) || !IsCharHex(byteValue[1])) return null;
+                if (!Uri.IsHexDigit(byteValue[0]) || !Uri.IsHexDigit(byteValue[1])) return null;
                 else byteArray[i] = Convert.ToByte(byteValue, 16);
             }
             else byteArray[i] = 0x00;
@@ -51,16 +65,5 @@ internal class USignature
         }
 
         return mask;
-    }
-
-    private static bool IsCharHex(char character)
-    {
-        if (!((character >= '0' && character <= '9') ||
-        (character >= 'A' && character <= 'F') ||
-        (character >= 'a' && character <= 'f')))
-        {
-            return false;
-        }
-        return true;
     }
 }
