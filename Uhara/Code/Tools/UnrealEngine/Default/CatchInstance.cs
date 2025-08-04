@@ -21,7 +21,6 @@ public partial class Tools :UShared
                 private ulong UObjectBeginDestroy = 0;
 
                 private ulong AllocStart = 0;
-
                 private ulong OutputEnd = 0;
                 private ulong CodeEnd = 0;
 
@@ -29,8 +28,8 @@ public partial class Tools :UShared
 
                 public enum EnvOffsets
                 {
-                    f_StartUharaSCOI = 0xE6,
-                    f_StartUharaUOD = 0x239,
+                    f_StartUharaSCOI = 0xEC,
+                    f_StartUharaUOD = 0x23F,
                     CodeEnd = 0x500,
                     Data = 0x1000,
                     Arguments = 0x2000,
