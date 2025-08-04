@@ -29,8 +29,8 @@ public partial class Tools :UShared
 
                 public enum EnvOffsets
                 {
-                    f_StartUharaSCOI = 0xD7,
-                    f_StartUharaUOD = 0x22A,
+                    f_StartUharaSCOI = 0xE6,
+                    f_StartUharaUOD = 0x239,
                     CodeEnd = 0x500,
                     Data = 0x1000,
                     Arguments = 0x2000,
@@ -39,6 +39,7 @@ public partial class Tools :UShared
 
                 private readonly string[] SupportedUEVersions = new string[]
                 {
+                    "4.27.2.0",
                     "5.5.4.0",
                     "5.6.0.0",
                 };
@@ -84,13 +85,14 @@ public partial class Tools :UShared
                 {
                     try
                     {
+                        ScanForInfo();
+
                         if (FNamePool == 0)
                             return;
 
                         // provide fnamepool to the remote thread
                         RefWriteBytes(Instance, AllocStart + (ulong)EnvOffsets.Data, BitConverter.GetBytes(FNamePool));
 
-                        ScanForInfo();
                         WriteArguments();
                         HookFunctions();
 
