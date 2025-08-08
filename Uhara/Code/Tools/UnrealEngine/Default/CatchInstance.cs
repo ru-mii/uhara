@@ -39,6 +39,7 @@ public partial class Tools :UShared
                 private readonly string[] SupportedUEVersions = new string[]
                 {
                     "4.27.2.0",
+                    "5.1.1.0",
                     "5.5.4.0",
                     "5.6.0.0",
                 };
@@ -123,28 +124,54 @@ public partial class Tools :UShared
                             return;
                         }
 
+                        string alreadyHookedStart = "FF 25 ?? ?? ?? ??";
+
                         if (FNamePool == 0)
                         {
-                            USignature.AdvancedSignature signature =
+                            USignature.AdvancedSignature advSig =
                                 Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Data.FNamePool, UEVersion);
 
-                            FNamePool = UMemory.ScanSingle(signature);
+                            FNamePool = UMemory.ScanSingle(advSig);
+
+                            if (FNamePool == 0 && advSig.Signature.Length >= alreadyHookedStart.Length)
+                            {
+                                advSig.Signature = advSig.Signature.Substring(alreadyHookedStart.Length);
+                                advSig.Signature = alreadyHookedStart + advSig.Signature;
+
+                                FNamePool = UMemory.ScanSingle(advSig);
+                            }
                         }
 
                         if (StaticConstructObject_Internal == 0)
                         {
-                            USignature.AdvancedSignature signature =
+                            USignature.AdvancedSignature advSig =
                                 Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Function.StaticConstructObject_Internal, UEVersion);
 
-                            StaticConstructObject_Internal = UMemory.ScanSingle(signature);
+                            StaticConstructObject_Internal = UMemory.ScanSingle(advSig);
+
+                            if (StaticConstructObject_Internal == 0 && advSig.Signature.Length >= alreadyHookedStart.Length)
+                            {
+                                advSig.Signature = advSig.Signature.Substring(alreadyHookedStart.Length);
+                                advSig.Signature = alreadyHookedStart + advSig.Signature;
+
+                                StaticConstructObject_Internal = UMemory.ScanSingle(advSig);
+                            }
                         }
 
                         if (UObjectBeginDestroy == 0)
                         {
-                            USignature.AdvancedSignature signature =
+                            USignature.AdvancedSignature advSig =
                                 Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Function.UObjectBeginDestroy, UEVersion);
 
-                            UObjectBeginDestroy = UMemory.ScanSingle(signature);
+                            UObjectBeginDestroy = UMemory.ScanSingle(advSig);
+
+                            if (UObjectBeginDestroy == 0 && advSig.Signature.Length >= alreadyHookedStart.Length)
+                            {
+                                advSig.Signature = advSig.Signature.Substring(alreadyHookedStart.Length);
+                                advSig.Signature = alreadyHookedStart + advSig.Signature;
+
+                                UObjectBeginDestroy = UMemory.ScanSingle(advSig);
+                            }
                         }
                     }
                     catch { }

@@ -37,6 +37,7 @@ internal class UMemory : UShared
                 }
                 else newBytes.Add(ins.Bytes);
             }
+
             else newBytes.Add(ins.Bytes);
 
             offset += ins.Bytes.Length;
