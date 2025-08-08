@@ -172,8 +172,11 @@ public class UShared
     {
         try
         {
-            MemoryCleaner.Start();
-            if (UProcess.IsAlive(Instance)) return true;
+            if (UProcess.IsAlive(Instance))
+            {
+                MemoryCleaner.Start();
+                return true;
+            }
 
             dynamic currState = UReflection.GetValue(UReflection.GetValue(Application.OpenForms["TimerForm"],
                     "<CurrentState>k__BackingField"));
@@ -223,6 +226,8 @@ public class UShared
                     }
                 }
             }
+
+            MemoryCleaner.Start();
         }
         catch { }
         return UProcess.IsAlive(Instance);
