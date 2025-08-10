@@ -3,5 +3,6 @@ BELOW INFORMATION CAN CHANGE WITH DEVELOPMENT
 ONLY STABLE VERSIONS HAVE A STABLE CHANGELOG   
 
 uhara7
-- added Unreal Engine instance catching solution
+- added Unreal Engine CatchInstance tool
 - improved Memory Cleaner
+- improved IL2CPP JitSave tool
