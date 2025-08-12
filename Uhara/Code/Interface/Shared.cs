@@ -238,8 +238,7 @@ public class UShared
     {
         try
         {
-            IntPtr toReturn = (IntPtr)_RefAllocateMemory.Invoke(null, new object[] { process, size });
-            return (ulong)toReturn;
+            return (ulong)_RefAllocateMemory.Invoke(null, new object[] { process, size });
         }
         catch { }
         return 0;

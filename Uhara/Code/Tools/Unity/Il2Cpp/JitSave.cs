@@ -184,8 +184,10 @@ public partial class Tools : UShared
 
                                 byte[] realCode = UMemory.ReadMemoryBytes(Instance, funcAddress, minimumOverwrite);
                                 if (realCode == null) continue;
+                                byte[] toRecover = realCode.ToList().ToArray();
 
                                 realCode = FixCmp(funcAddress, realCode);
+                                realCode = FixJump(funcAddress, realCode);
 
                                 RefWriteBytes(Instance, item.HookAddress, item.Bytes);
                                 ulong nextAddress = item.HookAddress + (ulong)item.Bytes.Length;
@@ -196,7 +198,7 @@ public partial class Tools : UShared
                                 UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
 
                                 byte[] jumpIn = UMemory.GetAbsoluteJumpBytes(item.HookAddress);
-                                MemoryCleaner.AddOverwrite(funcAddress, jumpIn, realCode);
+                                MemoryCleaner.AddOverwrite(funcAddress, jumpIn, toRecover);
                                 UMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
 
                                 hooked++;
@@ -208,11 +210,69 @@ public partial class Tools : UShared
                     catch { }
                 }
 
+                private byte[] FixJump(ulong original, byte[] bytes)
+                {
+                    List<byte[]> chunks = new List<byte[]>();
+                    Instruction[] instrs = UInstruction.GetInstructions2(bytes);
+
+                    Dictionary<string, byte[]> jumpPairs = new Dictionary<string, byte[]>
+                    {
+                        { "jz", new byte[]  { 0x74, 0x02, 0xEB, 0x0E } }, // jump short if equal (je)
+                        { "jnz", new byte[] { 0x75, 0x02, 0xEB, 0x0E } }, // jump short if not equal (jne)
+                        { "jge", new byte[] { 0x7D, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jnl)
+                        { "jle", new byte[] { 0x7E, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jle)
+                        { "jl", new byte[]  { 0x7C, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jl)
+                        { "jg", new byte[]  { 0x7F, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jg)
+                        { "jmp", new byte[] { 0xEB, 0x02, 0xEB, 0x0E } }, // jump short (jmp)
+                    };
+
+                    byte[] absJump = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+                    int offset = 0;
+                    for (int i = 0; i < instrs.Length; i++)
+                    {
+                        string insTxt = instrs[i].ToString();
+                        int insLen = instrs[i].Bytes.Length;
+
+                        if (insTxt.StartsWith("j"))
+                        {
+                            foreach (var jump in jumpPairs)
+                            {
+                                if (insTxt.StartsWith(jump.Key))
+                                {
+                                    ulong address = original + (ulong)offset;
+                                    int value = 0;
+
+                                    if (insLen == 2) value = instrs[i].Bytes[1];
+                                    else if (insLen == 5) value = BitConverter.ToInt32(instrs[i].Bytes, 1);
+                                    else break;
+
+                                    address += (ulong)(instrs[i].Bytes.Length + value);
+
+                                    byte[] together = jump.Value.Concat(absJump).ToArray();
+                                    UArray.Insert(together, BitConverter.GetBytes(address), 10);
+
+                                    chunks.Add(together);
+                                    offset += together.Length;
+                                    continue;
+                                }
+                            }
+                        }
+
+                        chunks.Add(instrs[i].Bytes);
+                        offset += instrs[i].Bytes.Length;
+                    }
+
+                    return UArray.Merge(chunks.ToArray());
+                }
+
                 private byte[] FixCmp(ulong original, byte[] bytes)
                 {
                     List<byte[]> chunks = new List<byte[]>();
                     Instruction[] instrs = UInstruction.GetInstructions2(bytes);
-                    
+                    int requiredInstructionLength = 7; // cmp byte [rip+n], 0
+
                     // mov rax, address
                     // cmp byte ptr [rax], 0
                     byte[] modified = new byte[] { 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -222,8 +282,6 @@ public partial class Tools : UShared
                     for (int i = 0; i < instrs.Length; i++)
                     {
                         string insTxt = instrs[i].ToString();
-                        int requiredInstructionLength = 7; // cmp byte [rip+n], 0
-
                         if (instrs[i].Bytes.Length == requiredInstructionLength)
                         {
                             if (insTxt.StartsWith("cmp byte [rip+0x") && insTxt.EndsWith("], 0x0"))
