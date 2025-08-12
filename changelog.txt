@@ -3,9 +3,6 @@ BELOW INFORMATION CAN CHANGE WITH DEVELOPMENT
 ONLY STABLE VERSIONS HAVE A STABLE CHANGELOG   
 
 uhara7
-- added memory cleaning after a script reload with the same game process
-- capacity of JitSave queue items increased to ~90
-- added Unreal Engine instance catching solution
-- fixed bugs with memory cleaner
-- improved memory cleaner
-- providing data is no longer required for supported Unreal Engine version within CatchInstance tool
+- added Unreal Engine CatchInstance tool
+- improved Memory Cleaner
+- improved Unity IL2CPP JitSave tool
