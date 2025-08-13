@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public partial class Tools :UShared
+public partial class Tools : UShared
 {
     public partial class UnrealEngine
     {

@@ -31,6 +31,16 @@ public partial class Main : UShared
             UniqueScriptLoadID = UProgram.GenerateRandomString(12);
         }
         catch { }
+        DebugMode = false;
+    }
+
+    public void EnableDebugMode()
+    {
+        try
+        {
+            DebugMode = true;
+        }
+        catch { }
     }
 
     public dynamic CreateTool(string engine, string tool)
