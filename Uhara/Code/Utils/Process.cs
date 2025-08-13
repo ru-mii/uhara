@@ -8,17 +8,36 @@ using System.Windows.Forms;
 
 internal class UProcess
 {
-    public static string GetToken(Process process)
+    internal static ProcessModule GetModule(Process process, string name = null)
+    {
+        if (name == null)
+        {
+            return process.MainModule;
+        }
+        else
+        {
+            foreach (ProcessModule module in process.Modules)
+            {
+                if (module.ModuleName.ToLower() == name.ToLower())
+                {
+                    return module;
+                }
+            }
+        }
+        return null;
+    }
+
+    internal static string GetToken(Process process)
     {
         return GetStartTime(process).ToString("X") + "-" + process.Id.ToString("X");
     }
 
-    public static ulong GetStartTime(Process process)
+    internal static ulong GetStartTime(Process process)
     {
         return (ulong)((DateTimeOffset)process.StartTime).ToUnixTimeMilliseconds();
     }
 
-    public static IntPtr CreateRemoteThread(Process process, ulong entryPointAddress, bool waitForThread = false)
+    internal static IntPtr CreateRemoteThread(Process process, ulong entryPointAddress, bool waitForThread = false)
     {
         IntPtr remoteThread = IntPtr.Zero;
 
@@ -33,7 +52,7 @@ internal class UProcess
         return remoteThread;
     }
 
-    public static bool WaitForThread(IntPtr threadHandle, uint timeout = 0xFFFFFFFF)
+    internal static bool WaitForThread(IntPtr threadHandle, uint timeout = 0xFFFFFFFF)
     {
         return UImports.WaitForSingleObject(threadHandle, timeout) == 0;
     }

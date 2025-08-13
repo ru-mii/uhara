@@ -55,7 +55,7 @@ internal class UInstruction
 
     internal static int GetMinimumOverwrite(string bytes, int required = 5)
     {
-        return GetMinimumOverwrite(UMemory.GetByteArray(bytes), required);
+        return GetMinimumOverwrite(USignature.GetBytes(bytes), required);
     }
 
     internal static int GetMinimumOverwrite(byte[] bytes, int required = 5)

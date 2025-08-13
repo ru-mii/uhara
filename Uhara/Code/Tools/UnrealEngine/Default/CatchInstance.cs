@@ -24,8 +24,6 @@ public partial class Tools :UShared
                 private ulong OutputEnd = 0;
                 private ulong CodeEnd = 0;
 
-                private string UEVersion;
-
                 public enum EnvOffsets
                 {
                     f_StartUharaSCOI = 0xEC,
@@ -36,21 +34,7 @@ public partial class Tools :UShared
                     Output = 0x3000,
                 }
 
-                private readonly string[] SupportedUEVersions = new string[]
-                {
-                    "4.27.2.0",
-                    "5.1.1.0",
-                    "5.3.2.0",
-                    "5.5.4.0",
-                    "5.6.0.0",
-                };
-
                 Dictionary<string, byte> QueueItems = new Dictionary<string, byte>();
-
-                public void SetUEVersion(string version)
-                {
-                    UEVersion = version;
-                }
 
                 public void SetData(IntPtr fNamePoolAddress, IntPtr staticConstructObjectAddress)
                 {
@@ -107,72 +91,22 @@ public partial class Tools :UShared
                     {
                         string processPath = Instance.MainModule.FileName;
 
-                        if (UEVersion == null)
-                            UEVersion = UProgram.GetFileVersion(processPath);
-
-                        if (UEVersion == null)
-                        {
-                            UProgram.Print("Couldn't retrieve Unreal Engine version, use SetUEVersion() "+
-                                "to set the version manuall, with 1.2.3.4 format");
-                            return;
-                        }
-
-                        if (!SupportedUEVersions.Contains(UEVersion))
-                        {
-                            UProgram.Print(UEVersion + " is not supported for " + GetType().Name + " tool, " +
-                                "use SetData(FNamePool, StaticConstructObject_Internal, UObject::BeginDestroy) " +
-                                "to provide required addresses for this tool");
-                            return;
-                        }
-
-                        string alreadyHookedStart = "FF 25 ?? ?? ?? ??";
-
-                        if (FNamePool == 0)
-                        {
-                            USignature.AdvancedSignature advSig =
-                                Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Data.FNamePool, UEVersion);
-
-                            FNamePool = UMemory.ScanSingle(advSig);
-
-                            if (FNamePool == 0 && advSig.Signature.Length >= alreadyHookedStart.Length)
-                            {
-                                advSig.Signature = advSig.Signature.Substring(alreadyHookedStart.Length);
-                                advSig.Signature = alreadyHookedStart + advSig.Signature;
-
-                                FNamePool = UMemory.ScanSingle(advSig);
-                            }
-                        }
-
                         if (StaticConstructObject_Internal == 0)
                         {
-                            USignature.AdvancedSignature advSig =
-                                Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Function.StaticConstructObject_Internal, UEVersion);
-
-                            StaticConstructObject_Internal = UMemory.ScanSingle(advSig);
-
-                            if (StaticConstructObject_Internal == 0 && advSig.Signature.Length >= alreadyHookedStart.Length)
-                            {
-                                advSig.Signature = advSig.Signature.Substring(alreadyHookedStart.Length);
-                                advSig.Signature = alreadyHookedStart + advSig.Signature;
-
-                                StaticConstructObject_Internal = UMemory.ScanSingle(advSig);
-                            }
+                            StaticConstructObject_Internal = EngineUtility.UnrealEngine.GetAddress(EngineUtility.UnrealEngine.Function.StaticConstructObject_Internal);
+                            if (StaticConstructObject_Internal == 0) UProgram.Print("StaticConstructObject_Internal not found");
                         }
 
                         if (UObjectBeginDestroy == 0)
                         {
-                            USignature.AdvancedSignature advSig =
-                                Signatures.UnrealEngine.Get(Signatures.UnrealEngine.Function.UObjectBeginDestroy, UEVersion);
+                            UObjectBeginDestroy = EngineUtility.UnrealEngine.GetAddress(EngineUtility.UnrealEngine.Function.UObjectBeginDestroy);
+                            if (UObjectBeginDestroy == 0) UProgram.Print("UObjectBeginDestroy not found");
+                        }
 
-                            UObjectBeginDestroy = UMemory.ScanSingle(advSig);
-
-                            if (UObjectBeginDestroy == 0 && advSig.Signature.Length >= alreadyHookedStart.Length)
-                            {
-                                advSig.Signature = advSig.Signature.Substring(alreadyHookedStart.Length);
-                                advSig.Signature = alreadyHookedStart + advSig.Signature;
-
-                                UObjectBeginDestroy = UMemory.ScanSingle(advSig);
-                            }
+                        if (FNamePool == 0)
+                        {
+                            FNamePool = EngineUtility.UnrealEngine.GetAddress(EngineUtility.UnrealEngine.Data.FNamePool);
+                            if (FNamePool == 0) UProgram.Print("FNamePool not found");
                         }
                     }
                     catch { }

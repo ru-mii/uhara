@@ -126,8 +126,8 @@ public class UShared
                                 string[] dataSplit = dataRaw.Split(' ');
                                 if (dataSplit.Length != 2) continue;
 
-                                byte[] validate = UMemory.GetByteArray(dataSplit[0]);
-                                byte[] recover = UMemory.GetByteArray(dataSplit[1]);
+                                byte[] validate = USignature.GetBytes(dataSplit[0]);
+                                byte[] recover = USignature.GetBytes(dataSplit[1]);
 
                                 if (UMemory.ConfirmBytes(Instance, address, validate))
                                 {
@@ -242,6 +242,17 @@ public class UShared
         }
         catch { }
         return 0;
+    }
+
+    internal static MethodInfo _RefReadBytes;
+    internal static byte[] RefReadBytes(Process process, ulong address, int count)
+    {
+        try
+        {
+            return (byte[])_RefReadBytes.Invoke(null, new object[] { process, (IntPtr)address, count });
+        }
+        catch { }
+        return null;
     }
 
     internal static MethodInfo _RefWriteBytes;

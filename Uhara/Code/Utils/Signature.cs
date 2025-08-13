@@ -6,17 +6,23 @@ using System.Threading.Tasks;
 
 internal class USignature
 {
-    internal class AdvancedSignature
+    public class ScanData
     {
         public string Signature { get; set; }
-        public bool IsRelative { get; set; }
-        public int RelativeInstructionOffset { get; set; }
+        public bool Relative { get; set; }
+        public int ToRelativeInstructionOffset { get; set; }
+        public Dictionary<string, int> Checkpoints { get; set; }
+        public bool Reversed { get; set; }
+        public int Offset { get; set; }
 
-        public AdvancedSignature(string signature, bool isRelative = false, int relativeInstructionOffset = 0)
+        public ScanData(string signature = null, bool isRelative = false, int toRelativeInstructionOffset = 0, Dictionary<string, int> checkpoints = null, bool reversed = false, int offset = 0)
         {
             Signature = signature;
-            IsRelative = isRelative;
-            RelativeInstructionOffset = relativeInstructionOffset;
+            Relative = isRelative;
+            ToRelativeInstructionOffset = toRelativeInstructionOffset;
+            Checkpoints = checkpoints == null ? new Dictionary<string, int>() : checkpoints;
+            Reversed = reversed;
+            Offset = offset;
         }
     }
 

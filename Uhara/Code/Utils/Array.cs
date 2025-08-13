@@ -15,6 +15,36 @@ class UArray
         return decoded.ToArray();
     }
 
+    internal static byte[] ExtractArray(byte[] source, int position, int length)
+    {
+        byte[] newCopy = source.ToList().ToArray();
+        newCopy = GutArray(newCopy, 0, position);
+        newCopy = GutArray(newCopy, length, newCopy.Length - length);
+        return newCopy;
+    }
+
+    internal static byte[] GutArray(byte[] original, int position, int length)
+    {
+        byte[] newArray = new byte[original.Length - length];
+
+        Array.Copy(original, 0, newArray, 0, position);
+        Array.Copy(original, position + length, newArray, position, original.Length - position - length);
+
+        return newArray;
+    }
+
+    internal static byte[] StuffArray(byte[] original, int position, int length, byte stuffType)
+    {
+        int newSize = original.Length + length;
+        byte[] newArray = new byte[newSize];
+
+        Array.Copy(original, 0, newArray, 0, position);
+        for (int i = 0; i < length; i++) newArray[position + i] = stuffType;
+        Array.Copy(original, position, newArray, position + length, original.Length - position);
+
+        return newArray;
+    }
+
     internal static void Insert(byte[] destination, byte[] toInsert, int position)
     {
         Array.Copy(toInsert, 0, destination, position, toInsert.Length);
