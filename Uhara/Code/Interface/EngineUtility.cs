@@ -49,7 +49,7 @@ internal class EngineUtility : UShared
                     {
                         if (instrs[i - 1].ToString() == "int3" && instrs[i].ToString() != "int3")
                         {
-                            address += (ulong)offset;
+                            address += (ulong)offset + 1;
                             return address;
                         }
 
@@ -86,8 +86,8 @@ internal class EngineUtility : UShared
             {
                 if (data == Data.FNamePool)
                 {
-                    ulong address = UMemory.ScanRel(Instance, "48 8D 05 ???????? EB ?? 48 8D 0D ???????? E8 ???????? C6 05");
-                    if (address == 0) address = UMemory.ScanRel(Instance, "8B D9 74 ?? 48 8D 15 ???????? EB", offset: 4);
+                    ulong address = UMemory.ScanRel2(Instance, "48 8D 05 ???????? EB ?? 48 8D 0D ???????? E8 ???????? C6 05");
+                    if (address == 0) address = UMemory.ScanRel2(Instance, "8B D9 74 ?? 48 8D 15 ???????? EB", offset: 4);
                     return address;
                 }
             }

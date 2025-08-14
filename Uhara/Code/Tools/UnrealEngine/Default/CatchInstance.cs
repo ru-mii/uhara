@@ -70,6 +70,9 @@ public partial class Tools : UShared
                 {
                     try
                     {
+                        if (AllocStart == 0)
+                            return;
+
                         ScanForInfo();
 
                         if (FNamePool == 0)
@@ -95,18 +98,21 @@ public partial class Tools : UShared
                         {
                             StaticConstructObject_Internal = EngineUtility.UnrealEngine.GetAddress(EngineUtility.UnrealEngine.Function.StaticConstructObject_Internal);
                             if (StaticConstructObject_Internal == 0) UProgram.Print("StaticConstructObject_Internal not found");
+                            else UProgram.Print("StaticConstructObject_Internal found at 0x" + StaticConstructObject_Internal.ToString("X"));
                         }
 
                         if (UObjectBeginDestroy == 0)
                         {
                             UObjectBeginDestroy = EngineUtility.UnrealEngine.GetAddress(EngineUtility.UnrealEngine.Function.UObjectBeginDestroy);
                             if (UObjectBeginDestroy == 0) UProgram.Print("UObjectBeginDestroy not found");
+                            else UProgram.Print("UObjectBeginDestroy found at 0x" + UObjectBeginDestroy.ToString("X"));
                         }
 
                         if (FNamePool == 0)
                         {
                             FNamePool = EngineUtility.UnrealEngine.GetAddress(EngineUtility.UnrealEngine.Data.FNamePool);
                             if (FNamePool == 0) UProgram.Print("FNamePool not found");
+                            else UProgram.Print("FNamePool found at 0x" + FNamePool.ToString("X"));
                         }
                     }
                     catch { }
@@ -222,11 +228,12 @@ public partial class Tools : UShared
                             CodeEnd = AllocStart + (ulong)EnvOffsets.CodeEnd;
                             OutputEnd = AllocStart + (ulong)EnvOffsets.Output;
                             QueueItems = new Dictionary<string, byte>();
-                            
+
                             byte[] asmBlock = AsmBlocks.UnrealEngine_CatchInstance;
                             byte[] asmDecoded = UArray.DecodeAsmBlock(asmBlock);
                             RefWriteBytes(Instance, AllocStart, asmDecoded);
                         }
+                        else { UProgram.Print("Couldn't allocate memory"); throw new Exception(); }
                     }
                     catch { UProgram.Print("Creating tool failed"); }
                 }

@@ -132,7 +132,7 @@ public class UShared
                                 if (UMemory.ConfirmBytes(Instance, address, validate))
                                 {
                                     RefWriteBytes(Instance, address, recover);
-                                    UProgram.Print("[MEMORY_CLEANER] Overwrite at 0x" + address.ToString("X") +
+                                    UProgram.Print("Overwrite at 0x" + address.ToString("X") +
                                         " recovered with " + recover.Length + " bytes");
                                 }
                             }
@@ -155,7 +155,7 @@ public class UShared
                                 try
                                 {
                                     UMemory.FreeMemory(Instance, address, size);
-                                    UProgram.Print("[MEMORY_CLEANER] Memory freed at 0x" + address.ToString("X"));
+                                    UProgram.Print("Memory freed at 0x" + address.ToString("X"));
                                 }
                                 catch { }
                             }
@@ -238,7 +238,8 @@ public class UShared
     {
         try
         {
-            return (ulong)_RefAllocateMemory.Invoke(null, new object[] { process, size });
+            IntPtr toReturn = (IntPtr)_RefAllocateMemory.Invoke(null, new object[] { process, size });
+            return (ulong)toReturn;
         }
         catch { }
         return 0;

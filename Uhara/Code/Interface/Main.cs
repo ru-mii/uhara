@@ -34,7 +34,7 @@ public partial class Main : UShared
         DebugMode = false;
     }
 
-    public void EnableDebugMode()
+    public void EnableDebug()
     {
         try
         {

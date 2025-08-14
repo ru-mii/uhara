@@ -32,7 +32,7 @@ public partial class Main
     {
         try
         {
-            return CodeHK(address, overwriteSize, UMemory.GetByteArray(customCode));
+            return CodeHK(address, overwriteSize, USignature.GetBytes(customCode));
         }
         catch { }
         return IntPtr.Zero;
@@ -82,12 +82,12 @@ public partial class Main
         return IntPtr.Zero;
     }
 
-    public IntPtr ScanSingle(string signature)
+    public IntPtr ScanSingle(string signature, string moduleName = null, int offset = 0)
     {
         try
         {
             if (CheckSetProcessAndValues())
-                return (IntPtr)UMemory.ScanSingle(signature);
+                return (IntPtr)UMemory.ScanSingle(Instance, signature, moduleName, offset);
         }
         catch { }
         return IntPtr.Zero;
@@ -98,7 +98,29 @@ public partial class Main
         try
         {
             if (CheckSetProcessAndValues())
-                return (IntPtr)UMemory.ScanRel(offset, signature);
+                return (IntPtr)UMemory.ScanRel(Instance, offset, signature);
+        }
+        catch { }
+        return IntPtr.Zero;
+    }
+
+    public IntPtr ScanRel2(string signature, int toInstructionOffset = 0)
+    {
+        try
+        {
+            if (CheckSetProcessAndValues())
+                return (IntPtr)UMemory.ScanRel2(Instance, signature, null, toInstructionOffset);
+        }
+        catch { }
+        return IntPtr.Zero;
+    }
+
+    public IntPtr ScanRel2(string signature, string moduleName = null, int toInstructionOffset = 0)
+    {
+        try
+        {
+            if (CheckSetProcessAndValues())
+                return (IntPtr)UMemory.ScanRel2(Instance, signature, moduleName, toInstructionOffset);
         }
         catch { }
         return IntPtr.Zero;
