@@ -23,7 +23,7 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        return functionCall.AddArgument(InstanceCreation.ArgTypes.Flag, className, objectName, functionName, 1);
+                        return functionCall.AddArgument(FunctionCall.ArgTypes.Flag, className, objectName, functionName, 1);
                     }
                     catch { }
                     return IntPtr.Zero;
@@ -33,7 +33,7 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        return functionCall.AddArgument(InstanceCreation.ArgTypes.Instance, className, objectName, functionName, 1);
+                        return functionCall.AddArgument(FunctionCall.ArgTypes.Instance, className, objectName, functionName, 1);
                     }
                     catch { }
                     return IntPtr.Zero;
