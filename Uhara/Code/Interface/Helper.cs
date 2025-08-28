@@ -12,7 +12,7 @@ public partial class Main
     {
         try
         {
-            return UInstruction.GetMinimumOverwrite(Instance, (ulong)address, required);
+            return TInstruction.GetMinimumOverwrite(Instance, (ulong)address, required);
         }
         catch { }
         return 0;
@@ -32,7 +32,7 @@ public partial class Main
     {
         try
         {
-            return CodeHK(address, overwriteSize, USignature.GetBytes(customCode));
+            return CodeHK(address, overwriteSize, TSignature.GetBytes(customCode));
         }
         catch { }
         return IntPtr.Zero;
@@ -43,13 +43,13 @@ public partial class Main
         try
         {
             byte[] jmpConfirmBytes = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
-            byte[] readConfirmBytes = UMemory.ReadMemoryBytes(Instance, address, 0x6);
+            byte[] readConfirmBytes = TMemory.ReadMemoryBytes(Instance, address, 0x6);
 
             if (readConfirmBytes == null) return IntPtr.Zero;
 
             if (jmpConfirmBytes.SequenceEqual(readConfirmBytes))
             {
-                ulong oldAllocated = UMemory.ReadMemory<ulong>(Instance, address + 0x6);
+                ulong oldAllocated = TMemory.ReadMemory<ulong>(Instance, address + 0x6);
 
                 if (oldAllocated == 0) return IntPtr.Zero;
                 else return (IntPtr)(oldAllocated - 0x8);
@@ -59,18 +59,18 @@ public partial class Main
                 ulong allocated = RefAllocateMemory(Instance, 0x100);
                 if (allocated == 0) return IntPtr.Zero;
 
-                byte[] stolen = UMemory.ReadMemoryBytes(Instance, address, overwriteSize);
+                byte[] stolen = TMemory.ReadMemoryBytes(Instance, address, overwriteSize);
                 if (stolen == null) return IntPtr.Zero;
 
                 byte[] e1 = customCode;
                 byte[] e2 = stolen;
                 byte[] e3 = { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
                 byte[] e4 = BitConverter.GetBytes((ulong)address + (ulong)overwriteSize);
-                byte[] end = UArray.Merge(e1, e2, e3, e4);
+                byte[] end = TArray.Merge(e1, e2, e3, e4);
 
                 byte[] s1 = { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
                 byte[] s2 = BitConverter.GetBytes(allocated + 0x8);
-                byte[] start = UArray.Merge(s1, s2);
+                byte[] start = TArray.Merge(s1, s2);
 
                 RefWriteBytes(Instance, allocated + 0x8, end);
                 RefWriteBytes(Instance, (ulong)address, start);
@@ -87,7 +87,7 @@ public partial class Main
         try
         {
             if (CheckSetProcessAndValues())
-                return (IntPtr)UMemory.ScanSingle(Instance, signature, moduleName, offset);
+                return (IntPtr)TMemory.ScanSingle(Instance, signature, moduleName, offset);
         }
         catch { }
         return IntPtr.Zero;
@@ -98,7 +98,7 @@ public partial class Main
         try
         {
             if (CheckSetProcessAndValues())
-                return (IntPtr)UMemory.ScanRel(Instance, offset, signature);
+                return (IntPtr)TMemory.ScanRel(Instance, offset, signature);
         }
         catch { }
         return IntPtr.Zero;
@@ -109,7 +109,7 @@ public partial class Main
         try
         {
             if (CheckSetProcessAndValues())
-                return (IntPtr)UMemory.ScanRel2(Instance, signature, null, toInstructionOffset);
+                return (IntPtr)TMemory.ScanRel2(Instance, signature, null, toInstructionOffset);
         }
         catch { }
         return IntPtr.Zero;
@@ -120,7 +120,7 @@ public partial class Main
         try
         {
             if (CheckSetProcessAndValues())
-                return (IntPtr)UMemory.ScanRel2(Instance, signature, moduleName, toInstructionOffset);
+                return (IntPtr)TMemory.ScanRel2(Instance, signature, moduleName, toInstructionOffset);
         }
         catch { }
         return IntPtr.Zero;

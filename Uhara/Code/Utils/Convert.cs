@@ -5,16 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-internal class UConvert
+internal class TConvert
 {
     public static T Parse<T>(string number, bool forceHex = false)
     {
         try
         {
+            if (string.IsNullOrEmpty(number)) return default;
+
             NumberStyles numberStyle = NumberStyles.Number;
             number = number.ToLower().Replace(",", ".").Replace(" ", "");
-
-            if (string.IsNullOrEmpty(number)) return default;
 
             int multiplier = 1;
             if (number[0] == '-')

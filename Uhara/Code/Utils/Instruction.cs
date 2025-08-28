@@ -6,8 +6,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-internal class UInstruction
+internal class TInstruction
 {
+    internal static ulong GetAlignedAddress(Process process, ulong address)
+    {
+        byte[] plank = TMemory.ReadMemoryBytes(process, address - 60, 100);
+        Instruction[] instructions = GetInstructions2(plank);
+        ulong toReturn = 0;
+
+        ulong current = address - 60;
+        for (int i = 0; i < instructions.Length; i++)
+        {
+            if (current <= address && current + (ulong)instructions[i].Length > address)
+            {
+                toReturn = current;
+                break;
+            }
+
+            current += (ulong)instructions[i].Length;
+        }
+
+        return toReturn;
+    }
+
     internal static long ExtractRipValue(Instruction instruction)
     {
         return ExtractRipValue(instruction.ToString());
@@ -19,14 +40,14 @@ internal class UInstruction
         {
             string converted = instruction.Substring(instruction.IndexOf("rip") + 4);
             converted = converted.Remove(converted.IndexOf("]"));
-            return UConvert.Parse<long>(converted);
+            return TConvert.Parse<long>(converted);
         }
         return 0;
     }
 
     internal static Instruction GetInstruction2(Process process, ulong address)
     {
-        byte[] bytes = UMemory.ReadMemoryBytes(process, address, 50);
+        byte[] bytes = TMemory.ReadMemoryBytes(process, address, 50);
         Instruction[] instructions = new Disassembler(bytes, ArchitectureMode.x86_64,
         address, true).Disassemble().ToArray();
 
@@ -41,21 +62,21 @@ internal class UInstruction
         return instructions[0];
     }
 
-    internal static Instruction[] GetInstructions2(byte[] bytes)
+    internal static Instruction[] GetInstructions2(byte[] bytes, ulong address = 0)
     {
         return new Disassembler(bytes, ArchitectureMode.x86_64,
-        0, true).Disassemble().ToArray();
+        address, true).Disassemble().ToArray();
     }
 
     internal static int GetMinimumOverwrite(Process process, ulong address, int required = 5)
     {
-        byte[] bytes = UMemory.ReadMemoryBytes(process, (IntPtr)address, 50);
+        byte[] bytes = TMemory.ReadMemoryBytes(process, (IntPtr)address, 50);
         return GetMinimumOverwrite(bytes, required);
     }
 
     internal static int GetMinimumOverwrite(string bytes, int required = 5)
     {
-        return GetMinimumOverwrite(USignature.GetBytes(bytes), required);
+        return GetMinimumOverwrite(TSignature.GetBytes(bytes), required);
     }
 
     internal static int GetMinimumOverwrite(byte[] bytes, int required = 5)

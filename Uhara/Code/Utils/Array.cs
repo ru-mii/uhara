@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class UArray
+class TArray
 {
-    internal static byte[] DecodeAsmBlock(byte[] asmBlock)
+    internal static byte[] DecodeBlock(byte[] asmBlock)
     {
         List<byte> decoded = new List<byte>();
         for (int i = 0; i < asmBlock.Length; i++)

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-internal class UProcess
+internal class TProcess
 {
     internal static ProcessModule GetModule(Process process, string name = null)
     {

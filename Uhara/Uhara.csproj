@@ -65,10 +65,13 @@
   <ItemGroup>
     <Compile Include="Code\Interface\Helper.cs" />
     <Compile Include="Code\Interface\Main.cs" />
-    <Compile Include="Code\Interface\Shared.cs" />
-    <Compile Include="Code\Interface\EngineUtility.cs" />
+    <Compile Include="Code\Interface\MemoryManager.cs" />
+    <Compile Include="Code\Interface\MainShared.cs" />
+    <Compile Include="Code\Interface\ScanUtility.cs" />
+    <Compile Include="Code\Interface\ToolsShared.cs" />
     <Compile Include="Code\Other\AsmBlocks.cs" />
-    <Compile Include="Code\Tools\UnrealEngine\Default\CatchInstance.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Events\Events.FunctionCall.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Events\Events.InstanceCreation.cs" />
     <Compile Include="Code\Utils\Array.cs" />
     <Compile Include="Code\Utils\DynamicVars.cs" />
     <Compile Include="Code\Utils\Imports.cs" />
@@ -81,17 +84,18 @@
     <Compile Include="Code\Utils\Signature.cs" />
     <Compile Include="Code\Utils\Instruction.cs" />
     <Compile Include="Code\Utils\Convert.cs" />
-    <Compile Include="Code\Tools\Unity\Il2Cpp\JitSave.cs" />
-    <Compile Include="Code\Tools\Unity\DotNet\JitSave.cs" />
+    <Compile Include="Code\Tools\Unity\Il2Cpp\JitSave\JitSave.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\JitSave\JitSave.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara7"
-copy "$(TargetPath)" "$(TargetDir)uhara7"
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara8"
+copy "$(TargetPath)" "$(TargetDir)uhara8"
 del "$(TargetPath)"
 del "SharpDisasm.dll"</PostBuildEvent>
   </PropertyGroup>

@@ -10,11 +10,57 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-internal class UMemory : UShared
+internal class TMemory : MainShared
 {
+    internal static int GetMinimumOverwriteBackwards(Process process, ulong address, int overwrite)
+    {
+        ulong hookAddress = address - 0x1000;
+        byte[] pageBytes = ReadMemoryBytes(process, hookAddress, 0x1000);
+        Instruction[] instructions = TInstruction.GetInstructions2(pageBytes);
+
+        List<int> insLengths = new List<int>();
+
+        foreach (Instruction ins in instructions)
+        {
+            hookAddress += (ulong)ins.Bytes.Length;
+            insLengths.Add(ins.Bytes.Length);
+
+            if (hookAddress == address) break;
+        }
+
+        int offset = 0;
+        for (int i = insLengths.Count - 1; i >= 0; i--)
+        {
+            offset += insLengths[i];
+            if (offset >= overwrite)
+            {
+                return offset;
+            }
+        }
+
+        return 0;
+    }
+
+    internal static ulong GetFunctionReturn(Process process, ulong functionAddress)
+    {
+        byte[] pageBytes = ReadMemoryBytes(process, functionAddress, 0x1000);
+        Instruction[] instructions = TInstruction.GetInstructions2(pageBytes);
+
+        ulong retAddress = functionAddress;
+        int offset = 0;
+
+        foreach (Instruction ins in instructions)
+        {
+            if (ins.ToString() == "ret") return retAddress + (ulong)offset;
+            else offset += ins.Bytes.Length;
+        }
+
+        return 0;
+    }
+
     internal static byte[] ConvertRelativeToAbsolute(byte[] bytes, ulong originalAddress)
     {
-        Instruction[] instructions = UInstruction.GetInstructions2(bytes);
+        Instruction[] instructions = TInstruction.GetInstructions2(bytes);
         List<byte[]> newBytes = new List<byte[]>();
 
         int offset = 0;
@@ -43,12 +89,12 @@ internal class UMemory : UShared
             offset += ins.Bytes.Length;
         }
 
-        return UArray.Merge(newBytes);
+        return TArray.Merge(newBytes);
     }
 
     internal static ulong GetActualAddressFromRelative5ByteInstruction(byte[] bytes, ulong address)
     {
-        Instruction instr = UInstruction.GetInstruction2(bytes, address);
+        Instruction instr = TInstruction.GetInstruction2(bytes, address);
         if (instr.Bytes.Length == 5)
         {
             int value = BitConverter.ToInt32(bytes, 1);
@@ -59,7 +105,7 @@ internal class UMemory : UShared
 
     internal static bool ConfirmBytes(Process process, ulong address, string signature)
     {
-        return ConfirmBytes(process, address, USignature.GetBytes(signature));
+        return ConfirmBytes(process, address, TSignature.GetBytes(signature));
     }
 
     internal static bool ConfirmBytes(Process process, ulong address, byte[] bytes)
@@ -87,8 +133,8 @@ internal class UMemory : UShared
         byte[] originalBytes = ReadMemoryBytes(process, original, size);
         byte[] currentBytes = ReadMemoryBytes(process, current, size);
 
-        Instruction[] _org = UInstruction.GetInstructions2(originalBytes);
-        Instruction[] _cur = UInstruction.GetInstructions2(originalBytes);
+        Instruction[] _org = TInstruction.GetInstructions2(originalBytes);
+        Instruction[] _cur = TInstruction.GetInstructions2(originalBytes);
 
         int total = 0;
         for (int i = 0; i < _org.Length; i++)
@@ -110,7 +156,7 @@ internal class UMemory : UShared
 
                 string ripValueTxt = orgTxt.Remove(orgTxt.IndexOf("]"));
                 ripValueTxt = ripValueTxt.Substring(ripValueTxt.IndexOf("rip") + 3);
-                uint ripValue = UConvert.Parse<uint>(ripValueTxt);
+                uint ripValue = TConvert.Parse<uint>(ripValueTxt);
 
                 if (ripValue == 0) continue;
 
@@ -136,24 +182,32 @@ internal class UMemory : UShared
     internal static byte[] GetAbsoluteJumpBytes(ulong destination)
     {
         byte[] stub = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
-        byte[] full = UArray.Merge(stub, BitConverter.GetBytes(destination));
+        byte[] full = TArray.Merge(stub, BitConverter.GetBytes(destination));
         return full;
     }
 
-    internal static void CreateAbsoluteJump(Process process, ulong source, ulong destination)
+    internal static ulong CreateAbsoluteJump(Process process, ulong source, ulong destination)
     {
         byte[] stub = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
-        byte[] full = UArray.Merge(stub, BitConverter.GetBytes(destination));
+        byte[] full = TArray.Merge(stub, BitConverter.GetBytes(destination));
         RefWriteBytes(process, source, full);
+        return (ulong)full.Length;
     }
 
-    internal static void CreateAbsoluteCall(Process process, ulong source, ulong destination)
+    internal static ulong CreateAbsoluteCall(Process process, ulong source, ulong destination, byte rspArguments = 0)
     {
+        byte[] subRsp = new byte[] { 0x48, 0x83, 0xEC, rspArguments };
         byte[] start = new byte[] { 0xEB, 0x08 };
         byte[] address = BitConverter.GetBytes(destination);
         byte[] end = new byte[] { 0xFF, 0x15, 0xF2, 0xFF, 0xFF, 0xFF, 0x90 };
-        byte[] full = UArray.Merge(start, address, end);
+        byte[] addRsp = new byte[] { 0x48, 0x83, 0xC4, rspArguments };
+
+        byte[] full = null;
+        if (rspArguments == 0) full = TArray.Merge(start, address, end);
+        else full = TArray.Merge(subRsp, start, address, end, addRsp);
+
         RefWriteBytes(process, source, full);
+        return (ulong)full.Length;
     }
 
     internal static byte[] GetAbsoluteCallBytes(ulong destination)
@@ -161,14 +215,11 @@ internal class UMemory : UShared
         byte[] start = new byte[] { 0xEB, 0x08 };
         byte[] address = BitConverter.GetBytes(destination);
         byte[] end = new byte[] { 0xFF, 0x15, 0xF2, 0xFF, 0xFF, 0xFF, 0x90 };
-        return UArray.Merge(start, address, end);
+        return TArray.Merge(start, address, end);
     }
 
-    internal static ulong ScanAdvanced(Process process, USignature.ScanData scanData, string moduleName = null)
+    public static ulong ScanAdvanced(Process process, TSignature.ScanData scanData, string moduleName = null)
     {
-        byte[] baseByteSig = USignature.GetBytes(scanData.Signature);
-        string baseMask = USignature.GetMask(scanData.Signature);
-
         ulong searchAddress = 0;
 
         List<ulong[]> sections = GetAllSections(process, moduleName);
@@ -180,86 +231,119 @@ internal class UMemory : UShared
             sectionsBytes.Add(readBytes);
         }
 
-        int baseOffset = 0;
-        int lastIndex = 0;
+        List<KeyValuePair<string, int>> checkpoints = new List<KeyValuePair<string, int>>(scanData.Checkpoints);
+        checkpoints.Insert(0, new KeyValuePair<string, int>(scanData.Signature, 0));
+
+        // incorrect queen index check
+        if (scanData.QueenCheckpointIndex < 0 || scanData.QueenCheckpointIndex >= checkpoints.Count)
+            return 0;
+
+        byte[] baseByteSignature = TSignature.GetBytes(scanData.Signature);
+
         for (int i = 0; i < sections.Count; i++)
         {
-            if (lastIndex != i) baseOffset = 0;
-            lastIndex = i;
+            if (sectionsBytes[i] == null) continue;
+            int searchOffset = 0;
 
-            byte[] bytes = sectionsBytes[i];
-            if (bytes == null) continue;
+            int offsetSuccess = 0;
 
-            if (baseOffset + baseByteSig.Length > bytes.Length) continue;
+            bool chainSuccess = false;
+            int baseOffset = 0;
 
-            baseOffset = FindInArray(bytes, baseByteSig, baseMask, baseOffset);
-            if (baseOffset == -1) continue;
-
-            if (scanData.Checkpoints.Count == 0)
+            for (int j = 0; j < checkpoints.Count; j++)
             {
-                searchAddress = sections[i][0] + (ulong)baseOffset;
-                break;
-            }
-
-            bool pointSearchSuccess = true;
-            int pointOffset = baseOffset;
-
-            foreach (var checkpoint in scanData.Checkpoints)
-            {
-                if (baseOffset + checkpoint.Value > (int)sections[i][1])
+                string[] separateSigs = checkpoints[j].Key.Split(',');
+                for (int k = 0; k < separateSigs.Length; k++)
                 {
-                    pointSearchSuccess = false;
-                    break;
+                    byte[] searchBytes = TSignature.GetBytes(separateSigs[k]);
+                    string searchMask = TSignature.GetMask(separateSigs[k]);
+
+                    int maxDistance = 0;
+
+                    if (checkpoints[j].Value == 0) maxDistance = 0;
+                    else maxDistance = checkpoints[j].Value;
+
+                    if (scanData.ReversedSearch && j != 0 && k == 0)
+                    {
+                        searchOffset = searchOffset - checkpoints[j].Value;
+                        if (searchOffset <= 0 && Math.Abs(searchOffset) < searchBytes.Length)
+                        {
+                            chainSuccess = false;
+                            break;
+                        }
+                    }
+
+                    int searchOffset2 = FindInArray(sectionsBytes[i], searchBytes, searchMask, searchOffset, maxDistance);
+                    chainSuccess = searchOffset2 != -1;
+
+                    if (chainSuccess)
+                    {
+                        searchOffset = searchOffset2;
+                        if (j == 0) baseOffset = searchOffset2;
+                        if (j == scanData.QueenCheckpointIndex) offsetSuccess = searchOffset2;
+                        break;
+                    }
+                    else continue;
                 }
 
-                byte[] pointBytes = USignature.GetBytes(checkpoint.Key);
-                string pointMask = USignature.GetMask(checkpoint.Key);
-
-                if (scanData.Reversed) pointOffset = FindInArray(bytes, pointBytes, pointMask, pointOffset - checkpoint.Value, checkpoint.Value);
-                else pointOffset = FindInArray(bytes, pointBytes, pointMask, pointOffset, checkpoint.Value);
-
-                if (pointOffset == -1)
+                if (chainSuccess) continue;
+                else if (j == 0) break;
+                else
                 {
-                    pointSearchSuccess = false;
-                    break;
+                    searchOffset = baseOffset + baseByteSignature.Length;
+                    if (searchOffset + baseByteSignature.Length > (int)sections[i][1]) break;
+                    j = -1;
                 }
             }
 
-            if (pointSearchSuccess)
+            if (chainSuccess)
             {
-                if (scanData.Reversed) searchAddress = sections[i][0] + (ulong)pointOffset;
-                else searchAddress = sections[i][0] + (ulong)baseOffset;
+                searchAddress = sections[i][0] + (ulong)offsetSuccess;
                 break;
-            }
-            else
-            {
-                baseOffset += baseByteSig.Length;
-                if (baseOffset > (int)sections[i][1])
-                    continue;
-
-                i -= 1;
             }
         }
 
-        if (scanData.Relative && searchAddress != 0)
+        if (searchAddress != 0)
         {
-            ulong searchAddressRelative = (ulong)((long)searchAddress + scanData.ToRelativeInstructionOffset);
-            Instruction instr = UInstruction.GetInstruction2(process, searchAddressRelative);
+            if (scanData.Relative)
+            {
+                ulong searchAddressRelative = (ulong)((long)searchAddress + scanData.ToRelativeInstructionOffset);
+                Instruction instr = TInstruction.GetInstruction2(process, searchAddressRelative);
 
-            long value = UInstruction.ExtractRipValue(instr);
+                long value = TInstruction.ExtractRipValue(instr);
 
-            if (value != 0) searchAddress = (ulong)((long)searchAddressRelative + value) + (ulong)instr.Bytes.Length;
-            else return 0;
+                if (value != 0) searchAddress = (ulong)((long)searchAddressRelative + value) + (ulong)instr.Bytes.Length;
+                else return 0;
+            }
+            else if (scanData.FindStartFunction)
+            {
+                ulong newAddress = TInstruction.GetAlignedAddress(process, searchAddress);
+                byte[] disasm = ReadMemoryBytes(process, newAddress - 0x1000, 0x1000);
+                Instruction[] instrs = TInstruction.GetInstructions2(disasm, newAddress - 0x1000);
+
+                for (int i = instrs.Length - 1; i >= 0; i--)
+                {
+                    if (instrs[i].ToString() == "int3")
+                    {
+                        break;
+                    }
+
+                    newAddress -= (ulong)instrs[i].Bytes.Length;
+                }
+
+                searchAddress = newAddress;
+            }
+
+            searchAddress = (ulong)((long)searchAddress + scanData.Offset);
         }
 
-        if (searchAddress != 0) searchAddress = (ulong)((long)searchAddress + scanData.Offset);
         return searchAddress;
     }
 
     internal static ulong ScanSingle(Process process, string signature, string moduleName = null, int offset = 0)
     {
-        byte[] searchBytes = USignature.GetBytes(signature);
-        string searchMask = USignature.GetMask(signature);
+        byte[] searchBytes = TSignature.GetBytes(signature);
+        string searchMask = TSignature.GetMask(signature);
 
         List<ulong[]> sections = GetAllSections(process, moduleName);
 
@@ -283,8 +367,8 @@ internal class UMemory : UShared
 
     internal static ulong ScanRel(Process process, int offset, string signature)
     {
-        byte[] searchBytes = USignature.GetBytes(signature);
-        string searchMask = USignature.GetMask(signature);
+        byte[] searchBytes = TSignature.GetBytes(signature);
+        string searchMask = TSignature.GetMask(signature);
 
         List<ulong[]> sections = GetAllSections(process);
 
@@ -310,16 +394,16 @@ internal class UMemory : UShared
 
     internal static ulong ScanRel2(Process process, string signature, string moduleName = null, int offset = 0)
     {
-        byte[] searchBytes = USignature.GetBytes(signature);
-        string searchMask = USignature.GetMask(signature);
+        byte[] searchBytes = TSignature.GetBytes(signature);
+        string searchMask = TSignature.GetMask(signature);
 
         ulong searchAddress = ScanSingle(process, signature, moduleName);
         if (searchAddress == 0) return 0;
 
         searchAddress = (ulong)((long)searchAddress + offset);
 
-        Instruction instr = UInstruction.GetInstruction2(process, searchAddress);
-        long value = UInstruction.ExtractRipValue(instr);
+        Instruction instr = TInstruction.GetInstruction2(process, searchAddress);
+        long value = TInstruction.ExtractRipValue(instr);
 
         if (value != 0) searchAddress = (ulong)((long)searchAddress + value) + (ulong)instr.Bytes.Length;
         else return 0;
@@ -327,12 +411,12 @@ internal class UMemory : UShared
         return searchAddress;
     }
 
-    internal static List<ulong[]> GetAllSections(Process process, string moduleName = null)
+    public static List<ulong[]> GetAllSections(Process process, string moduleName = null)
     {
-        List<ulong[]> readableSections = new List<ulong[]>();
+        List<ulong[]> sections = new List<ulong[]>();
 
-        ProcessModule procModule = UProcess.GetModule(process, moduleName);
-        if (procModule == null) return readableSections;
+        ProcessModule procModule = TProcess.GetModule(process, moduleName);
+        if (procModule == null) return sections;
 
         ulong baseAddress = (ulong)procModule.BaseAddress;
         byte[] peHeader = GetPEHeader(process, baseAddress);
@@ -348,11 +432,11 @@ internal class UMemory : UShared
             uint virtualSize = BitConverter.ToUInt32(peHeader, currentSectionOffset + 0x08);
             uint virtualAddress = BitConverter.ToUInt32(peHeader, currentSectionOffset + 0x0C);
 
-            readableSections.Add(new ulong[] { baseAddress + virtualAddress, virtualSize });
+            sections.Add(new ulong[] { baseAddress + virtualAddress, virtualSize });
         }
 
-        if (readableSections.Count > 0) readableSections = readableSections.OrderBy(x => x[0]).ToList();
-        return readableSections;
+        if (sections.Count > 0) sections = sections.OrderBy(x => x[0]).ToList();
+        return sections;
     }
 
     internal static byte[] GetPEHeader(Process process, ulong baseAddress)
@@ -372,6 +456,11 @@ internal class UMemory : UShared
         int totalSize = sectionHeaderOffset + (sectionCount * 0x28);
 
         return ReadMemoryBytes(process, baseAddress, totalSize);
+    }
+
+    internal static int FindInArray(byte[] chunkData, string signature, int startPosition = 0, int maxDistance = 0)
+    {
+        return FindInArray(chunkData, TSignature.GetBytes(signature), TSignature.GetMask(signature), startPosition, maxDistance);
     }
 
     internal static int FindInArray(byte[] chunkData, byte[] byteSignature, string mask = "", int startPosition = 0, int maxDistance = 0)

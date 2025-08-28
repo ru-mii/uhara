@@ -10,14 +10,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public partial class Main : UShared
+public partial class Main : MainShared
 {
     public Main()
     {
         try
         {
             CheckSetProcessAndValues();
-            USaves.Register("rumii", "uhara");
+            TSaves2.Register("rumii", "uhara");
             Vars.Uhara = this;
 
             Assembly liveSplitAssembly = Assembly.Load("LiveSplit.Core");
@@ -28,7 +28,7 @@ public partial class Main : UShared
             _RefWriteBytes = extensionMethodsType.GetMethod("WriteBytes", new Type[] { typeof(Process), typeof(IntPtr), typeof(byte[]) });
             _RefCreateThread = extensionMethodsType.GetMethod("CreateThread", new Type[] { typeof(Process), typeof(IntPtr) });
 
-            UniqueScriptLoadID = UProgram.GenerateRandomString(12);
+            UniqueScriptLoadID = TProgram.GenerateRandomString(32);
         }
         catch { }
         DebugMode = false;
@@ -45,7 +45,12 @@ public partial class Main : UShared
 
     public dynamic CreateTool(string engine, string tool)
     {
-        return CreateTool(engine, "default", tool);
+        try
+        {
+            return CreateTool(engine, "default", tool);
+        }
+        catch { }
+        return null;
     }
 
     public dynamic CreateTool(string engine, string type, string tool)
@@ -61,32 +66,43 @@ public partial class Main : UShared
                 type = type.ToLower();
                 tool = tool.ToLower();
 
-                if (ToolNames.Unity.Data.Contains(engine))
+                if (ToolsShared.ToolNames.Unity.Data.Contains(engine))
                 {
-                    if (ToolNames.Unity.DotNet.Data.Contains(type))
+                    if (ToolsShared.ToolNames.Unity.DotNet.Data.Contains(type))
                     {
-                        if (ToolNames.Unity.DotNet.JitSave.Data.Contains(tool))
+                        if (ToolsShared.ToolNames.Unity.DotNet.JitSave.Data.Contains(tool))
                         {
                             return new Tools.Unity.DotNet.JitSave();
                         }
                     }
 
-                    else if (ToolNames.Unity.Il2Cpp.Data.Contains(type))
+                    else if (ToolsShared.ToolNames.Unity.Il2Cpp.Data.Contains(type))
                     {
-                        if (ToolNames.Unity.Il2Cpp.JitSave.Data.Contains(tool))
+                        if (ToolsShared.ToolNames.Unity.Il2Cpp.JitSave.Data.Contains(tool))
                         {
                             return new Tools.Unity.Il2Cpp.JitSave();
                         }
                     }
                 }
 
-                else if (ToolNames.UnrealEngine.Data.Contains(engine))
+                if (ToolsShared.ToolNames.UnrealEngine.Data.Contains(engine))
                 {
-                    if (ToolNames.UnrealEngine.Default.Data.Contains(type))
+                    if (ToolsShared.ToolNames.UnrealEngine.Default.Data.Contains(type))
                     {
-                        if (ToolNames.UnrealEngine.Default.CatchInstance.Data.Contains(tool))
+                        if (ToolsShared.ToolNames.UnrealEngine.Default.Events.Data.Contains(tool))
                         {
-                            return new Tools.UnrealEngine.Default.CatchInstance();
+                            return new Tools.UnrealEngine.Default.Events();
+                        }
+                    }
+                }
+
+                if (ToolsShared.ToolNames.UnrealEngine.Data.Contains(engine))
+                {
+                    if (ToolsShared.ToolNames.UnrealEngine.Default.Data.Contains(type))
+                    {
+                        if (ToolsShared.ToolNames.UnrealEngine.Default.CutsceneManager.Data.Contains(tool))
+                        {
+                            //return new Tools.UnrealEngine.Default.CutsceneManager();
                         }
                     }
                 }
@@ -98,6 +114,10 @@ public partial class Main : UShared
 
     public void SetProcess(Process process)
     {
-        Instance = process;
+        try
+        {
+            Instance = process;
+        }
+        catch { }
     }
 }

@@ -4,25 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-internal class USignature
+internal class TSignature
 {
     public class ScanData
     {
         public string Signature { get; set; }
         public bool Relative { get; set; }
         public int ToRelativeInstructionOffset { get; set; }
-        public Dictionary<string, int> Checkpoints { get; set; }
-        public bool Reversed { get; set; }
+        public List<KeyValuePair<string, int>> Checkpoints { get; set; }
+        public int QueenCheckpointIndex { get; set; }
+        public bool ReversedSearch { get; set; }
         public int Offset { get; set; }
+        public bool FindStartFunction { get; set; }
 
-        public ScanData(string signature = null, bool isRelative = false, int toRelativeInstructionOffset = 0, Dictionary<string, int> checkpoints = null, bool reversed = false, int offset = 0)
+        public ScanData(string signature = null, bool isRelative = false, int toRelativeInstructionOffset = 0, List<KeyValuePair<string, int>> checkpoints = null, int queenCheckpointIndex = 0, bool reversed = false, int offset = 0, bool findStartFunction = false)
         {
             Signature = signature;
             Relative = isRelative;
             ToRelativeInstructionOffset = toRelativeInstructionOffset;
-            Checkpoints = checkpoints == null ? new Dictionary<string, int>() : checkpoints;
-            Reversed = reversed;
+            Checkpoints = checkpoints == null ? new List<KeyValuePair<string, int>>() : checkpoints;
+            QueenCheckpointIndex = queenCheckpointIndex;
+            ReversedSearch = reversed;
             Offset = offset;
+            FindStartFunction = findStartFunction;
         }
     }
 

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
-public partial class Tools : UShared
+public partial class Tools : MainShared
 {
     public partial class Unity
     {
@@ -20,13 +20,26 @@ public partial class Tools : UShared
         {
             public class JitSave
             {
-                private int EnvironmentAllocSize = 0x10000;
+                private ulong AllocSize = 0x10000;
 
                 // add [rip-8], 1
                 private byte[] AsmAdd1RelativeStorage = new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 };
 
                 // mov [rip-8], rdi
                 private byte[] AsmMovRdiRelativeStorage = new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 };
+
+                public class Offsets
+                {
+                    public static readonly ulong NativeCode = 0x0;
+                    public static readonly ulong NativeData = 0x1000;
+
+                    public static readonly ulong BarrierSeparator = 0x2000;
+
+                    public static readonly ulong InterfaceArguments = 0x2000;
+                    public static readonly ulong InterfaceData = 0x3000;
+                    public static readonly ulong InterfaceCode = 0x4000;
+                    public static readonly ulong GlobalOutput = 0x5000;
+                }
 
                 private class QueueItem
                 {
@@ -46,9 +59,13 @@ public partial class Tools : UShared
 
                 List<QueueItem> QueueItems = new List<QueueItem>();
 
-                ulong Allocated = 0;
-                ulong Arguments = 0;
-                ulong Output = 0;
+                private ulong AllocateStart = 0;
+                private ulong NativeCode = 0;
+                private ulong NativeData = 0;
+                private ulong InterfaceArguments = 0;
+                private ulong InterfaceData = 0;
+                private ulong InterfaceCode = 0;
+                private ulong GlobalOutput = 0;
 
                 private string DefAssembly = "Assembly-CSharp.dll";
                 private string DefNamespace = "";
@@ -139,10 +156,10 @@ public partial class Tools : UShared
                             string assemblyRelativePath = assemblyPath.Replace(exeDir, "");
                             assemblyRelativePath = assemblyRelativePath.Substring(1);
 
-                            byte[] arg1 = UProgram.StringToMultibyte(assemblyRelativePath);
-                            byte[] arg2 = UProgram.StringToMultibyte(_namespace);
-                            byte[] arg3 = UProgram.StringToMultibyte(_class);
-                            byte[] arg4 = UProgram.StringToMultibyte(_method);
+                            byte[] arg1 = TProgram.StringToMultibyte(assemblyRelativePath);
+                            byte[] arg2 = TProgram.StringToMultibyte(_namespace);
+                            byte[] arg3 = TProgram.StringToMultibyte(_class);
+                            byte[] arg4 = TProgram.StringToMultibyte(_method);
                             byte[] arg5 = BitConverter.GetBytes(paramCount);
 
                             byte[] _offset = BitConverter.GetBytes(hookOffset);
@@ -150,19 +167,21 @@ public partial class Tools : UShared
                             byte[] _bytesSize = BitConverter.GetBytes((short)bytes.Length);
 
                             // ---
-                            byte[] all = UArray.Merge(
+                            byte[] all = TArray.Merge(
                                 BitConverter.GetBytes((short)arg1.Length), arg1,
                                 BitConverter.GetBytes((short)arg2.Length), arg2,
                                 BitConverter.GetBytes((short)arg3.Length), arg3,
                                 BitConverter.GetBytes((short)arg4.Length), arg4,
                                 BitConverter.GetBytes((short)arg5.Length), arg5);
 
-                            RefWriteBytes(Instance, Arguments + 0x8, all);
-                            RefWriteBytes(Instance, Arguments + 0x2, BitConverter.GetBytes((short)all.Length));
+                            RefWriteBytes(Instance, InterfaceArguments + 0x8, all);
+                            RefWriteBytes(Instance, InterfaceArguments + 0x2, BitConverter.GetBytes((short)all.Length));
 
-                            QueueItems.Add(new QueueItem(Output + 0x8, hookOffset, overwriteSize, bytes));
-                            Arguments += 0x8 + (ulong)all.Length;
-                            return (IntPtr)((Output += 0x100) - 0x100);
+                            QueueItems.Add(new QueueItem(GlobalOutput + 0x8 + 0x2, hookOffset, overwriteSize, bytes));
+                            InterfaceArguments += 0x8 + (ulong)all.Length;
+                            GlobalOutput += 0x100;
+
+                            return (IntPtr)(GlobalOutput - 0x100 + 0x2);
                         }
                     }
                     catch { }
@@ -178,14 +197,14 @@ public partial class Tools : UShared
                 {
                     try
                     {
-                        UProgram.Print("Waiting for thread to return");
+                        TProgram.Print("Waiting for thread to return");
 
-                        if (UProcess.WaitForThread(UProcess.CreateRemoteThread(Instance, Allocated + 0x8), 30000))
+                        if (TProcess.WaitForThread(TProcess.CreateRemoteThread(Instance, NativeCode + 0x8), 30000))
                         {
                             int hooked = 0;
                             foreach (QueueItem item in QueueItems)
                             {
-                                ulong funcAddress = UMemory.ReadMemory<ulong>(Instance, item.HookAddress);
+                                ulong funcAddress = TMemory.ReadMemory<ulong>(Instance, item.HookAddress);
                                 if (funcAddress == 0) continue;
 
                                 funcAddress += (ulong)item.HookOffset;
@@ -194,9 +213,9 @@ public partial class Tools : UShared
 
                                 int minimumOverwrite = item.OverwriteSize;
                                 if (minimumOverwrite == 0) minimumOverwrite =
-                                        UInstruction.GetMinimumOverwrite(Instance, funcAddress, 14);
+                                        TInstruction.GetMinimumOverwrite(Instance, funcAddress, 14);
 
-                                byte[] realCode = UMemory.ReadMemoryBytes(Instance, funcAddress, minimumOverwrite);
+                                byte[] realCode = TMemory.ReadMemoryBytes(Instance, funcAddress, minimumOverwrite);
                                 if (realCode == null) continue;
 
                                 RefWriteBytes(Instance, item.HookAddress, item.Bytes);
@@ -205,16 +224,16 @@ public partial class Tools : UShared
                                 //try { UMemory.FixRelative(Instance, funcAddress, nextAddress, realCode.Length); } catch { }
                                 nextAddress += (ulong)realCode.Length;
 
-                                UMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
+                                TMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
 
-                                byte[] jumpIn = UMemory.GetAbsoluteJumpBytes(item.HookAddress);
-                                MemoryCleaner.AddOverwrite(funcAddress, jumpIn, realCode);
-                                UMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
+                                byte[] jumpIn = TMemory.GetAbsoluteJumpBytes(item.HookAddress);
+                                MemoryManager.AddOverwrite(funcAddress, realCode);
+                                TMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
 
                                 hooked++;
                             }
 
-                            UProgram.Print(hooked.ToString() + "/" + QueueItems.Count + " functions hooked successfuly");
+                            TProgram.Print(hooked.ToString() + "/" + QueueItems.Count + " functions hooked successfuly");
                         }
                     }
                     catch { }
@@ -224,20 +243,22 @@ public partial class Tools : UShared
                 {
                     try
                     {
-                        Allocated = RefAllocateMemory(Instance, EnvironmentAllocSize);
-                        if (Allocated != 0)
+                        AllocateStart = MemoryManager.AllocateSafe((int)AllocSize);
+                        if (AllocateStart != 0)
                         {
-                            MemoryCleaner.AddAllocate(Allocated, EnvironmentAllocSize);
+                            NativeCode = AllocateStart + Offsets.NativeCode;
+                            NativeData = AllocateStart + Offsets.NativeData;
+                            InterfaceArguments = AllocateStart + Offsets.InterfaceArguments;
+                            InterfaceData = AllocateStart + Offsets.InterfaceData;
+                            InterfaceCode = AllocateStart + Offsets.InterfaceCode;
+                            GlobalOutput = AllocateStart + Offsets.GlobalOutput;
+                            QueueItems.Clear();
 
                             byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCS_JitSave);
-                            RefWriteBytes(Instance, Allocated, asmDecoded);
-
-                            Arguments = Allocated + 0x2000;
-                            Output = Allocated + 0x3002;
-                            QueueItems.Clear();
+                            RefWriteBytes(Instance, NativeCode, asmDecoded);
                         }
                     }
-                    catch { UProgram.Print("Creating tool failed"); }
+                    catch { TProgram.Print("Creating tool failed"); }
                 }
 
                 private byte[] DecodeAsmBlock(byte[] asmBlock)
