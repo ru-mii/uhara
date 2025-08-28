@@ -85,7 +85,7 @@ internal class ScanUtility : MainShared
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
-                        scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? 0F A8 01 75";
+                        scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? 01 75";
                         scanData.FindStartFunction = true;
 
                         scanData.Checkpoints = new List<KeyValuePair<string, int>>
