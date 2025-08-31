@@ -301,8 +301,8 @@ public partial class Tools : MainShared
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
                                         break;
 
-                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "F_UObjectProcessEvent", "0x" +
-                                        ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent.ToString("X")));
+                                    SetProcessCache(SubToolID, "F_UObjectProcessEvent", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent.ToString("X"));
                                 }
 
                                 {
@@ -318,8 +318,8 @@ public partial class Tools : MainShared
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                         break;
 
-                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "F_UObjectBeginDestroy", "0x" +
-                                        ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy.ToString("X")));
+                                    SetProcessCache(SubToolID, "F_UObjectBeginDestroy", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy.ToString("X"));
                                 }
 
                                 {
@@ -335,8 +335,8 @@ public partial class Tools : MainShared
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                         break;
 
-                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "D_FNamePoolAddress", "0x" +
-                                        ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress.ToString("X")));
+                                    SetProcessCache(SubToolID, "D_FNamePoolAddress", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress.ToString("X"));
                                 }
 
                                 success = true;

@@ -85,18 +85,18 @@ public class MainShared
         return false;
     }
 
-    internal static string SetProcessCache(string id, string name, string data)
+    internal static bool SetProcessCache(string id, string name, string data)
     {
         try
         {
             string token = TProcess.GetToken(Instance);
-            if (token == null) return null;
+            if (token == null) return false;
 
             TSaves2.Set(data, "ProcessCache", id, name);
             TSaves2.Set(token, "ProcessCache", id, name, "Token");
         }
         catch { }
-        return null;
+        return false;
     }
 
     internal static string GetProcessCache(string id, string name)
