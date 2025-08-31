@@ -43,6 +43,8 @@ public partial class Tools : MainShared
                 private class FunctionCall
                 {
                     #region VARIABLES
+                    string SubToolID = "cjuvgtrc";
+
                     public enum InitResults
                     {
                         None = 0,
@@ -263,8 +265,8 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                if (!Allocate()) break;
                                 if (!ScanData()) break;
+                                if (!Allocate()) break;
                                 if (!WriteArgs()) break;
                                 if (!HookCode()) break;
 
@@ -278,6 +280,74 @@ public partial class Tools : MainShared
                     }
                     #endregion
 
+                    #region SCAN_DATA
+                    private bool ScanData()
+                    {
+                        bool success = false;
+                        try
+                        {
+                            do
+                            {
+                                {
+                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
+                                    ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent =
+                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectProcessEvent"));
+
+                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
+                                    ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent =
+                                    ScanUtility.UnrealEngine.SearchAddress(
+                                    ScanUtility.UnrealEngine.Function.UObjectProcessEvent);
+
+                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
+                                        break;
+
+                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "F_UObjectProcessEvent", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent.ToString("X")));
+                                }
+
+                                {
+                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
+                                    ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
+                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectBeginDestroy"));
+
+                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
+                                     ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
+                                    ScanUtility.UnrealEngine.SearchAddress(
+                                    ScanUtility.UnrealEngine.Function.UObject_BeginDestroy);
+
+                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
+                                        break;
+
+                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "F_UObjectBeginDestroy", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy.ToString("X")));
+                                }
+
+                                {
+                                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
+                                    ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
+                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "D_FNamePoolAddress"));
+
+                                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
+                                    ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
+                                    ScanUtility.UnrealEngine.SearchAddress(
+                                    ScanUtility.UnrealEngine.Data.FNamePool);
+
+                                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
+                                        break;
+
+                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "D_FNamePoolAddress", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress.ToString("X")));
+                                }
+
+                                success = true;
+                            }
+                            while (false);
+                        }
+                        catch { }
+                        TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                    }
+                    #endregion
                     #region ALLOCATE
                     private bool Allocate()
                     {
@@ -300,53 +370,6 @@ public partial class Tools : MainShared
 
                                 success = true;
                             } while (false);
-                        }
-                        catch { }
-                        TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
-                    }
-                    #endregion
-                    #region SCAN_DATA
-                    private bool ScanData()
-                    {
-                        bool success = false;
-                        try
-                        {
-                            do
-                            {
-                                {
-                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
-                                    ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent =
-                                    ScanUtility.UnrealEngine.SearchAddress(
-                                    ScanUtility.UnrealEngine.Function.UObjectProcessEvent);
-
-                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
-                                        break;
-                                }
-
-                                {
-                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
-                                     ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
-                                    ScanUtility.UnrealEngine.SearchAddress(
-                                    ScanUtility.UnrealEngine.Function.UObject_BeginDestroy);
-
-                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
-                                        break;
-                                }
-
-                                {
-                                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
-                                    ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
-                                    ScanUtility.UnrealEngine.SearchAddress(
-                                    ScanUtility.UnrealEngine.Data.FNamePool);
-
-                                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
-                                        break;
-                                }
-
-                                success = true;
-                            }
-                            while (false);
                         }
                         catch { }
                         TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +

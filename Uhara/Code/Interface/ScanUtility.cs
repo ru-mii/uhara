@@ -85,12 +85,13 @@ internal class ScanUtility : MainShared
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
-                        scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? 01 75";
+                        scanData.Signature = "FF 25 00 00 00 00";
                         scanData.FindStartFunction = true;
 
                         scanData.Checkpoints = new List<KeyValuePair<string, int>>
                         {
-                            new KeyValuePair<string, int>("83 7C 24 ?? 00", 100),
+                            new KeyValuePair<string, int>("A8 01 75", 30),
+                            new KeyValuePair<string, int>("83 7C 24 ?? 00", 70),
                         };
 
                         address = TMemory.ScanAdvanced(Instance, scanData);
@@ -108,8 +109,13 @@ internal class ScanUtility : MainShared
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
-                        scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? 33 ED 48 8B F9 A8 01 0F 85";
+                        scanData.Signature = "FF 25 00 00 00 00";
                         scanData.FindStartFunction = true;
+
+                        scanData.Checkpoints = new List<KeyValuePair<string, int>>
+                        {
+                            new KeyValuePair<string, int>("A8 01 0F 85", 50),
+                        };
 
                         address = TMemory.ScanAdvanced(Instance, scanData);
                     }
@@ -127,9 +133,9 @@ internal class ScanUtility : MainShared
                         scanData.Signature = "40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? 00 00 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
 
                         scanData.Checkpoints = new List<KeyValuePair<string, int>>
-                    {
-                        new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
-                    };
+                        {
+                            new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
+                        };
 
                         address = TMemory.ScanAdvanced(Instance, scanData);
                     }
@@ -137,13 +143,12 @@ internal class ScanUtility : MainShared
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
-                        scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? EC ?? ?? 00 00 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
-                        scanData.ReversedSearch = true;
+                        scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
 
                         scanData.Checkpoints = new List<KeyValuePair<string, int>>
-                    {
-                        new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
-                    };
+                        {
+                            new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
+                        };
 
                         address = TMemory.ScanAdvanced(Instance, scanData);
                     }

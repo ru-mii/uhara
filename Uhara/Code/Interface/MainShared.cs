@@ -85,6 +85,39 @@ public class MainShared
         return false;
     }
 
+    internal static string SetProcessCache(string id, string name, string data)
+    {
+        try
+        {
+            string token = TProcess.GetToken(Instance);
+            if (token == null) return null;
+
+            TSaves2.Set(data, "ProcessCache", id, name);
+            TSaves2.Set(token, "ProcessCache", id, name, "Token");
+        }
+        catch { }
+        return null;
+    }
+
+    internal static string GetProcessCache(string id, string name)
+    {
+        try
+        {
+            string token = TProcess.GetToken(Instance);
+            if (token == null) return null;
+
+            string data = TSaves2.Get("ProcessCache", id, name);
+            if (string.IsNullOrEmpty(data)) return null;
+
+            string dataToken = TSaves2.Get("ProcessCache", id, name, "Token");
+            if (string.IsNullOrEmpty(dataToken)) return null;
+
+            if (token == dataToken) return data;
+        }
+        catch { }
+        return null;
+    }
+
     internal static MethodInfo _RefAllocateMemory;
     internal static ulong RefAllocateMemory(Process process, int size)
     {

@@ -62,6 +62,8 @@ public partial class Tools : MainShared
                 private class InstanceCreation
                 {
                     #region VARIABLES
+                    string SubToolID = "wznwkjje";
+
                     public enum InitResults
                     {
                         None = 0,
@@ -318,14 +320,25 @@ public partial class Tools : MainShared
                                 {
                                     if (ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal == 0)
                                         ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal =
+                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_StaticConstructObject_Internal"));
+
+                                    if (ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal == 0)
+                                        ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal =
                                     ScanUtility.UnrealEngine.SearchAddress(
                                     ScanUtility.UnrealEngine.Function.StaticConstructObject_Internal);
 
                                     if (ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal == 0)
                                         break;
+
+                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "F_StaticConstructObject_Internal", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal.ToString("X")));
                                 }
 
                                 {
+                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
+                                        ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
+                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectBeginDestroy"));
+
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                         ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
                                        ScanUtility.UnrealEngine.SearchAddress(
@@ -333,9 +346,16 @@ public partial class Tools : MainShared
 
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                         break;
+
+                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "F_UObjectBeginDestroy", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy.ToString("X")));
                                 }
 
                                 {
+                                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
+                                        ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
+                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "D_FNamePoolAddress"));
+
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                         ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
                                         ScanUtility.UnrealEngine.SearchAddress(
@@ -343,6 +363,9 @@ public partial class Tools : MainShared
 
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                         break;
+
+                                    TConvert.Parse<ulong>(SetProcessCache(SubToolID, "D_FNamePoolAddress", "0x" +
+                                        ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress.ToString("X")));
                                 }
 
                                 success = true;

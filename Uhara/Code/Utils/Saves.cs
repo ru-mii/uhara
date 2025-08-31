@@ -89,11 +89,6 @@ class TSaves2
         Registered = true;
     }
 
-    public static string Get(string name)
-    {
-        return Get(new string[] { name });
-    }
-
     public static string Get(params string[] location)
     {
         if (Registered)
@@ -114,10 +109,6 @@ class TSaves2
         return null;
     }
 
-    public static void Set(string data, string name)
-    {
-        Set(data, new string[] { name });
-    }
 
     public static void Set(string data, params string[] location)
     {
