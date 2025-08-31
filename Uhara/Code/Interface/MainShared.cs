@@ -94,6 +94,7 @@ public class MainShared
 
             TSaves2.Set(data, "ProcessCache", id, name);
             TSaves2.Set(token, "ProcessCache", id, name, "Token");
+            return true;
         }
         catch { }
         return false;
