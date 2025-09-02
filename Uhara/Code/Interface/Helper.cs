@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -8,11 +9,60 @@ using System.Windows.Forms;
 
 public partial class Main
 {
+    public IntPtr CodeHKFlag(string signature)
+    {
+        try
+        {
+            do
+            {
+                if (CheckSetProcessAndValues())
+                {
+                    ulong address = TMemory.ScanSingle(Instance, signature);
+                    if (address == 0) break;
+
+                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(Instance, address, 14);
+                    if (minimumOverwrite == 0) break;
+
+                    byte[] stolen = TMemory.ReadMemoryBytes(Instance, address, minimumOverwrite);
+                    if (stolen == null) break;
+
+                    MemoryManager.AddOverwrite(address, stolen);
+
+                    ulong allocateStart = MemoryManager.AllocateSafe(0x1000);
+                    if (allocateStart == 0) break;
+
+                    ulong allocate = allocateStart;
+
+                    // leave 8 bytes for flag
+                    allocate += 0x8;
+
+                    byte[] flagAsm = new byte[] { 0x83, 0x05, 0xF1, 0xFF, 0xFF, 0xFF, 0x01, 0x90 };
+                    RefWriteBytes(Instance, allocate, flagAsm);
+                    allocate += (ulong)flagAsm.Length;
+
+                    RefWriteBytes(Instance, allocate, stolen);
+                    allocate += (ulong)stolen.Length;
+
+                    TMemory.CreateAbsoluteJump(Instance, allocate, address + (ulong)minimumOverwrite);
+                    allocate += 14;
+
+                    TMemory.CreateAbsoluteJump(Instance, address, allocateStart + 0x8);
+
+                    return (IntPtr)allocateStart;
+                }
+            }
+            while (false);
+        }
+        catch { }
+        return IntPtr.Zero;
+    }
+
     public int GetMinimumHKOverwrite(IntPtr address, int required = 14)
     {
         try
         {
-            return TInstruction.GetMinimumOverwrite(Instance, (ulong)address, required);
+            if (CheckSetProcessAndValues())
+                return TInstruction.GetMinimumOverwrite(Instance, (ulong)address, required);
         }
         catch { }
         return 0;
@@ -22,7 +72,8 @@ public partial class Main
     {
         try
         {
-            return CodeHK(address, overwriteSize, SaveRegBytes[register]);
+            if (CheckSetProcessAndValues())
+                return CodeHK(address, overwriteSize, SaveRegBytes[register]);
         }
         catch { }
         return IntPtr.Zero;
@@ -32,7 +83,8 @@ public partial class Main
     {
         try
         {
-            return CodeHK(address, overwriteSize, TSignature.GetBytes(customCode));
+            if (CheckSetProcessAndValues())
+                return CodeHK(address, overwriteSize, TSignature.GetBytes(customCode));
         }
         catch { }
         return IntPtr.Zero;

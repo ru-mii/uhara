@@ -19,7 +19,6 @@ public class MainShared
 
     public static bool DebugMode = true;
 
-    internal static bool CleanedMemory = false;
     internal static string UniqueScriptLoadID = null;
 
     internal static bool CheckSetProcessAndValues()
