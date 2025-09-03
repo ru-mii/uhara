@@ -143,46 +143,43 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        if (CheckSetProcessAndValues())
-                        {
-                            // ---
-                            if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
+                        // ---
+                        if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
 
-                            string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
-                            string assemblyPath = UPath.FindFile(exeDir, _assembly);
+                        string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
+                        string assemblyPath = UPath.FindFile(exeDir, _assembly);
 
-                            if (assemblyPath == "") return IntPtr.Zero;
+                        if (assemblyPath == "") return IntPtr.Zero;
 
-                            string assemblyRelativePath = assemblyPath.Replace(exeDir, "");
-                            assemblyRelativePath = assemblyRelativePath.Substring(1);
+                        string assemblyRelativePath = assemblyPath.Replace(exeDir, "");
+                        assemblyRelativePath = assemblyRelativePath.Substring(1);
 
-                            byte[] arg1 = TProgram.StringToMultibyte(assemblyRelativePath);
-                            byte[] arg2 = TProgram.StringToMultibyte(_namespace);
-                            byte[] arg3 = TProgram.StringToMultibyte(_class);
-                            byte[] arg4 = TProgram.StringToMultibyte(_method);
-                            byte[] arg5 = BitConverter.GetBytes(paramCount);
+                        byte[] arg1 = TProgram.StringToMultibyte(assemblyRelativePath);
+                        byte[] arg2 = TProgram.StringToMultibyte(_namespace);
+                        byte[] arg3 = TProgram.StringToMultibyte(_class);
+                        byte[] arg4 = TProgram.StringToMultibyte(_method);
+                        byte[] arg5 = BitConverter.GetBytes(paramCount);
 
-                            byte[] _offset = BitConverter.GetBytes(hookOffset);
-                            byte[] _overwriteSize = BitConverter.GetBytes(overwriteSize);
-                            byte[] _bytesSize = BitConverter.GetBytes((short)bytes.Length);
+                        byte[] _offset = BitConverter.GetBytes(hookOffset);
+                        byte[] _overwriteSize = BitConverter.GetBytes(overwriteSize);
+                        byte[] _bytesSize = BitConverter.GetBytes((short)bytes.Length);
 
-                            // ---
-                            byte[] all = TArray.Merge(
-                                BitConverter.GetBytes((short)arg1.Length), arg1,
-                                BitConverter.GetBytes((short)arg2.Length), arg2,
-                                BitConverter.GetBytes((short)arg3.Length), arg3,
-                                BitConverter.GetBytes((short)arg4.Length), arg4,
-                                BitConverter.GetBytes((short)arg5.Length), arg5);
+                        // ---
+                        byte[] all = TArray.Merge(
+                            BitConverter.GetBytes((short)arg1.Length), arg1,
+                            BitConverter.GetBytes((short)arg2.Length), arg2,
+                            BitConverter.GetBytes((short)arg3.Length), arg3,
+                            BitConverter.GetBytes((short)arg4.Length), arg4,
+                            BitConverter.GetBytes((short)arg5.Length), arg5);
 
-                            RefWriteBytes(Instance, InterfaceArguments + 0x8, all);
-                            RefWriteBytes(Instance, InterfaceArguments + 0x2, BitConverter.GetBytes((short)all.Length));
+                        RefWriteBytes(Instance, InterfaceArguments + 0x8, all);
+                        RefWriteBytes(Instance, InterfaceArguments + 0x2, BitConverter.GetBytes((short)all.Length));
 
-                            QueueItems.Add(new QueueItem(GlobalOutput + 0x8 + 0x2, hookOffset, overwriteSize, bytes));
-                            InterfaceArguments += 0x8 + (ulong)all.Length;
-                            GlobalOutput += 0x100;
+                        QueueItems.Add(new QueueItem(GlobalOutput + 0x8 + 0x2, hookOffset, overwriteSize, bytes));
+                        InterfaceArguments += 0x8 + (ulong)all.Length;
+                        GlobalOutput += 0x100;
 
-                            return (IntPtr)(GlobalOutput - 0x100 + 0x2);
-                        }
+                        return (IntPtr)(GlobalOutput - 0x100 + 0x2);
                     }
                     catch { }
                     return IntPtr.Zero;

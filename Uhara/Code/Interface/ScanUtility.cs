@@ -143,12 +143,38 @@ internal class ScanUtility : MainShared
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
+                        scanData.Signature = "40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? 00 00 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
+
+                        scanData.Checkpoints = new List<KeyValuePair<string, int>>
+                        {
+                            new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
+                        };
+
+                        address = TMemory.ScanAdvanced(Instance, scanData);
+                    }
+
+                    if (address == 0)
+                    {
+                        ScanData scanData = new ScanData();
                         scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
 
                         scanData.Checkpoints = new List<KeyValuePair<string, int>>
                         {
                             new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
                         };
+
+                        address = TMemory.ScanAdvanced(Instance, scanData);
+                    }
+
+                    if (address == 0)
+                    {
+                        ScanData scanData = new ScanData();
+                        scanData.Signature = "FF 25 00 00 00 00 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
+
+                        scanData.Checkpoints = new List<KeyValuePair<string, int>>
+                    {
+                        new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
+                    };
 
                         address = TMemory.ScanAdvanced(Instance, scanData);
                     }
