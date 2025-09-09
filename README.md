@@ -10,6 +10,9 @@ Livesplit asl library, 32-bit games are not supported.
 ### [SuperSorry](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/SuperSorry/SuperSorry.asl)   
 ### [Awaria](https://raw.githubusercontent.com/ru-mii/AutoSplitters/refs/heads/main/AutoSplitters/Games/Awaria/Awaria.asl)   
 
+# uhara helper tools
+- Unreal Engine https://github.com/ru-mii/Unreal-Logger
+
 # Reasoning for versions
 - "pre" version is designed for testing, can cause livesplit & game crashes
 - new version can receive new features and changes to previous code including API
