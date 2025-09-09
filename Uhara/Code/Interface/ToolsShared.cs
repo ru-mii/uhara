@@ -31,6 +31,11 @@ internal class ToolsShared
                 {
                     internal static readonly string[] Data = new string[] { "jitsave" };
                 }
+
+                internal class Events
+                {
+                    internal static readonly string[] Data = new string[] { "events" };
+                }
             }
 
             internal class Il2Cpp

@@ -49,6 +49,15 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LiveSplit.Core">
+      <HintPath>..\..\..\..\Desktop\Programs\LiveSplit\LiveSplit.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveSplit.ScriptableAutoSplit">
+      <HintPath>..\..\..\..\Desktop\programs\LiveSplit\Components\LiveSplit.ScriptableAutoSplit.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveSplit.View">
+      <HintPath>..\..\..\..\Desktop\Programs\LiveSplit\LiveSplit.View.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDisasm, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDisasm.1.1.11\lib\net45\SharpDisasm.dll</HintPath>
     </Reference>
@@ -63,39 +72,44 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Code\Interface\Helper.cs" />
-    <Compile Include="Code\Interface\Main.cs" />
+    <Compile Include="Code\Interface\Main\Main.Helper.cs" />
+    <Compile Include="Code\Interface\Main\Main.cs" />
     <Compile Include="Code\Interface\MemoryManager.cs" />
     <Compile Include="Code\Interface\MainShared.cs" />
     <Compile Include="Code\Interface\ScanUtility.cs" />
     <Compile Include="Code\Interface\ToolsShared.cs" />
     <Compile Include="Code\Other\AsmBlocks.cs" />
-    <Compile Include="Code\Tools\UnrealEngine\Default\Events\Events.FunctionCall.cs" />
-    <Compile Include="Code\Tools\UnrealEngine\Default\Events\Events.InstanceCreation.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.InstanceDestroy.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.FunctionCall.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.InstanceCreation.cs" />
     <Compile Include="Code\Utils\Array.cs" />
     <Compile Include="Code\Utils\DynamicVars.cs" />
     <Compile Include="Code\Utils\Imports.cs" />
     <Compile Include="Code\Utils\Memory.cs" />
     <Compile Include="Code\Utils\Path.cs" />
     <Compile Include="Code\Utils\Process.cs" />
-    <Compile Include="Code\Utils\Program.cs" />
+    <Compile Include="Code\Utils\Utils.cs" />
     <Compile Include="Code\Utils\Reflection.cs" />
     <Compile Include="Code\Utils\Saves.cs" />
     <Compile Include="Code\Utils\Signature.cs" />
     <Compile Include="Code\Utils\Instruction.cs" />
     <Compile Include="Code\Utils\Convert.cs" />
-    <Compile Include="Code\Tools\Unity\Il2Cpp\JitSave\JitSave.cs" />
-    <Compile Include="Code\Tools\Unity\DotNet\JitSave\JitSave.cs" />
+    <Compile Include="Code\Tools\Unity\IL2CPP\JitSave\IL2CPP.JitSave.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\JitSave\DotNet.JitSave.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.InstanceCreation.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.WatcherBuilder.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.GetInstances.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara8"
-copy "$(TargetPath)" "$(TargetDir)uhara8"
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara9"
+copy "$(TargetPath)" "$(TargetDir)uhara9"
 del "$(TargetPath)"
 del "SharpDisasm.dll"</PostBuildEvent>
   </PropertyGroup>

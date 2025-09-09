@@ -28,11 +28,68 @@ internal class MemoryManager : MainShared
         {
             if (!TProcess.IsAlive(Instance)) return;
             string tempToken = TProcess.GetToken(Instance);
-            for (int i = 0; i < 150; i++) Thread.Sleep(100);
+            for (int i = 0; i < 600; i++) Thread.Sleep(100); // 1 minute
             if (!TProcess.IsAlive(Instance)) return;
             if (tempToken != TProcess.GetToken(Instance)) return;
             TMemory.FreeMemory(Instance, address, size);
-            TProgram.Print("Deallocated memory at 0x" + address.ToString("X"));
+            TUtils.Print("Deallocated memory at 0x" + address.ToString("X"));
+        }
+        catch { }
+    }
+
+    internal static ulong AllocateTimeLimited(int size, int time)
+    {
+        try
+        {
+            do
+            {
+                ulong allocated = RefAllocateMemory(Instance, size);
+                if (allocated == 0) break;
+
+                FreeLargeMemoryInternal(allocated, size, time);
+                return allocated;
+            }
+            while (false);
+        }
+        catch { }
+        return 0;
+    }
+
+    internal static void FreeLargeMemoryInternal(ulong address, int size, int delay = 60000)
+    {
+        try
+        {
+            do
+            {
+                ulong _Sleep = TProcess.GetProcAddress(Instance, "kernel32.dll", "Sleep");
+                if (_Sleep == 0) break;
+
+                ulong _VirtualFree = TProcess.GetProcAddress(Instance, "kernel32.dll", "VirtualFree");
+                if (_VirtualFree == 0) break;
+
+                ulong allocated = RefAllocateMemory(Instance, 0x1000);
+                if (allocated == 0) break;
+
+                byte[] bytesExec = new byte[]
+                {
+                   0x48, 0x83, 0xEC, 0x28, 0x48, 0x8B, 0x0D, 0xCD, 0xFF, 0xFF, 0xFF, 0x48, 0x8B, 0x05, 0xCE, 0xFF,
+                   0xFF, 0xFF, 0xFF, 0xD0, 0x48, 0x8B, 0x0D, 0xCD, 0xFF, 0xFF, 0xFF, 0x48, 0x8B, 0x15, 0xCE, 0xFF,
+                   0xFF, 0xFF, 0x49, 0xB8, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x8B, 0x05, 0xC5,
+                   0xFF, 0xFF, 0xFF, 0xFF, 0xD0, 0x48, 0x83, 0xC4, 0x28, 0xC3
+                };
+
+                byte[] writeBytes = TArray.Merge(
+                    BitConverter.GetBytes((ulong)delay),
+                    BitConverter.GetBytes(_Sleep),
+                    BitConverter.GetBytes(address),
+                    BitConverter.GetBytes((ulong)size),
+                    BitConverter.GetBytes(_VirtualFree),
+                    bytesExec);
+
+                RefWriteBytes(Instance, allocated, writeBytes);
+                RefCreateThread(Instance, allocated + 0x28);
+            }
+            while (false);
         }
         catch { }
     }
@@ -64,7 +121,7 @@ internal class MemoryManager : MainShared
 
                             TSaves2.DeleteValue(RegistryName, key, Allocate, valueName);
                             FreeMemoryDelayed(address, size);
-                            TProgram.Print("Deallocation scheduled for 0x" + address.ToString("X"));
+                            TUtils.Print("Deallocation scheduled for 0x" + address.ToString("X"));
                         }
                     }
 
@@ -83,7 +140,7 @@ internal class MemoryManager : MainShared
 
                             TSaves2.DeleteValue(RegistryName, key, Overwrite, valueName);
                             RefWriteBytes(Instance, address, recover);
-                            TProgram.Print(recover.Length + " bytes recovered at 0x" + address.ToString("X"));
+                            TUtils.Print(recover.Length + " bytes recovered at 0x" + address.ToString("X"));
                         }
                     }
                 }

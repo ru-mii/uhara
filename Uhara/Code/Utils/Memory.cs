@@ -9,9 +9,51 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static TImports;
 
 internal class TMemory : MainShared
 {
+    public static ulong[] ScanMultiple(Process process, string signature, string moduleName = null, int memoryProtection = -1)
+    {
+        List<ulong> resultsRaw = new List<ulong>();
+        byte[] searchBytes = TSignature.GetBytes(signature);
+        string searchMask = TSignature.GetMask(signature);
+
+        List<ulong[]> sections = GetAllSections(process, moduleName);
+
+        for (int i = 0; i < sections.Count; i++)
+        {
+            byte[] sectionBytes = ReadMemoryBytes(process, sections[i][0], (int)sections[i][1]);
+            if (sectionBytes != null && sectionBytes.Length > 0)
+            {
+                int searchOffset = 0;
+                while (true)
+                {
+                    searchOffset = FindInArray(sectionBytes, searchBytes, searchMask, searchOffset);
+                    if (searchOffset == -1) break;
+
+                    ulong foundAddress = sections[i][0] + (ulong)searchOffset;
+
+                    if (memoryProtection == -1) resultsRaw.Add(foundAddress);
+                    else if (GetMemoryProtection(process, foundAddress) == memoryProtection)
+                        resultsRaw.Add(foundAddress);
+
+                    searchOffset += searchBytes.Length;
+                    if ((ulong)searchOffset >= sections[i][1]) break;
+                }
+            }
+        }
+
+        return resultsRaw.ToArray();
+    }
+
+    public static int GetMemoryProtection(Process process, ulong address, int size = 0x1000)
+    {
+        MBI mBi = new MBI();
+        if (!VirtualQueryEx(process.Handle, (IntPtr)address, out mBi, (uint)size)) return -1;
+        return (int)mBi.Protect;
+    }
+
     internal static int GetMinimumOverwriteBackwards(Process process, ulong address, int overwrite)
     {
         ulong hookAddress = address - 0x1000;
@@ -125,7 +167,7 @@ internal class TMemory : MainShared
 
     internal static bool FreeMemory(Process process, ulong address, int size, uint type = 0x00008000)
     {
-        return UImports.VirtualFreeEx(process.Handle, (IntPtr)address, size, type);
+        return TImports.VirtualFreeEx(process.Handle, (IntPtr)address, size, type);
     }
 
     internal static void FixRelative(Process process, ulong original, ulong current, int size)
@@ -514,7 +556,7 @@ internal class TMemory : MainShared
         int typeSize = Marshal.SizeOf(typeof(T));
         byte[] data = new byte[typeSize];
 
-        if (UImports.ReadProcessMemory(process.Handle, address, data, data.Length, out _))
+        if (TImports.ReadProcessMemory(process.Handle, address, data, data.Length, out _))
         {
             if (typeof(T) == typeof(byte)) return (T)(object)data[0];
             else if (typeof(T) == typeof(short)) return (T)(object)BitConverter.ToInt16(data, 0);
@@ -537,7 +579,7 @@ internal class TMemory : MainShared
     internal static byte[] ReadMemoryBytes(Process process, IntPtr address, int size)
     {
         byte[] data = new byte[size];
-        if (UImports.ReadProcessMemory(process.Handle, address, data, data.Length, out _))
+        if (TImports.ReadProcessMemory(process.Handle, address, data, data.Length, out _))
             return data;
         return null;
     }

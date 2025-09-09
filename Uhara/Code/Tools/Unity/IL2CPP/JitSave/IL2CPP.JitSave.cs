@@ -1,32 +1,27 @@
 ﻿using SharpDisasm;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 public partial class Tools : MainShared
 {
     public partial class Unity
     {
-        public partial class DotNet
+        public partial class IL2CPP
         {
             public class JitSave
             {
                 private ulong AllocSize = 0x10000;
 
-                // add [rip-8], 1
-                private byte[] AsmAdd1RelativeStorage = new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 };
-
-                // mov [rip-8], rdi
-                private byte[] AsmMovRdiRelativeStorage = new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 };
+                private byte[] AsmAdd1RelativeStorage = new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 }; // add [rip-8], 1
+                private byte[] AsmMovRdiRelativeStorage = new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 }; // mov [rip-8], rdi
 
                 public class Offsets
                 {
@@ -59,13 +54,10 @@ public partial class Tools : MainShared
 
                 List<QueueItem> QueueItems = new List<QueueItem>();
 
-                private ulong AllocateStart = 0;
-                private ulong NativeCode = 0;
-                private ulong NativeData = 0;
-                private ulong InterfaceArguments = 0;
-                private ulong InterfaceData = 0;
-                private ulong InterfaceCode = 0;
-                private ulong GlobalOutput = 0;
+                ulong AllocateStart = 0;
+                ulong NativeCode = 0;
+                ulong InterfaceArguments = 0;
+                ulong GlobalOutput = 0;
 
                 private string DefAssembly = "Assembly-CSharp.dll";
                 private string DefNamespace = "";
@@ -146,18 +138,10 @@ public partial class Tools : MainShared
                         // ---
                         if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
 
-                        string exeDir = Path.GetDirectoryName(Instance.MainModule.FileName);
-                        string assemblyPath = UPath.FindFile(exeDir, _assembly);
-
-                        if (assemblyPath == "") return IntPtr.Zero;
-
-                        string assemblyRelativePath = assemblyPath.Replace(exeDir, "");
-                        assemblyRelativePath = assemblyRelativePath.Substring(1);
-
-                        byte[] arg1 = TProgram.StringToMultibyte(assemblyRelativePath);
-                        byte[] arg2 = TProgram.StringToMultibyte(_namespace);
-                        byte[] arg3 = TProgram.StringToMultibyte(_class);
-                        byte[] arg4 = TProgram.StringToMultibyte(_method);
+                        byte[] arg1 = TUtils.StringToMultibyte(_assembly);
+                        byte[] arg2 = TUtils.StringToMultibyte(_namespace);
+                        byte[] arg3 = TUtils.StringToMultibyte(_class);
+                        byte[] arg4 = TUtils.StringToMultibyte(_method);
                         byte[] arg5 = BitConverter.GetBytes(paramCount);
 
                         byte[] _offset = BitConverter.GetBytes(hookOffset);
@@ -194,7 +178,7 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        TProgram.Print("Waiting for thread to return");
+                        TUtils.Print("Waiting for thread to return");
 
                         if (TProcess.WaitForThread(TProcess.CreateRemoteThread(Instance, NativeCode + 0x8), 30000))
                         {
@@ -214,26 +198,123 @@ public partial class Tools : MainShared
 
                                 byte[] realCode = TMemory.ReadMemoryBytes(Instance, funcAddress, minimumOverwrite);
                                 if (realCode == null) continue;
+                                byte[] toRecover = realCode.ToList().ToArray();
+
+                                realCode = FixCmp(funcAddress, realCode);
+                                realCode = FixJump(funcAddress, realCode);
 
                                 RefWriteBytes(Instance, item.HookAddress, item.Bytes);
                                 ulong nextAddress = item.HookAddress + (ulong)item.Bytes.Length;
+
                                 RefWriteBytes(Instance, nextAddress, realCode);
-                                //try { UMemory.FixRelative(Instance, funcAddress, nextAddress, realCode.Length); } catch { }
                                 nextAddress += (ulong)realCode.Length;
 
                                 TMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
 
                                 byte[] jumpIn = TMemory.GetAbsoluteJumpBytes(item.HookAddress);
-                                MemoryManager.AddOverwrite(funcAddress, realCode);
+                                MemoryManager.AddOverwrite(funcAddress, toRecover);
                                 TMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
 
                                 hooked++;
                             }
 
-                            TProgram.Print(hooked.ToString() + "/" + QueueItems.Count + " functions hooked successfuly");
+                            TUtils.Print(hooked.ToString() + "/" + QueueItems.Count + " functions hooked successfuly");
                         }
                     }
                     catch { }
+                }
+
+                private byte[] FixJump(ulong original, byte[] bytes)
+                {
+                    List<byte[]> chunks = new List<byte[]>();
+                    Instruction[] instrs = TInstruction.GetInstructions2(bytes);
+
+                    Dictionary<string, byte[]> jumpPairs = new Dictionary<string, byte[]>
+                    {
+                        { "jz", new byte[]  { 0x74, 0x02, 0xEB, 0x0E } }, // jump short if equal (je)
+                        { "jnz", new byte[] { 0x75, 0x02, 0xEB, 0x0E } }, // jump short if not equal (jne)
+                        { "jge", new byte[] { 0x7D, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jnl)
+                        { "jle", new byte[] { 0x7E, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jle)
+                        { "jl", new byte[]  { 0x7C, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jl)
+                        { "jg", new byte[]  { 0x7F, 0x02, 0xEB, 0x0E } }, // jump short if not less (greater or equal) (jg)
+                        { "jmp", new byte[] { 0xEB, 0x02, 0xEB, 0x0E } }, // jump short (jmp)
+                    };
+
+                    byte[] absJump = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+                    int offset = 0;
+                    for (int i = 0; i < instrs.Length; i++)
+                    {
+                        string insTxt = instrs[i].ToString();
+                        int insLen = instrs[i].Bytes.Length;
+
+                        if (insTxt.StartsWith("j"))
+                        {
+                            foreach (var jump in jumpPairs)
+                            {
+                                if (insTxt.StartsWith(jump.Key))
+                                {
+                                    ulong address = original + (ulong)offset;
+                                    int value = 0;
+
+                                    if (insLen == 2) value = instrs[i].Bytes[1];
+                                    else if (insLen == 5) value = BitConverter.ToInt32(instrs[i].Bytes, 1);
+                                    else break;
+
+                                    address += (ulong)(instrs[i].Bytes.Length + value);
+
+                                    byte[] together = jump.Value.Concat(absJump).ToArray();
+                                    TArray.Insert(together, BitConverter.GetBytes(address), 10);
+
+                                    chunks.Add(together);
+                                    offset += together.Length;
+                                    continue;
+                                }
+                            }
+                        }
+
+                        chunks.Add(instrs[i].Bytes);
+                        offset += instrs[i].Bytes.Length;
+                    }
+
+                    return TArray.Merge(chunks.ToArray());
+                }
+
+                private byte[] FixCmp(ulong original, byte[] bytes)
+                {
+                    List<byte[]> chunks = new List<byte[]>();
+                    Instruction[] instrs = TInstruction.GetInstructions2(bytes);
+                    int requiredInstructionLength = 7; // cmp byte [rip+n], 0
+
+                    // mov rax, address
+                    // cmp byte ptr [rax], 0
+                    byte[] modified = new byte[] { 0x48, 0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                        0xFF, 0xFF, 0xFF, 0x80, 0x38, 0x00, 0x90 };
+
+                    int offset = 0;
+                    for (int i = 0; i < instrs.Length; i++)
+                    {
+                        string insTxt = instrs[i].ToString();
+                        if (instrs[i].Bytes.Length == requiredInstructionLength)
+                        {
+                            if (insTxt.StartsWith("cmp byte [rip+0x") && insTxt.EndsWith("], 0x0"))
+                            {
+                                ulong realValue = BitConverter.ToUInt32(instrs[i].Bytes, 2);
+                                ulong readAddress = original + realValue + (ulong)(offset + instrs[i].Bytes.Length);
+                                TArray.Insert(modified, BitConverter.GetBytes(readAddress), 2);
+
+                                chunks.Add(modified);
+                                offset += modified.Length;
+                                continue;
+                            }
+                        }
+
+                        chunks.Add(instrs[i].Bytes);
+                        offset += instrs[i].Bytes.Length;
+                    }
+
+                    return TArray.Merge(chunks.ToArray());
                 }
 
                 public JitSave()
@@ -244,18 +325,15 @@ public partial class Tools : MainShared
                         if (AllocateStart != 0)
                         {
                             NativeCode = AllocateStart + Offsets.NativeCode;
-                            NativeData = AllocateStart + Offsets.NativeData;
                             InterfaceArguments = AllocateStart + Offsets.InterfaceArguments;
-                            InterfaceData = AllocateStart + Offsets.InterfaceData;
-                            InterfaceCode = AllocateStart + Offsets.InterfaceCode;
                             GlobalOutput = AllocateStart + Offsets.GlobalOutput;
                             QueueItems.Clear();
 
-                            byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCS_JitSave);
+                            byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCPP_JitSave);
                             RefWriteBytes(Instance, NativeCode, asmDecoded);
                         }
                     }
-                    catch { TProgram.Print("Creating tool failed"); }
+                    catch { TUtils.Print("Creating tool failed"); }
                 }
 
                 private byte[] DecodeAsmBlock(byte[] asmBlock)

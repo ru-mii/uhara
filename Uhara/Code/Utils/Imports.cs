@@ -5,8 +5,23 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-class UImports
+class TImports
 {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MBI
+    {
+        public IntPtr BaseAddress;
+        public IntPtr AllocationBase;
+        public uint AllocationProtect;
+        public IntPtr RegionSize;
+        public uint State;
+        public uint Protect;
+        public uint Type;
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool VirtualQueryEx(IntPtr hProcess, IntPtr lpAddress, out MBI lpBuffer, uint dwLength);
+
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern bool VirtualFreeEx(IntPtr hProcess, IntPtr lpAddress, int dwSize, uint dwFreeType);
 

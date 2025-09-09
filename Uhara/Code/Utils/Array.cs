@@ -50,6 +50,16 @@ class TArray
         Array.Copy(toInsert, 0, destination, position, toInsert.Length);
     }
 
+    public static string[] Merge(List<string[]> arrays)
+    {
+        return Merge(arrays.ToArray());
+    }
+
+    public static string[] Merge(params string[][] arrays)
+    {
+        return arrays.SelectMany(array => array).ToArray();
+    }
+
     internal static byte[] Merge(params byte[][] arrays)
     {
         byte[] byteArray = new byte[0];

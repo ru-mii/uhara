@@ -184,13 +184,13 @@ public partial class Tools : MainShared
 
                             // check wildcards for string comparison
                             {
-                                if (string.IsNullOrEmpty(className)) { className = ""; _classNameSearchType = SearchTypes.None; }
+                                if (className == null) { className = ""; _classNameSearchType = SearchTypes.None; }
                                 else if (className.StartsWith("*") && className.EndsWith("*")) _classNameSearchType = SearchTypes.Contains;
                                 else if (className.StartsWith("*")) _classNameSearchType = SearchTypes.EndsWith;
                                 else if (className.EndsWith("*")) _classNameSearchType = SearchTypes.StartsWith;
                                 else _classNameSearchType = SearchTypes.Equals;
 
-                                if (string.IsNullOrEmpty(objectName)) { objectName = ""; _objectNameSearchType = SearchTypes.None; }
+                                if (objectName == null) { objectName = ""; _objectNameSearchType = SearchTypes.None; }
                                 else if (objectName.StartsWith("*") && objectName.EndsWith("*")) _objectNameSearchType = SearchTypes.Contains;
                                 else if (objectName.StartsWith("*")) _objectNameSearchType = SearchTypes.EndsWith;
                                 else if (objectName.EndsWith("*")) _objectNameSearchType = SearchTypes.StartsWith;
@@ -202,12 +202,12 @@ public partial class Tools : MainShared
 
                             // create string pointers
                             {
-                                byte[] classNameBytes = TProgram.StringToMultibyte(className);
+                                byte[] classNameBytes = TUtils.StringToMultibyte(className);
                                 _classNamePtr = AddressInterfaceData;
                                 RefWriteBytes(Instance, AddressInterfaceData, classNameBytes);
                                 AddressInterfaceData += (ulong)classNameBytes.Length;
 
-                                byte[] objectNameBytes = TProgram.StringToMultibyte(objectName);
+                                byte[] objectNameBytes = TUtils.StringToMultibyte(objectName);
                                 _objectNamePtr = AddressInterfaceData;
                                 RefWriteBytes(Instance, AddressInterfaceData, objectNameBytes);
                                 AddressInterfaceData += (ulong)objectNameBytes.Length;
@@ -277,6 +277,7 @@ public partial class Tools : MainShared
                             while (false);
                         }
                         catch { }
+                        InitResult = InitResults.Failed;
                         return false;
                     }
                     #endregion
@@ -305,7 +306,7 @@ public partial class Tools : MainShared
                             } while (false);
                         }
                         catch { }
-                        TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                        TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             "\t\t\t\t" + "Success: " + success.ToString()); return success;
                     }
                     #endregion
@@ -373,7 +374,7 @@ public partial class Tools : MainShared
                             while (false);
                         }
                         catch { }
-                        TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                        TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             "\t\t\t\t" + "Success: " + success.ToString()); return success;
                     }
                     #endregion
@@ -394,7 +395,7 @@ public partial class Tools : MainShared
                             while (false);
                         }
                         catch { }
-                        TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                        TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             "\t\t\t\t" + "Success: " + success.ToString()); return success;
                     }
                     #endregion
@@ -433,7 +434,7 @@ public partial class Tools : MainShared
                                     MemoryManager.AddOverwrite(hookAddress, stolenCode);
                                     TMemory.CreateAbsoluteJump(Instance, hookAddress, jumpHook);
 
-                                    TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                    TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                                         "\t\t\t\t" + "Hook: " + "0x" + hookAddress.ToString("X"));
                                 }
 
@@ -455,7 +456,7 @@ public partial class Tools : MainShared
                                     MemoryManager.AddOverwrite(hookAddress, stolenCode);
                                     TMemory.CreateAbsoluteJump(Instance, hookAddress, jumpHook);
 
-                                    TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                    TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                                         "\t\t\t\t" + "Hook: " + "0x" + hookAddress.ToString("X"));
                                 }
 
@@ -464,7 +465,7 @@ public partial class Tools : MainShared
                             while (false);
                         }
                         catch { }
-                        TProgram.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                        TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             "\t\t\t\t" + "Success: " + success.ToString()); return success;
                     }
                     #endregion

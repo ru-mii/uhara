@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class TProgram : MainShared
+class TUtils : MainShared
 {
     internal static string GetFileVersion(string path)
     {
@@ -50,7 +50,7 @@ class TProgram : MainShared
 
     internal static bool Print(string message)
     {
-        if (DebugMode) UImports.OutputDebugString("[UHARA] " + message);
+        if (DebugMode) TImports.OutputDebugString("[UHARA] " + message);
         return false;
     }
 }
