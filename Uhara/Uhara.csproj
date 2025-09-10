@@ -79,8 +79,8 @@
     <Compile Include="Code\Interface\ScanUtility.cs" />
     <Compile Include="Code\Interface\ToolsShared.cs" />
     <Compile Include="Code\Other\AsmBlocks.cs" />
-    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.cs" />
-    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.InstanceDestroy.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Instance.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Instance.InstanceDestroy.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.FunctionCall.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.InstanceCreation.cs" />
     <Compile Include="Code\Utils\Array.cs" />
@@ -100,16 +100,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.InstanceCreation.cs" />
-    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.WatcherBuilder.cs" />
-    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Events.GetInstances.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Instance.InstanceCreation.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Instance.OffsetResolver.cs" />
+    <Compile Include="Code\Tools\Unity\DotNet\Events\DotNet.Instance.GetInstances.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara9"
-copy "$(TargetPath)" "$(TargetDir)uhara9"
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara-pre"
+copy "$(TargetPath)" "$(TargetDir)uhara-pre"
 del "$(TargetPath)"
 del "SharpDisasm.dll"</PostBuildEvent>
   </PropertyGroup>

@@ -32,9 +32,9 @@ internal class ToolsShared
                     internal static readonly string[] Data = new string[] { "jitsave" };
                 }
 
-                internal class Events
+                internal class Instance
                 {
-                    internal static readonly string[] Data = new string[] { "events" };
+                    internal static readonly string[] Data = new string[] { "instance" };
                 }
             }
 

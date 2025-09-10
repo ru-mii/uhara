@@ -12,46 +12,9 @@ public partial class Tools : MainShared
 	{
 		public partial class DotNet
 		{
-			public partial class Events
+			public partial class Instance
 			{
-				#region PUBLIC_API
-				public IntPtr InstancePtr(string fullName)
-				{
-					try
-					{
-						return instanceCreation.AddArgument(InstanceCreation.ArgTypes.Instance, 1, fullName);
-					}
-					catch { }
-					return IntPtr.Zero;
-				}
-
-				public IntPtr[] InstancePtr(short instances, string fullName)
-				{
-					try
-					{
-						do
-						{
-							return instanceCreation.AddArgumentMultiple(InstanceCreation.ArgTypes.Instance, instances, fullName);
-						}
-						while (false);
-					}
-					catch { }
-					return new IntPtr[0];
-				}
-
-				public IntPtr InstanceFlag(string fullName)
-				{
-					try
-					{
-						return instanceCreation.AddArgument(InstanceCreation.ArgTypes.Flag, 1, fullName);
-					}
-					catch { }
-					return IntPtr.Zero;
-
-				}
-				#endregion
-
-				internal class InstanceCreation
+				public class InstanceCreation
 				{
 					#region VARIABLES
 					bool Loaded = false;
@@ -144,126 +107,132 @@ public partial class Tools : MainShared
                     #endregion
 
                     #region INTERNAL_API
-                    internal IntPtr[] AddArgumentMultiple(short argType, short instances, string fullName, params string[] fields)
+                    internal InstanceWatcherBuild[] AddArgumentMultiple(short argType, short instances, string fullName, params string[] fieldsNames)
                     {
-						do
-						{
-							if (!Loaded) break;
+                        do
+                        {
+                            if (!Loaded) break;
 
-                            IntPtr basePtr = instanceCreation.AddArgument(ArgTypes.Instance, instances, fullName);
+							InstanceWatcherBuild baseWatcher = instanceCreation.AddArgument(ArgTypes.Instance, instances, fullName, fieldsNames);
+							if (baseWatcher == null) break;
+
+                            IntPtr basePtr = baseWatcher.Base;
                             if (basePtr == IntPtr.Zero) break;
 
-                            List<IntPtr> result = new List<IntPtr>();
-                            for (int i = 0; i < instances; i++) result.Add(basePtr + (0x8 * i));
+                            List<InstanceWatcherBuild> result = new List<InstanceWatcherBuild>();
+                            for (int i = 0; i < instances; i++) result.Add(new InstanceWatcherBuild(basePtr + (0x8 * i), baseWatcher.Offsets));
                             return result.ToArray();
                         }
-						while (false);
-						return new IntPtr[0];
+                        while (false);
+                        return new InstanceWatcherBuild[0];
                     }
 
-                    internal IntPtr AddArgument(short argType, short instances, string fullName, params string[] fields)
-					{
-						do
-						{
+                    internal InstanceWatcherBuild AddArgument(short argType, short instances, string fullName, params string[] fieldsNames)
+                    {
+                        do
+                        {
                             if (!Loaded) break;
 
                             // it can never be less than 1
                             if (instances < 1) instances = 1;
 
-							// names
-							string[] nameData = fullName.Split('.');
+                            // names
+                            string[] nameData = fullName.Split(':');
 
-							if (nameData.Length > 3)
-							{
-								TUtils.Print(DebugClass + "." + GetType().Name + "." +
-								MethodBase.GetCurrentMethod().Name + "\t\t\t\t" + "More than 3 types detected: " + fullName); break;
-							}
+                            if (nameData.Length > 3)
+                            {
+                                TUtils.Print(DebugClass + "." + GetType().Name + "." +
+                                MethodBase.GetCurrentMethod().Name + " | " + "More than 3 types detected: " + fullName); break;
+                            }
 
-							string[] fullNameData = TArray.Merge(new string[3 - nameData.Length], nameData);
-							string imageName = fullNameData[0] ?? DefaultImage;
-							string namespaceName = fullNameData[1] ?? DefaultNamespace;
-							string className = fullNameData[2] ?? DefaultClass;
+                            string[] fullNameData = TArray.Merge(new string[3 - nameData.Length], nameData);
+                            string imageName = fullNameData[0] ?? DefaultImage;
+                            string namespaceName = fullNameData[1] ?? DefaultNamespace;
+                            string className = fullNameData[2] ?? DefaultClass;
 
-							// clear extension
-							if (imageName.EndsWith(".dll"))
-								imageName = imageName.Remove(imageName.Length - 4);
+                            // clear extension
+                            if (imageName.EndsWith(".dll"))
+                                imageName = imageName.Remove(imageName.Length - 4);
 
-							// bricks
-							short _argType = argType;
-							short _imageNameSearchType = 0;
-							short _namespaceNameSearchType = 0;
-							short _classNameSearchType = 0;
-							ulong _outputAddress = AddressGlobalOutput;
-							ulong _imageNamePtr = 0;
-							ulong _namespaceNamePtr = 0;
-							ulong _classNamePtr = 0;
-							short _instances = instances;
+                            // bricks
+                            short _argType = argType;
+                            short _imageNameSearchType = 0;
+                            short _namespaceNameSearchType = 0;
+                            short _classNameSearchType = 0;
+                            ulong _outputAddress = AddressGlobalOutput;
+                            ulong _imageNamePtr = 0;
+                            ulong _namespaceNamePtr = 0;
+                            ulong _classNamePtr = 0;
+                            short _instances = instances;
 
-							// no wildcards in mono, tuu hard, sadge
-							{
-								_imageNameSearchType = SearchTypes.Equals;
-								_namespaceNameSearchType = SearchTypes.Equals;
-								_classNameSearchType = SearchTypes.Equals;
-							}
+                            // no wildcards in mono, tuu hard, sadge
+                            {
+                                _imageNameSearchType = SearchTypes.Equals;
+                                _namespaceNameSearchType = SearchTypes.Equals;
+                                _classNameSearchType = SearchTypes.Equals;
+                            }
 
-							// create string pointers
-							{
-								byte[] imageNameBytes = TUtils.StringToMultibyte(imageName);
-								_imageNamePtr = AddressArgumentsData;
-								RefWriteBytes(Instance, AddressArgumentsData, imageNameBytes);
-								AddressArgumentsData += (ulong)imageNameBytes.Length;
+                            // create string pointers
+                            {
+                                byte[] imageNameBytes = TUtils.StringToMultibyte(imageName);
+                                _imageNamePtr = AddressArgumentsData;
+                                RefWriteBytes(ProcessInstance, AddressArgumentsData, imageNameBytes);
+                                AddressArgumentsData += (ulong)imageNameBytes.Length;
 
-								byte[] namespaceNameBytes = TUtils.StringToMultibyte(namespaceName);
-								_namespaceNamePtr = AddressArgumentsData;
-								RefWriteBytes(Instance, AddressArgumentsData, namespaceNameBytes);
-								AddressArgumentsData += (ulong)namespaceNameBytes.Length;
+                                byte[] namespaceNameBytes = TUtils.StringToMultibyte(namespaceName);
+                                _namespaceNamePtr = AddressArgumentsData;
+                                RefWriteBytes(ProcessInstance, AddressArgumentsData, namespaceNameBytes);
+                                AddressArgumentsData += (ulong)namespaceNameBytes.Length;
 
-								byte[] classNameBytes = TUtils.StringToMultibyte(className);
-								_classNamePtr = AddressArgumentsData;
-								RefWriteBytes(Instance, AddressArgumentsData, classNameBytes);
-								AddressArgumentsData += (ulong)classNameBytes.Length;
-							}
+                                byte[] classNameBytes = TUtils.StringToMultibyte(className);
+                                _classNamePtr = AddressArgumentsData;
+                                RefWriteBytes(ProcessInstance, AddressArgumentsData, classNameBytes);
+                                AddressArgumentsData += (ulong)classNameBytes.Length;
+                            }
 
-							// update output address for next argument
-							if (ArgTypes.Instance == argType)
-							{
+                            // update output address for next argument
+                            if (ArgTypes.Instance == argType)
+                            {
                                 AddressGlobalOutput += (ulong)((instances * 0x8) + OutputInstanceStruct.FirstInstanceSlot.Offset);
 
                                 // update other sub tools
                                 getInstances.AddArgument(_outputAddress, instances, imageName, namespaceName, className);
-								instanceDestroy.AddArgument(_outputAddress + (ulong)OutputInstanceStruct.FirstInstanceSlot.Offset, instances);
-							}
-							else if (ArgTypes.Flag == argType)
-							{
-								AddressGlobalOutput += (ulong)(instances * 0x8);
-							}
+                                instanceDestroy.AddArgument(_outputAddress + (ulong)OutputInstanceStruct.FirstInstanceSlot.Offset, instances);
+                            }
+                            else if (ArgTypes.Flag == argType)
+                            {
+                                AddressGlobalOutput += (ulong)(instances * 0x8);
+                            }
 
-							// build argument
-							byte[] argument = TArray.Merge(
-								BitConverter.GetBytes(ArgStruct.End.Offset),
-								BitConverter.GetBytes(argType),
-								BitConverter.GetBytes(_imageNameSearchType),
-								BitConverter.GetBytes(_namespaceNameSearchType),
-								BitConverter.GetBytes(_classNameSearchType),
-								BitConverter.GetBytes(_outputAddress),
-								BitConverter.GetBytes(_imageNamePtr),
-								BitConverter.GetBytes(_namespaceNamePtr),
-								BitConverter.GetBytes(_classNamePtr),
-								BitConverter.GetBytes(instances)
-							);
+                            // build argument
+                            byte[] argument = TArray.Merge(
+                                BitConverter.GetBytes(ArgStruct.End.Offset),
+                                BitConverter.GetBytes(argType),
+                                BitConverter.GetBytes(_imageNameSearchType),
+                                BitConverter.GetBytes(_namespaceNameSearchType),
+                                BitConverter.GetBytes(_classNameSearchType),
+                                BitConverter.GetBytes(_outputAddress),
+                                BitConverter.GetBytes(_imageNamePtr),
+                                BitConverter.GetBytes(_namespaceNamePtr),
+                                BitConverter.GetBytes(_classNamePtr),
+                                BitConverter.GetBytes(instances)
+                            );
 
-							ulong returnUlong = 0;
+                            ulong returnUlong = 0;
                             if (ArgTypes.Instance == argType) returnUlong = _outputAddress + (ulong)OutputInstanceStruct.FirstInstanceSlot.Offset;
                             else if (ArgTypes.Flag == argType) returnUlong = _outputAddress + (ulong)OutputFlagStruct.FlagCounter.Offset;
 
-                            RefWriteBytes(Instance, AddressArguments, argument);
+                            RefWriteBytes(ProcessInstance, AddressArguments, argument);
                             AddressArguments += (ulong)ArgStruct.End.Offset;
 
-							return (IntPtr)returnUlong;
-						}
-						while (false);
-						return IntPtr.Zero;
-					}
+							// get field offsets
+							int[] fieldsOffsets = offsetResolver.GetOffsets(imageName, namespaceName, className, fieldsNames);
+
+                            return new InstanceWatcherBuild((IntPtr)returnUlong, fieldsOffsets);
+                        }
+                        while (false);
+                        return null;
+                    }
                     #endregion
 
                     #region CONSTRUCTOR
@@ -279,7 +248,7 @@ public partial class Tools : MainShared
 
 								Loaded = true;
                                 TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-									"\t\t\t\t" + "[FINISHED]");
+									" | " + "[FINISHED]");
                             }
                             while (false);
                         }
@@ -298,7 +267,7 @@ public partial class Tools : MainShared
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
-                                RefWriteBytes(Instance, AllocateStart, decoded);
+                                RefWriteBytes(ProcessInstance, AllocateStart, decoded);
 
                                 AddressArguments = AllocateStart + GeneratedOffsets.AddressArguments;
                                 AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
@@ -311,7 +280,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                            " | " + "Success: " + success.ToString()); return success;
                     }
                     #endregion
                     #region WRITE_ARGS
@@ -327,21 +296,21 @@ public partial class Tools : MainShared
 								{
 									try
 									{
-										TProcess.RefreshProcess(Instance);
+										TProcess.RefreshProcess(ProcessInstance);
 
-										ulong moduleBase = TProcess.GetModuleBase(Instance, "kernel32.dll");
+										ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
 										if (moduleBase == 0) break;
 
-										ulong _Sleep = TProcess.GetProcAddress(Instance, moduleBase, "Sleep");
-										ulong _GetModuleHandleA = TProcess.GetProcAddress(Instance, moduleBase, "GetModuleHandleA");
-										ulong _GetProcAddress = TProcess.GetProcAddress(Instance, moduleBase, "GetProcAddress");
+										ulong _Sleep = TProcess.GetProcAddress(ProcessInstance, moduleBase, "Sleep");
+										ulong _GetModuleHandleA = TProcess.GetProcAddress(ProcessInstance, moduleBase, "GetModuleHandleA");
+										ulong _GetProcAddress = TProcess.GetProcAddress(ProcessInstance, moduleBase, "GetProcAddress");
 
 										if (_Sleep == 0 || _GetModuleHandleA == 0 || _GetProcAddress == 0)
 											break;
 
-										RefWriteBytes(Instance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_Sleep, BitConverter.GetBytes(_Sleep));
-										RefWriteBytes(Instance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
-										RefWriteBytes(Instance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
+										RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_Sleep, BitConverter.GetBytes(_Sleep));
+										RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
+										RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
 
                                         success = true;
 									}
@@ -355,7 +324,7 @@ public partial class Tools : MainShared
 						}
 						catch { }
 						TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-							"\t\t\t\t" + "Success: " + success.ToString()); return success;
+							" | " + "Success: " + success.ToString()); return success;
 					}
 					#endregion
 					#region HOOK_CODE
@@ -369,41 +338,41 @@ public partial class Tools : MainShared
 							{
 								do
 								{
-                                    Instance = TProcess.RefreshProcess(Instance);
+                                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
 
                                     // ---
-                                    ulong mono_object_new = TProcess.GetProcAddress(Instance, "mono-2.0-bdwgc.dll", "mono_object_new");
+                                    ulong mono_object_new = TProcess.GetProcAddress(ProcessInstance, "mono-2.0-bdwgc.dll", "mono_object_new");
 									if (mono_object_new == 0) break;
 
 									// ---
 									ulong jumpNative = AllocateStart + GeneratedOffsets.HK_NewInstance;
 									ulong jumpHook = AddressFreeUse;
 
-									ulong retAddress = TMemory.GetFunctionReturn(Instance, mono_object_new);
-									int minimumOverwrite = TMemory.GetMinimumOverwriteBackwards(Instance, retAddress, 14);
+									ulong retAddress = TMemory.GetFunctionReturn(ProcessInstance, mono_object_new);
+									int minimumOverwrite = TMemory.GetMinimumOverwriteBackwards(ProcessInstance, retAddress, 14);
 
 									ulong hookAddress = retAddress - (ulong)minimumOverwrite;
 
-									byte[] stolenCode = TMemory.ReadMemoryBytes(Instance, hookAddress, minimumOverwrite);
+									byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
 									if (stolenCode == null || stolenCode.Length == 0) break;
 
 									MemoryManager.AddOverwrite(hookAddress, stolenCode);
 
-									RefWriteBytes(Instance, AddressFreeUse, stolenCode);
+									RefWriteBytes(ProcessInstance, AddressFreeUse, stolenCode);
 									AddressFreeUse += (ulong)stolenCode.Length;
 
-									AddressFreeUse += TMemory.CreateAbsoluteCall(Instance, AddressFreeUse, jumpNative, 0x28);
-									AddressFreeUse += TMemory.CreateAbsoluteJump(Instance, AddressFreeUse, retAddress);
+									AddressFreeUse += TMemory.CreateAbsoluteCall(ProcessInstance, AddressFreeUse, jumpNative, 0x28);
+									AddressFreeUse += TMemory.CreateAbsoluteJump(ProcessInstance, AddressFreeUse, retAddress);
 
-									TMemory.CreateAbsoluteJump(Instance, hookAddress, jumpHook);
+									TMemory.CreateAbsoluteJump(ProcessInstance, hookAddress, jumpHook);
 
 									success = true;
 
 									TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-										"\t\t\t\t" + "Hook: " + "0x" + hookAddress.ToString("X"));
+										" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
 
 									TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-										"\t\t\t\t" + "Success: " + success.ToString()); return success;
+										" | " + "Success: " + success.ToString()); return success;
 								}
 								while (false);
 								Thread.Sleep(1000);
@@ -412,11 +381,25 @@ public partial class Tools : MainShared
 						}
 						catch { }
 						TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-							"\t\t\t\t" + "Success: " + success.ToString()); return success;
+							" | " + "Success: " + success.ToString()); return success;
 					}
-					#endregion
-				}
-			}
+                    #endregion
+
+                    #region INSTANCE_WATCHER
+					public class InstanceWatcherBuild
+					{
+						public IntPtr Base;
+						public int[] Offsets;
+
+                        public InstanceWatcherBuild(IntPtr @base, int[] offsets)
+                        {
+                            Base = @base;
+                            Offsets = offsets;
+                        }
+                    }
+                    #endregion
+                }
+            }
 		}
 	}
 }

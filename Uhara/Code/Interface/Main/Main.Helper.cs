@@ -16,13 +16,13 @@ public partial class Main : MainShared
         {
             do
             {
-                ulong address = TMemory.ScanSingle(Instance, signature);
+                ulong address = TMemory.ScanSingle(ProcessInstance, signature);
                 if (address == 0) break;
 
-                int minimumOverwrite = TInstruction.GetMinimumOverwrite(Instance, address, 14);
+                int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, address, 14);
                 if (minimumOverwrite == 0) break;
 
-                byte[] stolen = TMemory.ReadMemoryBytes(Instance, address, minimumOverwrite);
+                byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, address, minimumOverwrite);
                 if (stolen == null) break;
 
                 MemoryManager.AddOverwrite(address, stolen);
@@ -36,16 +36,16 @@ public partial class Main : MainShared
                 allocate += 0x8;
 
                 byte[] flagAsm = new byte[] { 0x83, 0x05, 0xF1, 0xFF, 0xFF, 0xFF, 0x01, 0x90 };
-                RefWriteBytes(Instance, allocate, flagAsm);
+                RefWriteBytes(ProcessInstance, allocate, flagAsm);
                 allocate += (ulong)flagAsm.Length;
 
-                RefWriteBytes(Instance, allocate, stolen);
+                RefWriteBytes(ProcessInstance, allocate, stolen);
                 allocate += (ulong)stolen.Length;
 
-                TMemory.CreateAbsoluteJump(Instance, allocate, address + (ulong)minimumOverwrite);
+                TMemory.CreateAbsoluteJump(ProcessInstance, allocate, address + (ulong)minimumOverwrite);
                 allocate += 14;
 
-                TMemory.CreateAbsoluteJump(Instance, address, allocateStart + 0x8);
+                TMemory.CreateAbsoluteJump(ProcessInstance, address, allocateStart + 0x8);
 
                 return (IntPtr)allocateStart;
             }
@@ -59,7 +59,7 @@ public partial class Main : MainShared
     {
         try
         {
-            return TInstruction.GetMinimumOverwrite(Instance, (ulong)address, required);
+            return TInstruction.GetMinimumOverwrite(ProcessInstance, (ulong)address, required);
         }
         catch { }
         return 0;
@@ -90,23 +90,23 @@ public partial class Main : MainShared
         try
         {
             byte[] jmpConfirmBytes = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
-            byte[] readConfirmBytes = TMemory.ReadMemoryBytes(Instance, address, 0x6);
+            byte[] readConfirmBytes = TMemory.ReadMemoryBytes(ProcessInstance, address, 0x6);
 
             if (readConfirmBytes == null) return IntPtr.Zero;
 
             if (jmpConfirmBytes.SequenceEqual(readConfirmBytes))
             {
-                ulong oldAllocated = TMemory.ReadMemory<ulong>(Instance, address + 0x6);
+                ulong oldAllocated = TMemory.ReadMemory<ulong>(ProcessInstance, address + 0x6);
 
                 if (oldAllocated == 0) return IntPtr.Zero;
                 else return (IntPtr)(oldAllocated - 0x8);
             }
             else
             {
-                ulong allocated = RefAllocateMemory(Instance, 0x100);
+                ulong allocated = RefAllocateMemory(ProcessInstance, 0x100);
                 if (allocated == 0) return IntPtr.Zero;
 
-                byte[] stolen = TMemory.ReadMemoryBytes(Instance, address, overwriteSize);
+                byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, address, overwriteSize);
                 if (stolen == null) return IntPtr.Zero;
 
                 byte[] e1 = customCode;
@@ -119,8 +119,8 @@ public partial class Main : MainShared
                 byte[] s2 = BitConverter.GetBytes(allocated + 0x8);
                 byte[] start = TArray.Merge(s1, s2);
 
-                RefWriteBytes(Instance, allocated + 0x8, end);
-                RefWriteBytes(Instance, (ulong)address, start);
+                RefWriteBytes(ProcessInstance, allocated + 0x8, end);
+                RefWriteBytes(ProcessInstance, (ulong)address, start);
 
                 return (IntPtr)allocated;
             }
@@ -133,7 +133,7 @@ public partial class Main : MainShared
     {
         try
         {
-            return (IntPtr)TMemory.ScanSingle(Instance, signature, moduleName, offset);
+            return (IntPtr)TMemory.ScanSingle(ProcessInstance, signature, moduleName, offset);
         }
         catch { }
         return IntPtr.Zero;
@@ -143,7 +143,7 @@ public partial class Main : MainShared
     {
         try
         {
-            return (IntPtr)TMemory.ScanRel(Instance, offset, signature);
+            return (IntPtr)TMemory.ScanRel(ProcessInstance, offset, signature);
         }
         catch { }
         return IntPtr.Zero;
@@ -153,7 +153,7 @@ public partial class Main : MainShared
     {
         try
         {
-            return (IntPtr)TMemory.ScanRel2(Instance, signature, null, toInstructionOffset);
+            return (IntPtr)TMemory.ScanRel2(ProcessInstance, signature, null, toInstructionOffset);
         }
         catch { }
         return IntPtr.Zero;
@@ -163,7 +163,7 @@ public partial class Main : MainShared
     {
         try
         {
-            return (IntPtr)TMemory.ScanRel2(Instance, signature, moduleName, toInstructionOffset);
+            return (IntPtr)TMemory.ScanRel2(ProcessInstance, signature, moduleName, toInstructionOffset);
         }
         catch { }
         return IntPtr.Zero;

@@ -26,12 +26,12 @@ internal class MemoryManager : MainShared
     {
         try
         {
-            if (!TProcess.IsAlive(Instance)) return;
-            string tempToken = TProcess.GetToken(Instance);
+            if (!TProcess.IsAlive(ProcessInstance)) return;
+            string tempToken = TProcess.GetToken(ProcessInstance);
             for (int i = 0; i < 600; i++) Thread.Sleep(100); // 1 minute
-            if (!TProcess.IsAlive(Instance)) return;
-            if (tempToken != TProcess.GetToken(Instance)) return;
-            TMemory.FreeMemory(Instance, address, size);
+            if (!TProcess.IsAlive(ProcessInstance)) return;
+            if (tempToken != TProcess.GetToken(ProcessInstance)) return;
+            TMemory.FreeMemory(ProcessInstance, address, size);
             TUtils.Print("Deallocated memory at 0x" + address.ToString("X"));
         }
         catch { }
@@ -43,7 +43,7 @@ internal class MemoryManager : MainShared
         {
             do
             {
-                ulong allocated = RefAllocateMemory(Instance, size);
+                ulong allocated = RefAllocateMemory(ProcessInstance, size);
                 if (allocated == 0) break;
 
                 FreeLargeMemoryInternal(allocated, size, time);
@@ -61,13 +61,13 @@ internal class MemoryManager : MainShared
         {
             do
             {
-                ulong _Sleep = TProcess.GetProcAddress(Instance, "kernel32.dll", "Sleep");
+                ulong _Sleep = TProcess.GetProcAddress(ProcessInstance, "kernel32.dll", "Sleep");
                 if (_Sleep == 0) break;
 
-                ulong _VirtualFree = TProcess.GetProcAddress(Instance, "kernel32.dll", "VirtualFree");
+                ulong _VirtualFree = TProcess.GetProcAddress(ProcessInstance, "kernel32.dll", "VirtualFree");
                 if (_VirtualFree == 0) break;
 
-                ulong allocated = RefAllocateMemory(Instance, 0x1000);
+                ulong allocated = RefAllocateMemory(ProcessInstance, 0x1000);
                 if (allocated == 0) break;
 
                 byte[] bytesExec = new byte[]
@@ -86,8 +86,8 @@ internal class MemoryManager : MainShared
                     BitConverter.GetBytes(_VirtualFree),
                     bytesExec);
 
-                RefWriteBytes(Instance, allocated, writeBytes);
-                RefCreateThread(Instance, allocated + 0x28);
+                RefWriteBytes(ProcessInstance, allocated, writeBytes);
+                RefCreateThread(ProcessInstance, allocated + 0x28);
             }
             while (false);
         }
@@ -98,7 +98,7 @@ internal class MemoryManager : MainShared
     {
         try
         {
-            string token = TProcess.GetToken(Instance);
+            string token = TProcess.GetToken(ProcessInstance);
             string[] keys = TSaves2.GetKeyNames(RegistryName);
 
             foreach (string key in keys)
@@ -139,7 +139,7 @@ internal class MemoryManager : MainShared
                             if (address == 0 || recover == null) continue;
 
                             TSaves2.DeleteValue(RegistryName, key, Overwrite, valueName);
-                            RefWriteBytes(Instance, address, recover);
+                            RefWriteBytes(ProcessInstance, address, recover);
                             TUtils.Print(recover.Length + " bytes recovered at 0x" + address.ToString("X"));
                         }
                     }
@@ -153,10 +153,10 @@ internal class MemoryManager : MainShared
     {
         try
         {
-            ulong address = RefAllocateMemory(Instance, size);
+            ulong address = RefAllocateMemory(ProcessInstance, size);
             if (address != 0)
             {
-                string token = TProcess.GetToken(Instance);
+                string token = TProcess.GetToken(ProcessInstance);
                 string tokenPlus = token + UniqueScriptLoadID;
                 TSaves2.Set("0x" + size.ToString("X"), RegistryName, tokenPlus,
                     Allocate, "0x" + address.ToString("X"));
@@ -177,7 +177,7 @@ internal class MemoryManager : MainShared
 
             string data = TMemory.GetSignature(recover, true);
 
-            string token = TProcess.GetToken(Instance);
+            string token = TProcess.GetToken(ProcessInstance);
             string tokenPlus = token + UniqueScriptLoadID;
 
             if (TSaves2.Get(RegistryName, tokenPlus, Overwrite, "0x" + address.ToString("X")) == null)

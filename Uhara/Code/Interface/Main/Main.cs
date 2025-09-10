@@ -57,7 +57,7 @@ public partial class Main : MainShared
         {
             foreach (var watcher in MemoryWatchers)
             {
-                watcher.Update(Instance);
+                watcher.Update(ProcessInstance);
                 current[watcher.Name] = watcher.Current;
             }
         }
@@ -93,9 +93,9 @@ public partial class Main : MainShared
                         return new Tools.Unity.DotNet.JitSave();
                     }
 
-                    if (ToolsShared.ToolNames.Unity.DotNet.Events.Data.Contains(tool))
+                    if (ToolsShared.ToolNames.Unity.DotNet.Instance.Data.Contains(tool))
                     {
-                        return new Tools.Unity.DotNet.Events();
+                        return new Tools.Unity.DotNet.Instance();
                     }
                 }
 
@@ -138,7 +138,7 @@ public partial class Main : MainShared
     {
         try
         {
-            Instance = process;
+            ProcessInstance = process;
         }
         catch { }
     }

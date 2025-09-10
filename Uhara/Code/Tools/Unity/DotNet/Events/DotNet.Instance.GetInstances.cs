@@ -9,7 +9,7 @@ public partial class Tools : MainShared
 	{
 		public partial class DotNet
 		{
-			public partial class Events
+			public partial class Instance
 			{
 				internal class GetInstances
 				{
@@ -88,7 +88,7 @@ public partial class Tools : MainShared
                             // create string pointer
                             _fullNamePtr = AddressArgumentsData;
                             byte[] fullNameBytes = TUtils.StringToMultibyte(fullName);
-                            RefWriteBytes(Instance, AddressArgumentsData, fullNameBytes);
+                            RefWriteBytes(ProcessInstance, AddressArgumentsData, fullNameBytes);
                             AddressArgumentsData += (ulong)fullNameBytes.Length;
 
                             // build argument
@@ -100,7 +100,7 @@ public partial class Tools : MainShared
                             );
 
                             // write argument bytes
-                            RefWriteBytes(Instance, AddressArguments, argument);
+                            RefWriteBytes(ProcessInstance, AddressArguments, argument);
                             AddressArguments += (ulong)ArgStruct.End.Offset;
                         }
                         while (false);
@@ -120,7 +120,7 @@ public partial class Tools : MainShared
 
                                 Loaded = true;
                                 TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                    "\t\t\t\t\t" + "[FINISHED]");
+                                    " | " + "[FINISHED]");
                             }
                             while (false);
                         }
@@ -139,7 +139,7 @@ public partial class Tools : MainShared
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
-                                RefWriteBytes(Instance, AllocateStart, decoded);
+                                RefWriteBytes(ProcessInstance, AllocateStart, decoded);
 
                                 AddressArguments = AllocateStart + GeneratedOffsets.AddressArguments;
                                 AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
@@ -151,7 +151,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                            " | " + "Success: " + success.ToString()); return success;
                     }
                     #endregion
                     #region WRITE_ARGS
@@ -165,26 +165,26 @@ public partial class Tools : MainShared
                             {
                                 do
                                 {
-                                    TProcess.RefreshProcess(Instance);
+                                    TProcess.RefreshProcess(ProcessInstance);
 
-                                    ulong moduleBase = TProcess.GetModuleBase(Instance, "kernel32.dll");
+                                    ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
                                     if (moduleBase == 0) break;
 
-                                    ulong _Sleep = TProcess.GetProcAddress(Instance, moduleBase, "Sleep");
-                                    ulong _GetModuleHandleA = TProcess.GetProcAddress(Instance, moduleBase, "GetModuleHandleA");
-                                    ulong _GetProcAddress = TProcess.GetProcAddress(Instance, moduleBase, "GetProcAddress");
+                                    ulong _Sleep = TProcess.GetProcAddress(ProcessInstance, moduleBase, "Sleep");
+                                    ulong _GetModuleHandleA = TProcess.GetProcAddress(ProcessInstance, moduleBase, "GetModuleHandleA");
+                                    ulong _GetProcAddress = TProcess.GetProcAddress(ProcessInstance, moduleBase, "GetProcAddress");
 
                                     if (_Sleep == 0 || _GetModuleHandleA == 0 || _GetProcAddress == 0)
                                         break;
 
-                                    RefWriteBytes(Instance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_Sleep, BitConverter.GetBytes(_Sleep));
-                                    RefWriteBytes(Instance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
-                                    RefWriteBytes(Instance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
+                                    RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_Sleep, BitConverter.GetBytes(_Sleep));
+                                    RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
+                                    RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.FUNCTIONPTR_GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
 
                                     success = true;
 
                                     TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                        "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                                        " | " + "Success: " + success.ToString()); return success;
                                 }
                                 while (false);
                                 Thread.Sleep(1000);
@@ -193,7 +193,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                            " | " + "Success: " + success.ToString()); return success;
                     }
                     #endregion
                     #region EXECUTE
@@ -204,14 +204,14 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                RefCreateThread(Instance, AllocateStart + GeneratedOffsets.HK_GetInstances);
+                                RefCreateThread(ProcessInstance, AllocateStart + GeneratedOffsets.HK_GetInstances);
                                 success = true;
                             }
                             while (false);
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                            " | " + "Success: " + success.ToString()); return success;
                     }
                     #endregion
 				}

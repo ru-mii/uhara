@@ -38,10 +38,10 @@ internal class ScanUtility : MainShared
                         };
                         scanData.QueenCheckpointIndex = 2;
 
-                        ulong address = TMemory.ScanAdvanced(Instance, scanData);
+                        ulong address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                         if (address == 0) break;
 
-                        byte[] instrBytes = TMemory.ReadMemoryBytes(Instance, address, 50);
+                        byte[] instrBytes = TMemory.ReadMemoryBytes(ProcessInstance, address, 50);
                         if (instrBytes == null) break;
 
                         Instruction[] instrs = TInstruction.GetInstructions2(instrBytes);
@@ -79,7 +79,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("83 7C 24 ?? 00", 100),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -94,7 +94,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("83 7C 24 ?? 00", 70),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -103,7 +103,7 @@ internal class ScanUtility : MainShared
                         scanData.Signature = "48 83 EC ?? 8B 41 08 48 8D 71 08 C1 E8 0F 33 ED 48 8B F9 A8 01 0F 85";
                         scanData.FindStartFunction = true;
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -117,7 +117,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("A8 01 0F 85", 50),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     return address;
@@ -137,7 +137,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -150,7 +150,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -163,7 +163,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -176,7 +176,7 @@ internal class ScanUtility : MainShared
                         new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
                     };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     return address;
@@ -197,7 +197,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F3 0F 11 3B C6 43 04 01", 0x140),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -212,7 +212,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("?? ?? 48 83 EC ?? 48 8B 41 28 , FF 25 00 00 00 00", 165),
                         };
 
-                        address = TMemory.ScanAdvanced(Instance, scanData);
+                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
                     return address;
@@ -223,8 +223,8 @@ internal class ScanUtility : MainShared
             {
                 if (data == Data.FNamePool)
                 {
-                    ulong address = TMemory.ScanRel2(Instance, "48 8D 05 ???????? EB ?? 48 8D 0D ???????? E8 ???????? C6 05");
-                    if (address == 0) address = TMemory.ScanRel2(Instance, "8B D9 74 ?? 48 8D 15 ???????? EB", offset: 4);
+                    ulong address = TMemory.ScanRel2(ProcessInstance, "48 8D 05 ???????? EB ?? 48 8D 0D ???????? E8 ???????? C6 05");
+                    if (address == 0) address = TMemory.ScanRel2(ProcessInstance, "8B D9 74 ?? 48 8D 15 ???????? EB", offset: 4);
                     return address;
                 }
             }

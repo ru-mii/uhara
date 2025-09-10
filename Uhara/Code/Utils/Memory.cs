@@ -416,7 +416,7 @@ internal class TMemory : MainShared
 
         foreach (ulong[] section in sections)
         {
-            byte[] sectionBytes = ReadMemoryBytes(Instance, section[0], (int)section[1]);
+            byte[] sectionBytes = ReadMemoryBytes(ProcessInstance, section[0], (int)section[1]);
             if (sectionBytes != null && sectionBytes.Length > 0)
             {
                 int searchOffset = FindInArray(sectionBytes, searchBytes, searchMask);
@@ -424,7 +424,7 @@ internal class TMemory : MainShared
                 {
                     ulong searchAddress = section[0] + (ulong)searchOffset;
                     ulong relativeAddress = searchAddress + (ulong)offset;
-                    long relativeValue = ReadMemory<int>(Instance, relativeAddress);
+                    long relativeValue = ReadMemory<int>(ProcessInstance, relativeAddress);
                     ulong destinationAddress = (ulong)((long)searchAddress + relativeValue + offset + 4);
                     return destinationAddress;
                 }

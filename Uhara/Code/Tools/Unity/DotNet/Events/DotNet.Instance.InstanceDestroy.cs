@@ -11,7 +11,7 @@ public partial class Tools : MainShared
     {
         public partial class DotNet
         {
-            public partial class Events
+            public partial class Instance
             {
                 internal class InstanceDestroy
                 {
@@ -56,7 +56,7 @@ public partial class Tools : MainShared
                             if (!Loaded) break;
                             for (int i = 0; i < instances; i++)
                             {
-                                RefWriteBytes(Instance, AddressArguments, BitConverter.GetBytes(instancePtr + (ulong)(i * 0x8)));
+                                RefWriteBytes(ProcessInstance, AddressArguments, BitConverter.GetBytes(instancePtr + (ulong)(i * 0x8)));
                                 AddressArguments += 0x8;
                             }
                         }
@@ -77,7 +77,7 @@ public partial class Tools : MainShared
 
                                 Loaded = true;
                                 TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                    "\t\t\t\t" + "[FINISHED]");
+                                    " | " + "[FINISHED]");
                             }
                             while (false);
                         }
@@ -95,15 +95,15 @@ public partial class Tools : MainShared
                             {
                                 do
                                 {
-                                    Instance = TProcess.RefreshProcess(Instance);
+                                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
 
-                                    ulong mono_gc_wbarrier_set_field = TProcess.GetProcAddress(Instance, "mono-2.0-bdwgc.dll", "mono_gc_wbarrier_set_field");
+                                    ulong mono_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "mono-2.0-bdwgc.dll", "mono_gc_wbarrier_set_field");
                                     if (mono_gc_wbarrier_set_field == 0) break;
 
-                                    ulong moduleBase = TProcess.GetModuleBase(Instance, "UnityPlayer.dll");
+                                    ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll");
                                     if (moduleBase == 0) break;
 
-                                    List<ulong> results = TMemory.ScanMultiple(Instance, "48 83 C4 ?? 5B C3 48", "UnityPlayer.dll", 0x20).ToList();
+                                    List<ulong> results = TMemory.ScanMultiple(ProcessInstance, "48 83 C4 ?? 5B C3 48", "UnityPlayer.dll", 0x20).ToList();
 
                                     // ---
                                     if (results.Count > 1)
@@ -116,10 +116,10 @@ public partial class Tools : MainShared
 
                                                 ulong pastFirstReturn = results[i] + 6;
 
-                                                ulong functionEnd = TMemory.GetFunctionReturn(Instance, pastFirstReturn);
+                                                ulong functionEnd = TMemory.GetFunctionReturn(ProcessInstance, pastFirstReturn);
                                                 if (functionEnd != 0)
                                                 {
-                                                    byte[] functionBytes = TMemory.ReadMemoryBytes(Instance, pastFirstReturn, (int)(functionEnd - pastFirstReturn));
+                                                    byte[] functionBytes = TMemory.ReadMemoryBytes(ProcessInstance, pastFirstReturn, (int)(functionEnd - pastFirstReturn));
                                                     Instruction[] functionOps = TInstruction.GetInstructions2(functionBytes, pastFirstReturn);
 
                                                     int counter = 0;
@@ -130,9 +130,9 @@ public partial class Tools : MainShared
                                                         if (op.Bytes[0] != 0xFF || op.Bytes[1] != 0x15) continue;
 
                                                         // relative check
-                                                        uint value = TMemory.ReadMemory<uint>(Instance, op.Offset + 0x2);
+                                                        uint value = TMemory.ReadMemory<uint>(ProcessInstance, op.Offset + 0x2);
                                                         ulong relativePtr = op.Offset + value + 0x6;
-                                                        ulong relative = 0; try { relative = TMemory.ReadMemory<ulong>(Instance, relativePtr); } catch { }
+                                                        ulong relative = 0; try { relative = TMemory.ReadMemory<ulong>(ProcessInstance, relativePtr); } catch { }
                                                         if (relative != mono_gc_wbarrier_set_field) continue;
 
                                                         GCCallsAll[results[i]].Add(op.Offset);
@@ -159,7 +159,7 @@ public partial class Tools : MainShared
                                         {
                                             try
                                             {
-                                                byte[] byteBlock = TMemory.ReadMemoryBytes(Instance, results[i], 200);
+                                                byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i], 200);
                                                 byte[] signatureBytes = TSignature.GetBytes("48 83 C4 ?? 5B C3 CC CC");
                                                 string signatureMask = TSignature.GetMask("48 83 C4 ?? 5B C3 CC CC");
 
@@ -181,7 +181,7 @@ public partial class Tools : MainShared
                                         {
                                             try
                                             {
-                                                byte[] byteBlock = TMemory.ReadMemoryBytes(Instance, results[i] - 0x40, 0x40);
+                                                byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i] - 0x40, 0x40);
                                                 byte[] signatureBytes = TSignature.GetBytes("CC 40 53 48 83 EC ??");
                                                 string signatureMask = TSignature.GetMask("CC 40 53 48 83 EC ??");
 
@@ -221,7 +221,7 @@ public partial class Tools : MainShared
                         }
 
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                            " | " + "Success: " + success.ToString()); return success;
                     }
                     #endregion
                     #region ALLOCATE
@@ -236,7 +236,7 @@ public partial class Tools : MainShared
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
-                                RefWriteBytes(Instance, AllocateStart, decoded);
+                                RefWriteBytes(ProcessInstance, AllocateStart, decoded);
 
                                 AddressArguments = AllocateStart + GeneratedOffsets.AddressArguments;
                                 AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
@@ -248,7 +248,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                            " | " + "Success: " + success.ToString()); return success;
                     }
                     #endregion
                     #region HOOK_CODE
@@ -260,10 +260,10 @@ public partial class Tools : MainShared
                             do
                             {
                                 ulong returnAddress = CallFinalSetField + 0x6;
-                                ulong setFieldPtr = CallFinalSetField + TMemory.ReadMemory<uint>(Instance, CallFinalSetField + 0x2) + 0x6;
+                                ulong setFieldPtr = CallFinalSetField + TMemory.ReadMemory<uint>(ProcessInstance, CallFinalSetField + 0x2) + 0x6;
 
                                 ulong HKPTR = AddressFreeUse;
-                                RefWriteBytes(Instance, AddressFreeUse, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
+                                RefWriteBytes(ProcessInstance, AddressFreeUse, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
                                 AddressFreeUse += 0x8;
 
                                 ulong replaceAddress = AddressFreeUse;
@@ -274,22 +274,22 @@ public partial class Tools : MainShared
                                 TArray.Insert(miniCode, BitConverter.GetBytes(BitConverter.ToUInt32(BitConverter.GetBytes(returnAddress), 0)), 3);
                                 TArray.Insert(miniCode, BitConverter.GetBytes(BitConverter.ToUInt32(BitConverter.GetBytes(returnAddress), 4)), 13);
 
-                                RefWriteBytes(Instance, AddressFreeUse, miniCode);
+                                RefWriteBytes(ProcessInstance, AddressFreeUse, miniCode);
                                 AddressFreeUse += (ulong)miniCode.Length;
 
-                                ulong mono_gc_wbarrier_set_field = TProcess.GetProcAddress(Instance, "mono-2.0-bdwgc.dll", "mono_gc_wbarrier_set_field");
+                                ulong mono_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "mono-2.0-bdwgc.dll", "mono_gc_wbarrier_set_field");
                                 if (mono_gc_wbarrier_set_field == 0) break;
 
-                                byte[] saveBytes = TMemory.ReadMemoryBytes(Instance, setFieldPtr, 0x8);
+                                byte[] saveBytes = TMemory.ReadMemoryBytes(ProcessInstance, setFieldPtr, 0x8);
                                 if (saveBytes == null || saveBytes.Length == 0) break;
 
                                 MemoryManager.AddOverwrite(setFieldPtr, saveBytes);
 
-                                AddressFreeUse += TMemory.CreateAbsoluteJump(Instance, AddressFreeUse, mono_gc_wbarrier_set_field);
-                                RefWriteBytes(Instance, setFieldPtr, BitConverter.GetBytes(replaceAddress));
+                                AddressFreeUse += TMemory.CreateAbsoluteJump(ProcessInstance, AddressFreeUse, mono_gc_wbarrier_set_field);
+                                RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(replaceAddress));
 
                                 TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                    "\t\t\t\t" + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
+                                    " | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
 
                                 success = true;
                             }
@@ -297,7 +297,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            "\t\t\t\t" + "Success: " + success.ToString()); return success;
+                            " | " + "Success: " + success.ToString()); return success;
                     }
                     #endregion
                 }

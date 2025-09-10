@@ -31,7 +31,7 @@ public class MainShared
     public static bool DebugMode = true;
     #endregion
     #region PROPERTIES
-    internal static volatile Process Instance = null;
+    internal static volatile Process ProcessInstance = null;
 
     private static IDictionary<string, object> _current;
     internal static IDictionary<string, object> current
@@ -100,8 +100,8 @@ public class MainShared
                 var gameInstance = gameField?.GetValue(script);
 
                 Vars = script.Vars;
-                Instance = (Process)gameInstance;
-                if (Instance != null) MemoryManager.ClearMemory();
+                ProcessInstance = (Process)gameInstance;
+                if (ProcessInstance != null) MemoryManager.ClearMemory();
             }
         }
         catch { }
@@ -110,7 +110,7 @@ public class MainShared
 
     internal static void SetProcessCache(string id, string name, string data)
     {
-        string token = TProcess.GetToken(Instance);
+        string token = TProcess.GetToken(ProcessInstance);
         if (token == null) return;
 
         TSaves2.Set(data, "ProcessCache", id, name);
@@ -119,7 +119,7 @@ public class MainShared
 
     internal static string GetProcessCache(string id, string name)
     {
-        string token = TProcess.GetToken(Instance);
+        string token = TProcess.GetToken(ProcessInstance);
         if (token == null) return null;
 
         string data = TSaves2.Get("ProcessCache", id, name);

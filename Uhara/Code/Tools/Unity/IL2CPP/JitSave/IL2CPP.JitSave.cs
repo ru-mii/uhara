@@ -156,8 +156,8 @@ public partial class Tools : MainShared
                             BitConverter.GetBytes((short)arg4.Length), arg4,
                             BitConverter.GetBytes((short)arg5.Length), arg5);
 
-                        RefWriteBytes(Instance, InterfaceArguments + 0x8, all);
-                        RefWriteBytes(Instance, InterfaceArguments + 0x2, BitConverter.GetBytes((short)all.Length));
+                        RefWriteBytes(ProcessInstance, InterfaceArguments + 0x8, all);
+                        RefWriteBytes(ProcessInstance, InterfaceArguments + 0x2, BitConverter.GetBytes((short)all.Length));
 
                         QueueItems.Add(new QueueItem(GlobalOutput + 0x8 + 0x2, hookOffset, overwriteSize, bytes));
                         InterfaceArguments += 0x8 + (ulong)all.Length;
@@ -180,40 +180,40 @@ public partial class Tools : MainShared
                     {
                         TUtils.Print("Waiting for thread to return");
 
-                        if (TProcess.WaitForThread(TProcess.CreateRemoteThread(Instance, NativeCode + 0x8), 30000))
+                        if (TProcess.WaitForThread(TProcess.CreateRemoteThread(ProcessInstance, NativeCode + 0x8), 30000))
                         {
                             int hooked = 0;
                             foreach (QueueItem item in QueueItems)
                             {
-                                ulong funcAddress = TMemory.ReadMemory<ulong>(Instance, item.HookAddress);
+                                ulong funcAddress = TMemory.ReadMemory<ulong>(ProcessInstance, item.HookAddress);
                                 if (funcAddress == 0) continue;
 
                                 funcAddress += (ulong)item.HookOffset;
 
-                                RefWriteBytes(Instance, item.HookAddress, BitConverter.GetBytes((ulong)0));
+                                RefWriteBytes(ProcessInstance, item.HookAddress, BitConverter.GetBytes((ulong)0));
 
                                 int minimumOverwrite = item.OverwriteSize;
                                 if (minimumOverwrite == 0) minimumOverwrite =
-                                        TInstruction.GetMinimumOverwrite(Instance, funcAddress, 14);
+                                        TInstruction.GetMinimumOverwrite(ProcessInstance, funcAddress, 14);
 
-                                byte[] realCode = TMemory.ReadMemoryBytes(Instance, funcAddress, minimumOverwrite);
+                                byte[] realCode = TMemory.ReadMemoryBytes(ProcessInstance, funcAddress, minimumOverwrite);
                                 if (realCode == null) continue;
                                 byte[] toRecover = realCode.ToList().ToArray();
 
                                 realCode = FixCmp(funcAddress, realCode);
                                 realCode = FixJump(funcAddress, realCode);
 
-                                RefWriteBytes(Instance, item.HookAddress, item.Bytes);
+                                RefWriteBytes(ProcessInstance, item.HookAddress, item.Bytes);
                                 ulong nextAddress = item.HookAddress + (ulong)item.Bytes.Length;
 
-                                RefWriteBytes(Instance, nextAddress, realCode);
+                                RefWriteBytes(ProcessInstance, nextAddress, realCode);
                                 nextAddress += (ulong)realCode.Length;
 
-                                TMemory.CreateAbsoluteJump(Instance, nextAddress, funcAddress + (ulong)minimumOverwrite);
+                                TMemory.CreateAbsoluteJump(ProcessInstance, nextAddress, funcAddress + (ulong)minimumOverwrite);
 
                                 byte[] jumpIn = TMemory.GetAbsoluteJumpBytes(item.HookAddress);
                                 MemoryManager.AddOverwrite(funcAddress, toRecover);
-                                TMemory.CreateAbsoluteJump(Instance, funcAddress, item.HookAddress);
+                                TMemory.CreateAbsoluteJump(ProcessInstance, funcAddress, item.HookAddress);
 
                                 hooked++;
                             }
@@ -330,7 +330,7 @@ public partial class Tools : MainShared
                             QueueItems.Clear();
 
                             byte[] asmDecoded = DecodeAsmBlock(AsmBlocks.UnityCPP_JitSave);
-                            RefWriteBytes(Instance, NativeCode, asmDecoded);
+                            RefWriteBytes(ProcessInstance, NativeCode, asmDecoded);
                         }
                     }
                     catch { TUtils.Print("Creating tool failed"); }
