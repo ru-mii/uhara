@@ -16,5 +16,5 @@ Livesplit asl library, 32-bit games are not supported.
 # Reasoning for versions
 - "pre" version is designed for testing, can cause livesplit & game crashes
 - new version can receive new features and changes to previous code including API
-- current version can receive new features and code changes but no changes to API
-- older versions won't be updated and are considered stable
+- current version can receive new features and code changes but no changes to the API
+- previous versions won't be updated and are considered stable
