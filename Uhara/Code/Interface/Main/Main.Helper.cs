@@ -129,11 +129,11 @@ public partial class Main : MainShared
         return IntPtr.Zero;
     }
 
-    public IntPtr ScanSingle(string signature, string moduleName = null, int offset = 0)
+    public IntPtr ScanSingle(string signature, string moduleName = null, int memoryProtection = -1)
     {
         try
         {
-            return (IntPtr)TMemory.ScanSingle(ProcessInstance, signature, moduleName, offset);
+            return (IntPtr)TMemory.ScanSingle(ProcessInstance, signature, moduleName, memoryProtection);
         }
         catch { }
         return IntPtr.Zero;

@@ -9,7 +9,7 @@ public partial class Tools : MainShared
 {
     public partial class Unity
     {
-        public partial class DotNet
+        public partial class IL2CPP
         {
             public partial class Instance
             {
@@ -17,7 +17,7 @@ public partial class Tools : MainShared
                 {
                     #region VARIABLES
                     static bool Loaded = false;
-                    static int SubToolGeneralLimit = 30000;
+                    static int SubToolGeneralLimit = 15000;
 
                     static ulong AllocateSize = 0x10000;
                     static ulong AllocateStart = 0;
@@ -232,7 +232,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                AllocateStart = MemoryManager.AllocateTimeLimited((int)AllocateSize, 60000);
+                                AllocateStart = MemoryManager.AllocateTimeLimited((int)AllocateSize, 180000);
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
@@ -283,13 +283,13 @@ public partial class Tools : MainShared
                                 byte[] saveBytes = TMemory.ReadMemoryBytes(ProcessInstance, setFieldPtr, 0x8);
                                 if (saveBytes == null || saveBytes.Length == 0) break;
 
-                                MemoryManager.AddOverwrite(setFieldPtr, saveBytes);
+                                MemoryManager.AddOverwrite(setFieldPtr, saveBytes, ToolUniqueID);
 
                                 AddressFreeUse += TMemory.CreateAbsoluteJump(ProcessInstance, AddressFreeUse, mono_gc_wbarrier_set_field);
                                 RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(replaceAddress));
 
-                                TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                    " | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
+                                //TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                    //" | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
 
                                 success = true;
                             }

@@ -8,6 +8,18 @@ using System.Windows.Forms;
 
 internal class TProcess
 {
+    internal static ulong GetModuleEnd(Process process, string name = null)
+    {
+        if (name == null) return (ulong)process.MainModule.BaseAddress + (ulong)process.MainModule.ModuleMemorySize;
+        else
+        {
+            ProcessModule module = GetModule(process, name);
+            if (module == null) return 0;
+
+            return (ulong)module.BaseAddress + (ulong)module.ModuleMemorySize;
+        }
+    }
+
     internal static ulong GetModuleBase(Process process, string name = null)
     {
         if (name == null)
@@ -145,6 +157,7 @@ internal class TProcess
             do
             {
                 Process newProcess = Process.GetProcessById(process.Id);
+                if (newProcess == null) break;
 
                 if (GetToken(process) != GetToken(newProcess)) break;
                 if (process.ProcessName != newProcess.ProcessName) break;
@@ -155,7 +168,8 @@ internal class TProcess
             while (false);
         }
         catch { }
-        return process;
+        process = null;
+        return null;
     }
 
     internal static bool IsAlive(Process process)

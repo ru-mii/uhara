@@ -32,7 +32,7 @@ internal class MemoryManager : MainShared
             if (!TProcess.IsAlive(ProcessInstance)) return;
             if (tempToken != TProcess.GetToken(ProcessInstance)) return;
             TMemory.FreeMemory(ProcessInstance, address, size);
-            TUtils.Print("Deallocated memory at 0x" + address.ToString("X"));
+            //TUtils.Print("Deallocated memory at 0x" + address.ToString("X"));
         }
         catch { }
     }
@@ -94,7 +94,7 @@ internal class MemoryManager : MainShared
         catch { }
     }
 
-    internal static void ClearMemory()
+    internal static void ClearMemory(string randomId = "")
     {
         try
         {
@@ -104,27 +104,8 @@ internal class MemoryManager : MainShared
             foreach (string key in keys)
             {
                 if (!key.StartsWith(token)) TSaves2.DeleteKey(RegistryName, key);
-                else if (!key.EndsWith(UniqueScriptLoadID))
+                else if (!key.Contains(UniqueScriptLoadID) || (!string.IsNullOrEmpty(randomId) && key.EndsWith(randomId)))
                 {
-                    // deallocate
-                    {
-                        string[] valueNames = TSaves2.GetValueNames(RegistryName, key, Allocate);
-                        foreach (string valueName in valueNames)
-                        {
-                            string dataRaw = TSaves2.Get(RegistryName, key, Allocate, valueName);
-                            if (dataRaw == null) continue;
-
-                            ulong address = TConvert.Parse<ulong>(valueName);
-                            int size = TConvert.Parse<int>(dataRaw);
-
-                            if (address == 0 || size == 0) continue;
-
-                            TSaves2.DeleteValue(RegistryName, key, Allocate, valueName);
-                            FreeMemoryDelayed(address, size);
-                            TUtils.Print("Deallocation scheduled for 0x" + address.ToString("X"));
-                        }
-                    }
-
                     // recover
                     {
                         string[] valueNames = TSaves2.GetValueNames(RegistryName, key, Overwrite);
@@ -140,7 +121,26 @@ internal class MemoryManager : MainShared
 
                             TSaves2.DeleteValue(RegistryName, key, Overwrite, valueName);
                             RefWriteBytes(ProcessInstance, address, recover);
-                            TUtils.Print(recover.Length + " bytes recovered at 0x" + address.ToString("X"));
+                            //TUtils.Print(recover.Length + " bytes recovered at 0x" + address.ToString("X"));
+                        }
+                    }
+
+                    // deallocate
+                    {
+                        string[] valueNames = TSaves2.GetValueNames(RegistryName, key, Allocate);
+                        foreach (string valueName in valueNames)
+                        {
+                            string dataRaw = TSaves2.Get(RegistryName, key, Allocate, valueName);
+                            if (dataRaw == null) continue;
+
+                            ulong address = TConvert.Parse<ulong>(valueName);
+                            int size = TConvert.Parse<int>(dataRaw);
+
+                            if (address == 0 || size == 0) continue;
+
+                            TSaves2.DeleteValue(RegistryName, key, Allocate, valueName);
+                            FreeMemoryDelayed(address, size);
+                            //TUtils.Print("Deallocation scheduled for 0x" + address.ToString("X"));
                         }
                     }
                 }
@@ -149,7 +149,7 @@ internal class MemoryManager : MainShared
         catch { }
     }
 
-    internal static ulong AllocateSafe(int size)
+    internal static ulong AllocateSafe(int size, string randomId = "")
     {
         try
         {
@@ -157,7 +157,7 @@ internal class MemoryManager : MainShared
             if (address != 0)
             {
                 string token = TProcess.GetToken(ProcessInstance);
-                string tokenPlus = token + UniqueScriptLoadID;
+                string tokenPlus = token + UniqueScriptLoadID + randomId;
                 TSaves2.Set("0x" + size.ToString("X"), RegistryName, tokenPlus,
                     Allocate, "0x" + address.ToString("X"));
 
@@ -168,7 +168,7 @@ internal class MemoryManager : MainShared
         return 0;
     }
 
-    internal static void AddOverwrite(ulong address, byte[] recover)
+    internal static void AddOverwrite(ulong address, byte[] recover, string randomId = "")
     {
         try
         {
@@ -178,7 +178,7 @@ internal class MemoryManager : MainShared
             string data = TMemory.GetSignature(recover, true);
 
             string token = TProcess.GetToken(ProcessInstance);
-            string tokenPlus = token + UniqueScriptLoadID;
+            string tokenPlus = token + UniqueScriptLoadID + randomId;
 
             if (TSaves2.Get(RegistryName, tokenPlus, Overwrite, "0x" + address.ToString("X")) == null)
                 TSaves2.Set(data, RegistryName, tokenPlus, Overwrite, "0x" + address.ToString("X"));

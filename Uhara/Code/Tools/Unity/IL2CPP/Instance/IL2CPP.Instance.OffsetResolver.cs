@@ -7,15 +7,15 @@ public partial class Tools : MainShared
 {
 	public partial class Unity
 	{
-		public partial class DotNet
-		{
+		public partial class IL2CPP
+        {
 			public partial class Instance
 			{
 				internal class OffsetResolver
 				{
                     #region VARIABLES
                     bool Loaded = false;
-                    int SubToolGeneralLimit = 30000;
+                    static int SubToolGeneralLimit = 15000;
 
                     ulong AllocateSize = 0x20000;
                     ulong AllocateStart = 0;
@@ -139,8 +139,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                //AllocateStart = MemoryManager.AllocateTimeLimited((int)AllocateSize, 60000);
-                                AllocateStart = MemoryManager.AllocateSafe((int)AllocateSize);
+                                AllocateStart = MemoryManager.AllocateSafe((int)AllocateSize, ToolUniqueID);
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
@@ -173,7 +172,7 @@ public partial class Tools : MainShared
                                 {
                                     try
                                     {
-                                        TProcess.RefreshProcess(ProcessInstance);
+                                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
 
                                         ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
                                         if (moduleBase == 0) break;

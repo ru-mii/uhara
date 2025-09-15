@@ -25,7 +25,7 @@ internal class ToolsShared
 
             internal class DotNet
             {
-                internal static readonly string[] Data = new string[] { "cs", "dotnet", "csharp", "mono" };
+                internal static readonly string[] Data = new string[] { "dotnet", "cs", "csharp", "mono" };
 
                 internal class JitSave
                 {
@@ -40,11 +40,16 @@ internal class ToolsShared
 
             internal class Il2Cpp
             {
-                internal static readonly string[] Data = new string[] { "cpp", "il2cpp" };
+                internal static readonly string[] Data = new string[] { "il2cpp", "cpp" };
 
                 internal class JitSave
                 {
                     internal static readonly string[] Data = new string[] { "jitsave" };
+                }
+
+                internal class Instance
+                {
+                    internal static readonly string[] Data = new string[] { "instance" };
                 }
             }
         }

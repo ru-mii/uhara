@@ -10,8 +10,8 @@ public partial class Tools : MainShared
 {
 	public partial class Unity
 	{
-		public partial class DotNet
-		{
+		public partial class IL2CPP
+        {
 			public partial class Instance
 			{
 				public class InstanceCreation
@@ -19,9 +19,9 @@ public partial class Tools : MainShared
 					#region VARIABLES
 					bool Loaded = false;
 					string SubUniqueLoadID = "";
-					int SubToolGeneralLimit = 30000;
+					int SubToolGeneralLimit = 15000;
 
-					ulong AllocateSize = 0x20000;
+                    ulong AllocateSize = 0x20000;
 					ulong AllocateStart = 0;
 					ulong AddressArguments = 0;
 					ulong AddressArgumentsData = 0;
@@ -107,7 +107,7 @@ public partial class Tools : MainShared
                     #endregion
 
                     #region INTERNAL_API
-                    internal InstanceWatcherBuild[] AddArgumentMultiple(short argType, short instances, string fullName, params string[] fieldsNames)
+                    internal InstanceWatcherBuildMultiple AddArgumentMultiple(short argType, short instances, string fullName, params string[] fieldsNames)
                     {
                         do
                         {
@@ -119,12 +119,12 @@ public partial class Tools : MainShared
                             IntPtr basePtr = baseWatcher.Base;
                             if (basePtr == IntPtr.Zero) break;
 
-                            List<InstanceWatcherBuild> result = new List<InstanceWatcherBuild>();
-                            for (int i = 0; i < instances; i++) result.Add(new InstanceWatcherBuild(basePtr + (0x8 * i), baseWatcher.Offsets));
-                            return result.ToArray();
+                            List<IntPtr> watcherBasePointers = new List<IntPtr>();
+                            for (int i = 0; i < instances; i++) watcherBasePointers.Add(basePtr + (0x8 * i));
+                            return new InstanceWatcherBuildMultiple(watcherBasePointers.ToArray(), baseWatcher.Offsets);
                         }
                         while (false);
-                        return new InstanceWatcherBuild[0];
+                        return null;
                     }
 
                     internal InstanceWatcherBuild AddArgument(short argType, short instances, string fullName, params string[] fieldsNames)
@@ -263,7 +263,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                AllocateStart = MemoryManager.AllocateSafe((int)AllocateSize);
+                                AllocateStart = MemoryManager.AllocateSafe((int)AllocateSize, ToolUniqueID);
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
@@ -296,7 +296,7 @@ public partial class Tools : MainShared
 								{
 									try
 									{
-										TProcess.RefreshProcess(ProcessInstance);
+                                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
 
 										ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
 										if (moduleBase == 0) break;
@@ -356,7 +356,7 @@ public partial class Tools : MainShared
 									byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
 									if (stolenCode == null || stolenCode.Length == 0) break;
 
-									MemoryManager.AddOverwrite(hookAddress, stolenCode);
+									MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
 
 									RefWriteBytes(ProcessInstance, AddressFreeUse, stolenCode);
 									AddressFreeUse += (ulong)stolenCode.Length;
@@ -368,8 +368,8 @@ public partial class Tools : MainShared
 
 									success = true;
 
-									TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-										" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
+									//TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+										//" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
 
 									TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
 										" | " + "Success: " + success.ToString()); return success;
@@ -392,6 +392,18 @@ public partial class Tools : MainShared
 						public int[] Offsets;
 
                         public InstanceWatcherBuild(IntPtr @base, int[] offsets)
+                        {
+                            Base = @base;
+                            Offsets = offsets;
+                        }
+                    }
+
+                    public class InstanceWatcherBuildMultiple
+                    {
+                        public IntPtr[] Base;
+                        public int[] Offsets;
+
+                        public InstanceWatcherBuildMultiple(IntPtr[] @base, int[] offsets)
                         {
                             Base = @base;
                             Offsets = offsets;

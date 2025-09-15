@@ -105,6 +105,11 @@ public partial class Main : MainShared
                     {
                         return new Tools.Unity.IL2CPP.JitSave();
                     }
+
+                    if (ToolsShared.ToolNames.Unity.Il2Cpp.Instance.Data.Contains(tool))
+                    {
+                        //return new Tools.Unity.IL2CPP.Instance();
+                    }
                 }
             }
 
@@ -130,7 +135,7 @@ public partial class Main : MainShared
                 }
             }
         }
-        catch { }
+        catch { Thread.Sleep(500); }
         return null;
     }
 

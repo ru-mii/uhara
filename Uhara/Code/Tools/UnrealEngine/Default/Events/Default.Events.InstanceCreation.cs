@@ -434,8 +434,8 @@ public partial class Tools : MainShared
                                     MemoryManager.AddOverwrite(hookAddress, stolenCode);
                                     TMemory.CreateAbsoluteJump(ProcessInstance, hookAddress, jumpHook);
 
-                                    TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                        " | " + "Hook: " + "0x" + hookAddress.ToString("X"));
+                                    //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                        //" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
                                 }
 
                                 {
@@ -456,8 +456,8 @@ public partial class Tools : MainShared
                                     MemoryManager.AddOverwrite(hookAddress, stolenCode);
                                     TMemory.CreateAbsoluteJump(ProcessInstance, hookAddress, jumpHook);
 
-                                    TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                        " | " + "Hook: " + "0x" + hookAddress.ToString("X"));
+                                    //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                        //" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
                                 }
 
                                 success = true;

@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using System.Windows.Forms;
 using static Tools.Unity.DotNet.Instance.InstanceCreation;
 
 public partial class Tools : MainShared
@@ -18,6 +20,17 @@ public partial class Tools : MainShared
             public partial class Instance
             {
                 #region PUBLIC_API
+                public void SetDefaultNames(string imageName, string namespaceName = null, string className = null)
+                {
+                    try
+                    {
+                        instanceCreation.DefaultImage = imageName;
+                        if (namespaceName != null) instanceCreation.DefaultNamespace = namespaceName;
+                        if (className != null) instanceCreation.DefaultClass = className;
+                    }
+                    catch { }
+                }
+
                 public InstanceWatcherBuild Get(string fullName, params string[] fieldsNames)
                 {
                     try
@@ -28,7 +41,7 @@ public partial class Tools : MainShared
                     return null;
                 }
 
-                public InstanceWatcherBuild[] Get(short instances, string fullName, params string[] fieldsNames)
+                public InstanceWatcherBuildMultiple Get(short instances, string fullName, params string[] fieldsNames)
                 {
                     try
                     {
@@ -39,10 +52,10 @@ public partial class Tools : MainShared
                         while (false);
                     }
                     catch { }
-                    return new InstanceWatcherBuild[0];
+                    return null;
                 }
 
-                public InstanceWatcherBuild InstanceFlag(string fullName)
+                public InstanceWatcherBuild Flag(string fullName)
                 {
                     try
                     {
@@ -55,14 +68,34 @@ public partial class Tools : MainShared
                 #endregion
 
                 internal static string DebugClass = "Instance";
+                internal static string ToolUniqueID = "EOOJfQbxqHUdMEHX";
 
                 internal static InstanceCreation instanceCreation = null;
                 internal static GetInstances getInstances = null;
                 internal static InstanceDestroy instanceDestroy = null;
                 internal static OffsetResolver offsetResolver = null;
 
+                enum Result
+                {
+                    None = 0,
+                    Success = 1,
+                    Failed = 2
+                }
+
                 public Instance()
                 {
+                    try
+                    {
+                        while (ProcessInstance.MainWindowHandle == IntPtr.Zero)
+                        {
+                            ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                            Thread.Sleep(100);
+                        }
+                    }
+                    catch { return; }
+
+                    MemoryManager.ClearMemory(ToolUniqueID);
+
                     offsetResolver = new OffsetResolver();
                     instanceDestroy = new InstanceDestroy();
                     getInstances = new GetInstances();

@@ -382,24 +382,32 @@ internal class TMemory : MainShared
         return searchAddress;
     }
 
-    internal static ulong ScanSingle(Process process, string signature, string moduleName = null, int offset = 0)
+    internal static ulong ScanSingle(Process process, string signature, string moduleName = null, int memoryProtection = -1)
     {
         byte[] searchBytes = TSignature.GetBytes(signature);
         string searchMask = TSignature.GetMask(signature);
 
         List<ulong[]> sections = GetAllSections(process, moduleName);
 
-        foreach (ulong[] section in sections)
+        for (int i = 0; i < sections.Count; i++)
         {
-            byte[] sectionBytes = ReadMemoryBytes(process, section[0], (int)section[1]);
+            byte[] sectionBytes = ReadMemoryBytes(process, sections[i][0], (int)sections[i][1]);
             if (sectionBytes != null && sectionBytes.Length > 0)
             {
-                int searchOffset = FindInArray(sectionBytes, searchBytes, searchMask);
-                if (searchOffset != -1)
+                int searchOffset = 0;
+                while (true)
                 {
-                    ulong searchAddress = section[0] + (ulong)searchOffset;
-                    searchAddress = (ulong)((long)searchAddress + offset);
-                    return searchAddress;
+                    searchOffset = FindInArray(sectionBytes, searchBytes, searchMask, searchOffset);
+                    if (searchOffset == -1) break;
+
+                    ulong foundAddress = sections[i][0] + (ulong)searchOffset;
+                    if (memoryProtection == -1) return foundAddress;
+                    else if (GetMemoryProtection(process, foundAddress) == memoryProtection)
+                        return foundAddress;
+
+                    searchOffset += 1;
+                    if ((ulong)searchOffset >= sections[i][1]) break;
+                    if ((ulong)(searchOffset + searchBytes.Length - 1) >= sections[i][1]) break;
                 }
             }
         }
