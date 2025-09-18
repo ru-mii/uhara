@@ -105,7 +105,6 @@ public class MainShared
             }
         }
         catch { }
-        MemoryManager.ClearMemory();
     }
 
     internal static void SetProcessCache(string id, string name, string data)

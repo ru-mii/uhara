@@ -108,7 +108,7 @@ public partial class Main : MainShared
 
                     if (ToolsShared.ToolNames.Unity.Il2Cpp.Instance.Data.Contains(tool))
                     {
-                        //return new Tools.Unity.IL2CPP.Instance();
+                        return new Tools.Unity.IL2CPP.Instance();
                     }
                 }
             }

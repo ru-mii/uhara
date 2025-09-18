@@ -93,19 +93,45 @@ public partial class Tools : MainShared
                 internal static InstanceDestroy instanceDestroy = null;
                 internal static OffsetResolver offsetResolver = null;
 
+                enum Result
+                {
+                    None = 0,
+                    Success = 1,
+                    Failed = 2
+                }
+
                 public Instance()
                 {
+                    try
+                    {
+                        while (ProcessInstance.MainWindowHandle == IntPtr.Zero)
+                        {
+                            ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                            Thread.Sleep(100);
+                        }
+
+                        bool success = false;
+                        while (!success)
+                        {
+                            do
+                            {
+                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                if (TProcess.GetModuleBase(ProcessInstance, "GameAssembly.dll") == 0) break;
+                                if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                success = true;
+                            }
+                            while (false);
+                            Thread.Sleep(100);
+                        }
+                    }
+                    catch { return; }
+
                     MemoryManager.ClearMemory(ToolUniqueID);
 
-                    //offsetResolver = new OffsetResolver();
-                    //instanceDestroy = new InstanceDestroy();
+                    instanceDestroy = new InstanceDestroy();
                     getInstances = new GetInstances();
-                    //instanceCreation = new InstanceCreation();
-
-                    ulong allocTemp = RefAllocateMemory(ProcessInstance, 0x1000);
-
-                    getInstances.AddArgument(allocTemp, 1, "TheBobaTeashop", "", "MainMenuScript");
-                    TUtils.Print("@@@@@@@@@@@@@@@@@@@@   0x" + (allocTemp + 0x2).ToString("X"));
+                    offsetResolver = new OffsetResolver();
+                    instanceCreation = new InstanceCreation();
                 }
             }
         }

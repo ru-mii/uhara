@@ -123,24 +123,19 @@ internal class TProcess
         return (ulong)((DateTimeOffset)process.StartTime).ToUnixTimeMilliseconds();
     }
 
-    internal static IntPtr CreateRemoteThread(Process process, ulong entryPointAddress, bool waitForThread = false)
+    internal static IntPtr CreateRemoteThread(Process process, ulong entryPointAddress, int waitForThread = 0)
     {
-        IntPtr remoteThread = IntPtr.Zero;
+        IntPtr remoteThread = TImports.CreateRemoteThread(process.Handle, IntPtr.Zero, 0,
+                    (IntPtr)entryPointAddress, IntPtr.Zero, 0, out _);
 
-        if (waitForThread)
-        {
-            WaitForThread(TImports.CreateRemoteThread(process.Handle, IntPtr.Zero, 0,
-                (IntPtr)entryPointAddress, IntPtr.Zero, 0, out _));
-        }
-        else remoteThread = TImports.CreateRemoteThread(process.Handle, IntPtr.Zero, 0,
-                (IntPtr)entryPointAddress, IntPtr.Zero, 0, out _);
+        if (waitForThread != 0) WaitForThread(remoteThread, waitForThread);
 
         return remoteThread;
     }
 
-    internal static bool WaitForThread(IntPtr threadHandle, uint timeout = 0xFFFFFFFF)
+    internal static bool WaitForThread(IntPtr threadHandle, int timeout = -1)
     {
-        return TImports.WaitForSingleObject(threadHandle, timeout) == 0;
+        return TImports.WaitForSingleObject(threadHandle, (uint)timeout) == 0;
     }
 
     internal static ulong GetTime(Process process)

@@ -30,9 +30,12 @@ public partial class Tools : MainShared
                     {
                         public const ulong AddressArguments = 0x2000;
                         public const ulong AddressArgumentsData = 0x6000;
-                        public const ulong AddressFreeUse = 0x35;
+                        public const ulong AddressFreeUse = 0x80;
 
-                        public const ulong HK_HookPoint = 0x0;
+                        public const ulong HK_HookPoint = 0x10;
+
+                        public const ulong ReturnAddress = 0x0;
+                        public const ulong il2cpp_gc_wbarrier_set_field = 0x8;
                     }
 
                     static ulong GCStart = 0;
@@ -44,7 +47,7 @@ public partial class Tools : MainShared
                     #endregion
                     #region ASM_CODE
                     byte[] AsmCode = new byte[] {
-    0x50, 0x90, 0x41, 0x90, 0x52, 0x90, 0x48, 0x90, 0x83, 0x90, 0xEC, 0x90, 0x20, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x05, 0x90, 0xF2, 0x90, 0x1F, 0x90, 0x00, 0x90, 0x00, 0x90, 0x48, 0x90, 0x83, 0x90, 0xE8, 0x90, 0x08, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC0, 0x90, 0x08, 0x90, 0x48, 0x90, 0x83, 0x90, 0x38, 0x90, 0x00, 0x90, 0x74, 0x90, 0x11, 0x90, 0x4C, 0x90, 0x8B, 0x90, 0x10, 0x90, 0x4D, 0x90, 0x3B, 0x90, 0x02, 0x90, 0x75, 0x90, 0xEE, 0x90, 0x49, 0x90, 0xC7, 0x90, 0x02, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0xEB, 0x90, 0xE5, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC4, 0x90, 0x20, 0x90, 0x41, 0x90, 0x5A, 0x90, 0x58, 0x90, 0xC3
+    0xBC, 0x90, 0xDD, 0x90, 0x10, 0x90, 0x22, 0x90, 0xFC, 0x90, 0x7F, 0x90, 0x00, 0x90, 0x00, 0x90, 0x70, 0x90, 0xFA, 0x90, 0xDB, 0x90, 0x19, 0x90, 0xFC, 0x90, 0x7F, 0x90, 0x00, 0x90, 0x00, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x05, 0x90, 0xE9, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x48, 0x90, 0x8B, 0x90, 0x00, 0x90, 0x48, 0x90, 0x39, 0x90, 0x04, 0x90, 0x24, 0x90, 0x75, 0x90, 0x57, 0x90, 0x48, 0x90, 0x83, 0x90, 0xEC, 0x90, 0x28, 0x90, 0x52, 0x90, 0x48, 0x90, 0x83, 0x90, 0xEC, 0x90, 0x28, 0x90, 0xFF, 0x90, 0x15, 0x90, 0xD9, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC4, 0x90, 0x28, 0x90, 0x5A, 0x90, 0x50, 0x90, 0x41, 0x90, 0x52, 0x90, 0x48, 0x90, 0x85, 0x90, 0xD2, 0x90, 0x74, 0x90, 0x29, 0x90, 0x4C, 0x90, 0x8B, 0x90, 0x02, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x05, 0x90, 0xBA, 0x90, 0x1F, 0x90, 0x00, 0x90, 0x00, 0x90, 0x48, 0x90, 0x83, 0x90, 0xE8, 0x90, 0x08, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC0, 0x90, 0x08, 0x90, 0x48, 0x90, 0x83, 0x90, 0x38, 0x90, 0x00, 0x90, 0x74, 0x90, 0x11, 0x90, 0x4C, 0x90, 0x8B, 0x90, 0x10, 0x90, 0x4D, 0x90, 0x3B, 0x90, 0x02, 0x90, 0x75, 0x90, 0xEE, 0x90, 0x49, 0x90, 0xC7, 0x90, 0x02, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0xEB, 0x90, 0xE5, 0x90, 0x41, 0x90, 0x5A, 0x90, 0x58, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC4, 0x90, 0x28, 0x90, 0xC3, 0x90, 0x4C, 0x90, 0x8D, 0x90, 0x05, 0x90, 0x8C, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x41, 0x90, 0xFF, 0x90, 0x20, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x05, 0x90, 0x8A, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x20
 };
                     #endregion
 
@@ -64,16 +67,16 @@ public partial class Tools : MainShared
                     }
                     #endregion
 
-                    #region CONSTRUCTOR
                     public InstanceDestroy()
                     {
                         try
                         {
                             do
                             {
-                                if (!ScanData()) break;
-                                if (!Allocate()) break;
-                                if (!HookCode()) break;
+                                if (ScanData() != Result.Success) break;
+                                if (Allocate() != Result.Success) break;
+                                if (WriteArgs() != Result.Success) break;
+                                if (HookCode() != Result.Success) break;
 
                                 Loaded = true;
                                 TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
@@ -83,12 +86,11 @@ public partial class Tools : MainShared
                         }
                         catch { }
                     }
-                    #endregion
-                    #region SCAN_DATA
-                    private bool ScanData()
-                    {
-                        bool success = false;
 
+                    #region SCAN_DATA
+                    private Result ScanData()
+                    {
+                        Result result = Result.None;
                         while (SubToolGeneralLimit > 0)
                         {
                             try
@@ -97,8 +99,8 @@ public partial class Tools : MainShared
                                 {
                                     ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
 
-                                    ulong mono_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "mono-2.0-bdwgc.dll", "mono_gc_wbarrier_set_field");
-                                    if (mono_gc_wbarrier_set_field == 0) break;
+                                    ulong il2cpp_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field");
+                                    if (il2cpp_gc_wbarrier_set_field == 0) break;
 
                                     ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll");
                                     if (moduleBase == 0) break;
@@ -133,7 +135,7 @@ public partial class Tools : MainShared
                                                         uint value = TMemory.ReadMemory<uint>(ProcessInstance, op.Offset + 0x2);
                                                         ulong relativePtr = op.Offset + value + 0x6;
                                                         ulong relative = 0; try { relative = TMemory.ReadMemory<ulong>(ProcessInstance, relativePtr); } catch { }
-                                                        if (relative != mono_gc_wbarrier_set_field) continue;
+                                                        if (relative != il2cpp_gc_wbarrier_set_field) continue;
 
                                                         GCCallsAll[results[i]].Add(op.Offset);
 
@@ -210,10 +212,10 @@ public partial class Tools : MainShared
                                         catch { }
                                     }
 
-                                    success = CallFinalSetField != 0;
+                                    result = CallFinalSetField != 0 ? Result.Success : Result.Failed;
                                 }
                                 while (false);
-                                if (success) break;
+                                if (result != Result.None) break;
                                 Thread.Sleep(1000);
                                 SubToolGeneralLimit -= 1000;
                             }
@@ -221,18 +223,18 @@ public partial class Tools : MainShared
                         }
 
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + success.ToString()); return success;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                     #region ALLOCATE
-                    private bool Allocate()
+                    private Result Allocate()
                     {
-                        bool success = false;
+                        Result result = Result.None;
                         try
                         {
                             do
                             {
-                                AllocateStart = MemoryManager.AllocateTimeLimited((int)AllocateSize, 180000);
+                                AllocateStart = MemoryManager.AllocateSafe((int)AllocateSize, ToolUniqueID);
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
@@ -242,62 +244,56 @@ public partial class Tools : MainShared
                                 AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
                                 AddressFreeUse = AllocateStart + GeneratedOffsets.AddressFreeUse;
 
-                                success = true;
+                                result = Result.Success;
                             }
                             while (false);
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + success.ToString()); return success;
+                            " | " + "Result: " + result.ToString()); return result;
+                    }
+                    #endregion
+                    #region WRITE_ARGS
+                    private Result WriteArgs()
+                    {
+                        Result result = Result.None;
+                        do
+                        {
+                            RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.ReturnAddress, BitConverter.GetBytes(CallFinalSetField + 0x6));
+                            RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.il2cpp_gc_wbarrier_set_field, BitConverter.GetBytes(TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field")));
+                            result = Result.Success;
+                        }
+                        while (false);
+                        TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                     #region HOOK_CODE
-                    private bool HookCode()
+                    private Result HookCode()
                     {
-                        bool success = false;
+                        Result result = Result.None;
                         try
                         {
                             do
                             {
-                                ulong returnAddress = CallFinalSetField + 0x6;
                                 ulong setFieldPtr = CallFinalSetField + TMemory.ReadMemory<uint>(ProcessInstance, CallFinalSetField + 0x2) + 0x6;
-
-                                ulong HKPTR = AddressFreeUse;
-                                RefWriteBytes(ProcessInstance, AddressFreeUse, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
-                                AddressFreeUse += 0x8;
-
-                                ulong replaceAddress = AddressFreeUse;
-
-                                byte[] miniCode = TSignature.GetBytes("81 3C 24 00 00 00 00 75 18 81 7C 24 04 00 00 00 00 " +
-                                    "75 0E 48 83 EC 30 FF 15 DB FF FF FF 48 83 C4 30");
-
-                                TArray.Insert(miniCode, BitConverter.GetBytes(BitConverter.ToUInt32(BitConverter.GetBytes(returnAddress), 0)), 3);
-                                TArray.Insert(miniCode, BitConverter.GetBytes(BitConverter.ToUInt32(BitConverter.GetBytes(returnAddress), 4)), 13);
-
-                                RefWriteBytes(ProcessInstance, AddressFreeUse, miniCode);
-                                AddressFreeUse += (ulong)miniCode.Length;
-
-                                ulong mono_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "mono-2.0-bdwgc.dll", "mono_gc_wbarrier_set_field");
-                                if (mono_gc_wbarrier_set_field == 0) break;
 
                                 byte[] saveBytes = TMemory.ReadMemoryBytes(ProcessInstance, setFieldPtr, 0x8);
                                 if (saveBytes == null || saveBytes.Length == 0) break;
 
                                 MemoryManager.AddOverwrite(setFieldPtr, saveBytes, ToolUniqueID);
+                                RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
 
-                                AddressFreeUse += TMemory.CreateAbsoluteJump(ProcessInstance, AddressFreeUse, mono_gc_wbarrier_set_field);
-                                RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(replaceAddress));
+                                TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                " | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
 
-                                //TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                    //" | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
-
-                                success = true;
+                                result = Result.Success;
                             }
                             while (false);
                         }
                         catch { }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + success.ToString()); return success;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                 }

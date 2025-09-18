@@ -183,7 +183,7 @@ public partial class Tools : MainShared
                         }
                         while (false);
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + result.ToString()); return result;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                     #region WRITE_ARGS
@@ -219,7 +219,7 @@ public partial class Tools : MainShared
                             SubToolGeneralLimit -= 1000;
                         }
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + result.ToString()); return result;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                 }

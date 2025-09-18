@@ -1,10 +1,12 @@
-﻿using System;
+﻿using SharpDisasm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 public partial class Tools : MainShared
 {
@@ -150,10 +152,6 @@ public partial class Tools : MainShared
                             string namespaceName = fullNameData[1] ?? DefaultNamespace;
                             string className = fullNameData[2] ?? DefaultClass;
 
-                            // clear extension
-                            if (imageName.EndsWith(".dll"))
-                                imageName = imageName.Remove(imageName.Length - 4);
-
                             // get path
                             OffsetResolver.PathInfo pathInfo = offsetResolver.GetPath(imageName, namespaceName, className, fieldsNames);
                             if (pathInfo.DirectAddress != 0)
@@ -279,7 +277,7 @@ public partial class Tools : MainShared
                         }
                         while (false);
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + result.ToString()); return result;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                     #region WRITE_ARGS
@@ -315,7 +313,7 @@ public partial class Tools : MainShared
                             SubToolGeneralLimit -= 1000;
 						}
 						TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-							" | " + "Success: " + result.ToString()); return result;
+							" | " + "Result: " + result.ToString()); return result;
 					}
 					#endregion
 					#region HOOK_CODE
@@ -365,7 +363,7 @@ public partial class Tools : MainShared
                             Thread.Sleep(1000); timeLimit -= 1000;
 						}
 						TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-							" | " + "Success: " + result.ToString()); return result;
+							" | " + "Result: " + result.ToString()); return result;
 					}
                     #endregion
 

@@ -307,7 +307,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + success.ToString()); return success;
+                            " | " + "Result: " + success.ToString()); return success;
                     }
                     #endregion
                     #region SCAN_DATA
@@ -375,7 +375,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + success.ToString()); return success;
+                            " | " + "Result: " + success.ToString()); return success;
                     }
                     #endregion
                     #region WRITE_ARGS
@@ -396,7 +396,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + success.ToString()); return success;
+                            " | " + "Result: " + success.ToString()); return success;
                     }
                     #endregion
                     #region HOOK_CODE
@@ -466,7 +466,7 @@ public partial class Tools : MainShared
                         }
                         catch { }
                         TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + success.ToString()); return success;
+                            " | " + "Result: " + success.ToString()); return success;
                     }
                     #endregion
                 }

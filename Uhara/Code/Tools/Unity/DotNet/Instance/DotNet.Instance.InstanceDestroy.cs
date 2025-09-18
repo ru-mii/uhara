@@ -211,7 +211,7 @@ public partial class Tools : MainShared
                         }
 
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + result.ToString()); return result;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                     #region ALLOCATE
@@ -220,7 +220,7 @@ public partial class Tools : MainShared
                         Result result = Result.None;
                         do
                         {
-                            AllocateStart = MemoryManager.AllocateTimeLimited((int)AllocateSize, 180000);
+                            AllocateStart = MemoryManager.AllocateSafe((int)AllocateSize, ToolUniqueID);
                             if (AllocateStart == 0) break;
 
                             byte[] decoded = TArray.DecodeBlock(AsmCode);
@@ -234,7 +234,7 @@ public partial class Tools : MainShared
                         }
                         while (false);
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + result.ToString()); return result;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                     #region HOOK_CODE
@@ -272,14 +272,14 @@ public partial class Tools : MainShared
                             AddressFreeUse += TMemory.CreateAbsoluteJump(ProcessInstance, AddressFreeUse, mono_gc_wbarrier_set_field);
                             RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(replaceAddress));
 
-                            TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                " | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
+                            //TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                //" | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
 
                             result = Result.Success;
                         }
                         while (false);
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                            " | " + "Success: " + result.ToString()); return result;
+                            " | " + "Result: " + result.ToString()); return result;
                     }
                     #endregion
                 }
