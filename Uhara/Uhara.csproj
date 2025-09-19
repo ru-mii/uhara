@@ -113,8 +113,8 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara9-pre"
-copy "$(TargetPath)" "$(TargetDir)uhara9-pre"
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara9"
+copy "$(TargetPath)" "$(TargetDir)uhara9"
 del "$(TargetPath)"
 del "SharpDisasm.dll"</PostBuildEvent>
   </PropertyGroup>
