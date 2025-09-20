@@ -272,26 +272,22 @@ public partial class Tools : MainShared
                     private Result HookCode()
                     {
                         Result result = Result.None;
-                        try
+                        do
                         {
-                            do
-                            {
-                                ulong setFieldPtr = CallFinalSetField + TMemory.ReadMemory<uint>(ProcessInstance, CallFinalSetField + 0x2) + 0x6;
+                            ulong setFieldPtr = CallFinalSetField + TMemory.ReadMemory<uint>(ProcessInstance, CallFinalSetField + 0x2) + 0x6;
 
-                                byte[] saveBytes = TMemory.ReadMemoryBytes(ProcessInstance, setFieldPtr, 0x8);
-                                if (saveBytes == null || saveBytes.Length == 0) break;
+                            byte[] saveBytes = TMemory.ReadMemoryBytes(ProcessInstance, setFieldPtr, 0x8);
+                            if (saveBytes == null || saveBytes.Length == 0) break;
 
-                                MemoryManager.AddOverwrite(setFieldPtr, saveBytes, ToolUniqueID);
-                                RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
+                            MemoryManager.AddOverwrite(setFieldPtr, saveBytes, ToolUniqueID);
+                            RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
 
-                                //TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                //" | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
+                            //TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                            //" | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
 
-                                result = Result.Success;
-                            }
-                            while (false);
+                            result = Result.Success;
                         }
-                        catch { }
+                        while (false);
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             " | " + "Result: " + result.ToString()); return result;
                     }
