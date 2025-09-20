@@ -118,6 +118,7 @@ public partial class Tools : MainShared
                                 ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
                                 if (TProcess.GetModuleBase(ProcessInstance, "GameAssembly.dll") == 0) break;
                                 if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;
                                 success = true;
                             }
                             while (false);

@@ -91,6 +91,21 @@ public partial class Tools : MainShared
                             ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
                             Thread.Sleep(100);
                         }
+
+                        bool success = false;
+                        while (!success)
+                        {
+                            do
+                            {
+                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                if (TProcess.GetModuleBase(ProcessInstance, "mono-2.0-bdwgc.dll") == 0) break;
+                                if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;
+                                success = true;
+                            }
+                            while (false);
+                            Thread.Sleep(100);
+                        }
                     }
                     catch { return; }
 
