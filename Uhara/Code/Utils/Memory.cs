@@ -13,7 +13,7 @@ using static TImports;
 
 internal class TMemory : MainShared
 {
-    public static ulong[] ScanMultiple(Process process, string signature, string moduleName = null, int memoryProtection = -1)
+    internal static ulong[] ScanMultiple(Process process, string signature, string moduleName = null, int memoryProtection = -1)
     {
         List<ulong> resultsRaw = new List<ulong>();
         byte[] searchBytes = TSignature.GetBytes(signature);
@@ -47,7 +47,7 @@ internal class TMemory : MainShared
         return resultsRaw.ToArray();
     }
 
-    public static int GetMemoryProtection(Process process, ulong address, int size = 0x1000)
+    internal static int GetMemoryProtection(Process process, ulong address, int size = 0x1000)
     {
         MBI mBi = new MBI();
         if (!VirtualQueryEx(process.Handle, (IntPtr)address, out mBi, (uint)size)) return -1;
@@ -77,6 +77,38 @@ internal class TMemory : MainShared
             if (offset >= overwrite)
             {
                 return offset;
+            }
+        }
+
+        return 0;
+    }
+
+    internal static ulong GetFunctionStart(Process process, ulong address)
+    {
+        ulong newAddress = address - 0x1000;
+        byte[] pageBytes = ReadMemoryBytes(process, newAddress, 0x1000);
+        Instruction[] instructions = TInstruction.GetInstructions2(pageBytes, newAddress);
+
+        int insIndex = 0;
+        for (int i = 0; i < instructions.Length; i++)
+        {
+            newAddress += (ulong)instructions[i].Bytes.Length;
+
+            if (newAddress == address)
+            {
+                newAddress = instructions[i].Offset;
+                insIndex = i;
+                break;
+            }
+        }
+
+        if (insIndex == 0) return 0;
+
+        for (int i = insIndex; i >= 0; i--)
+        {
+            if (instructions[i].ToString() == "int3" || instructions[i].ToString() == "ret")
+            {
+                return instructions[i].Offset + 1;
             }
         }
 
