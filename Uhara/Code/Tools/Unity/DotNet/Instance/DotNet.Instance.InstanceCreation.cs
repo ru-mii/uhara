@@ -202,9 +202,6 @@ public partial class Tools : MainShared
                             if (ArgTypes.Instance == argType)
                             {
                                 AddressGlobalOutput += (ulong)((instances * 0x8) + OutputInstanceStruct.FirstInstanceSlot.Offset);
-
-                                // update other sub tools
-                                getInstances.AddArgument(_outputAddress, instances, imageName, namespaceName, className);
                                 instanceDestroy.AddArgument(_outputAddress + (ulong)OutputInstanceStruct.FirstInstanceSlot.Offset, instances);
                             }
                             else if (ArgTypes.Flag == argType)
@@ -232,6 +229,12 @@ public partial class Tools : MainShared
 
                             RefWriteBytes(ProcessInstance, AddressArguments, argument);
                             AddressArguments += (ulong)ArgStruct.End.Offset;
+
+                            // update other tool
+                            if (ArgTypes.Instance == argType)
+                            {
+                                getInstances.AddArgument(_outputAddress, instances, imageName, namespaceName, className);
+                            }
 
                             // return
                             return new InstanceWatcherBuild((IntPtr)returnUlong, pathInfo.Offsets);
