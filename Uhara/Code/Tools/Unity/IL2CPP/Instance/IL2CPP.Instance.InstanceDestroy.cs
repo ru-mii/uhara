@@ -284,8 +284,8 @@ public partial class Tools : MainShared
                                 MemoryManager.AddOverwrite(setFieldPtr, saveBytes, ToolUniqueID);
                                 RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
 
-                                TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                " | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
+                                //TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                //" | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));
 
                                 result = Result.Success;
                             }
