@@ -127,7 +127,7 @@ public partial class Tools : MainShared
 
                         // ---
                         {
-                            TProcess.WaitForThread(TProcess.CreateRemoteThread(ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint), 10000);
+                            TProcess.WaitForThread(TProcess.CreateRemoteThread(ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint), 15000);
 
                             ulong directAddress = TMemory.ReadMemory<ulong>(ProcessInstance, (AddressGlobalOutput + (ulong)OutStruct.DirectAddress.Offset));
                             List<int> offsets = new List<int>();
