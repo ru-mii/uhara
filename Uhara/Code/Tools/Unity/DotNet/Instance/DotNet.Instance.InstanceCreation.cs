@@ -34,6 +34,8 @@ public partial class Tools : MainShared
 					public string DefaultNamespace = "";
 					public string DefaultClass = "";
 
+                    Dictionary<string, ulong> BaseCache = new Dictionary<string, ulong>();
+
                     private struct GeneratedOffsets
                     {
                         public const ulong AddressArguments = 0x2000;
@@ -152,13 +154,23 @@ public partial class Tools : MainShared
                             string namespaceName = fullNameData[1] ?? DefaultNamespace;
                             string className = fullNameData[2] ?? DefaultClass;
 
+                            // get cached base pointer
+                            string baseFullName = imageName + ":" + namespaceName + ":" + className;
+                            ulong basePointer = 0;
+
+                            if (BaseCache.ContainsKey(baseFullName))
+                                basePointer = BaseCache[baseFullName];
+
                             // get path
                             OffsetResolver.PathInfo pathInfo = offsetResolver.GetPath(imageName, namespaceName, className, fieldsNames);
+                            if (basePointer != 0) return new InstanceWatcherBuild((IntPtr)basePointer, pathInfo.Offsets);
+
                             if (pathInfo.DirectAddress != 0)
                             {
                                 RefWriteBytes(ProcessInstance, AddressArgumentsData, BitConverter.GetBytes(pathInfo.DirectAddress));
                                 AddressArgumentsData += 0x8;
 
+                                BaseCache[baseFullName] = AddressArgumentsData - 0x8;
                                 return new InstanceWatcherBuild((IntPtr)(AddressArgumentsData - 0x8), pathInfo.Offsets);
                             }
 
@@ -237,6 +249,7 @@ public partial class Tools : MainShared
                             }
 
                             // return
+                            BaseCache[baseFullName] = returnUlong;
                             return new InstanceWatcherBuild((IntPtr)returnUlong, pathInfo.Offsets);
                         }
                         while (false);
@@ -265,6 +278,8 @@ public partial class Tools : MainShared
                         Result result = Result.None;
                         do
                         {
+                            BaseCache = new Dictionary<string, ulong>();
+
                             AllocateStart = MemoryManager.AllocateSafe((int)AllocateSize, ToolUniqueID);
                             if (AllocateStart == 0) break;
 
