@@ -19,32 +19,13 @@ public partial class Tools : MainShared
             public partial class Instance
             {
                 #region PUBLIC_API
-                public void SetDefaultNames(string imageName, string namespaceName, string className)
+                public void SetDefaultNames(string imageName, string namespaceName = null, string className = null)
                 {
                     try
                     {
                         instanceCreation.DefaultImage = imageName;
-                        instanceCreation.DefaultNamespace = namespaceName;
-                        instanceCreation.DefaultClass = className;
-                    }
-                    catch { }
-                }
-
-                public void SetDefaultNames(string imageName, string namespaceName)
-                {
-                    try
-                    {
-                        instanceCreation.DefaultImage = imageName;
-                        instanceCreation.DefaultNamespace = namespaceName;
-                    }
-                    catch { }
-                }
-
-                public void SetDefaultNames(string imageName)
-                {
-                    try
-                    {
-                        instanceCreation.DefaultImage = imageName;
+                        if (namespaceName != null) instanceCreation.DefaultNamespace = namespaceName;
+                        if (className != null) instanceCreation.DefaultClass = className;
                     }
                     catch { }
                 }
@@ -73,7 +54,7 @@ public partial class Tools : MainShared
                     return null;
                 }
 
-                public InstanceWatcherBuild InstanceFlag(string fullName)
+                public InstanceWatcherBuild Flag(string fullName)
                 {
                     try
                     {
