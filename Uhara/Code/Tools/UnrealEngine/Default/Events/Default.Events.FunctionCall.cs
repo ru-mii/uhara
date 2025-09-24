@@ -40,7 +40,7 @@ public partial class Tools : MainShared
                 }
                 #endregion
 
-                private class FunctionCall
+                private class FunctionCall : UnrealEngine
                 {
                     #region VARIABLES
                     string SubToolID = "cjuvgtrc";
