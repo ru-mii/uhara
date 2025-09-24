@@ -32,12 +32,14 @@ public partial class Tools : MainShared
 
                     IntPtr entry = chunk + (int)nameIdx * sizeof(short);
                     int length = TMemory.ReadMemory<short>(ProcessInstance, entry) >> 6;
+                    if (length > byte.MaxValue || length <= 0) break;
+
                     return TUtils.MultibyteToString(TMemory.ReadMemoryBytes(ProcessInstance, entry + sizeof(short), length));
                 }
                 while (false);
             }
             catch { }
-            return "None";
+            return null;
         }
 
         public partial class Default
