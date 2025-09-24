@@ -8,6 +8,20 @@ using System.Threading.Tasks;
 
 class TUtils : MainShared
 {
+    internal static string MultibyteToString(byte[] bytes)
+    {
+        if (bytes == null || bytes.Length == 0)
+            return string.Empty;
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.Length && bytes[i] != 0; i++)
+        {
+            sb.Append((char)bytes[i]);
+        }
+
+        return sb.ToString();
+    }
+
     internal static string GetFileVersion(string path)
     {
         if (File.Exists(path))
