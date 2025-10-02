@@ -427,13 +427,32 @@ public partial class Tools : MainShared
 
                                     ulong hookAddress = retAddress - (ulong)minimumOverwrite;
                                     byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
+                                    MemoryManager.AddOverwrite(hookAddress, stolenCode);
+
+                                    // fix relative call
+                                    {
+                                        List<byte[]> converted = new List<byte[]>();
+                                        Instruction[] instrs = TInstruction.GetInstructions2(stolenCode, hookAddress);
+                                        bool relativeFound = false;
+                                        foreach (Instruction ins in instrs)
+                                        {
+                                            if (ins.Bytes.Length == 5 && ins.ToString().StartsWith("call"))
+                                            {
+                                                int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 1);
+                                                ulong resolved = (ulong)((long)ins.Offset + value + 5);
+                                                converted.Add(TMemory.GetAbsoluteCallBytes(resolved));
+                                                relativeFound = true;
+                                            }
+                                            else converted.Add(ins.Bytes);
+                                        }
+                                        if (relativeFound) stolenCode = TArray.Merge(converted);
+                                    }
 
                                     AddressInterfaceCode += TMemory.CreateAbsoluteCall(ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
                                     RefWriteBytes(ProcessInstance, AddressInterfaceCode, stolenCode);
                                     AddressInterfaceCode += (ulong)stolenCode.Length;
 
                                     AddressInterfaceCode += TMemory.CreateAbsoluteJump(ProcessInstance, AddressInterfaceCode, retAddress);
-                                    MemoryManager.AddOverwrite(hookAddress, stolenCode);
                                     TMemory.CreateAbsoluteJump(ProcessInstance, hookAddress, jumpHook);
 
                                     //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
