@@ -176,18 +176,64 @@ public partial class Tools : MainShared
 
                             // ---
                             {
-                                ulong gameAssemblyBase = TProcess.GetModuleBase(ProcessInstance, "GameAssembly.dll");
-                                ulong gameAssemblyEnd = TProcess.GetModuleEnd(ProcessInstance, "GameAssembly.dll");
-                                if (gameAssemblyBase == 0 || gameAssemblyEnd == 0) break;
+                                ulong _IL2CPPCompile = 0;
+                                {
+                                    ulong gameAssemblyBase = TProcess.GetModuleBase(ProcessInstance, "GameAssembly.dll");
+                                    ulong gameAssemblyEnd = TProcess.GetModuleEnd(ProcessInstance, "GameAssembly.dll");
+                                    if (gameAssemblyBase == 0 || gameAssemblyEnd == 0) break;
 
-                                ulong address = TMemory.ScanSingle(ProcessInstance, "40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 85 C0 74 06 48 83 C4 20 5B C3 48 8B CB E8 ?? ?? ?? ?? 48 8B C8 33 D2 E8", "GameAssembly.dll", 0x20);
-                                if (address == 0) break;
+                                    if (_IL2CPPCompile == 0)
+                                    {
+                                        try
+                                        {
+                                            do
+                                            {
+                                                ulong address = TMemory.ScanSingle(ProcessInstance, "40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 85 C0 74 06 48 83 C4 20 5B C3 48 8B CB E8 ?? ?? ?? ?? 48 8B C8 33 D2 E8", "GameAssembly.dll", 0x20);
+                                                if (address == 0) break;
 
-                                ulong _IL2CPPCompile = (ulong)(((long)address + 9) + TMemory.ReadMemory<int>(ProcessInstance, address + 10) + 5);
-                                if (_IL2CPPCompile < gameAssemblyBase || _IL2CPPCompile >= gameAssemblyEnd)
-                                    break;
+                                                _IL2CPPCompile = (ulong)(((long)address + 9) + TMemory.ReadMemory<int>(ProcessInstance, address + 10) + 5);
+                                                if (_IL2CPPCompile < gameAssemblyBase || _IL2CPPCompile >= gameAssemblyEnd)
+                                                    break;
+                                            }
+                                            while (false);
+                                        }
+                                        catch { }
+                                    }
 
-                                RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.IL2CPPCompile, BitConverter.GetBytes(_IL2CPPCompile));
+                                    if (_IL2CPPCompile == 0)
+                                    {
+                                        try
+                                        {
+                                            do
+                                            {
+                                                ulong address = TMemory.ScanSingle(ProcessInstance, "48 8B 05 ?? ?? ?? ?? 48 85 C0 75 ?? 48 8D 0D ?? ?? ?? ?? E8", "GameAssembly.dll", 0x20);
+                                                if (address == 0) break;
+
+                                                {
+                                                    int value = TMemory.ReadMemory<int>(ProcessInstance, address + 15);
+                                                    ulong resolved = (ulong)((long)address + 12 + value + 7);
+
+                                                    byte[] nameBytes = TMemory.ReadMemoryBytes(ProcessInstance, resolved, 11);
+                                                    if (nameBytes == null) break;
+
+                                                    string name = TUtils.MultibyteToString(nameBytes);
+                                                    if (name != "UnityEngine") break;
+                                                }
+
+                                                {
+                                                    int value = TMemory.ReadMemory<int>(ProcessInstance, address + 20);
+                                                    _IL2CPPCompile = (ulong)((long)address + 19 + value + 5);
+                                                }
+                                            }
+                                            while (false);
+                                        }
+                                        catch { }
+                                    }
+
+                                    if (_IL2CPPCompile == 0) break;
+                                    else RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.IL2CPPCompile,
+                                            BitConverter.GetBytes(_IL2CPPCompile));
+                                }
                             }
 
                             // ---
