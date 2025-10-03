@@ -91,136 +91,131 @@ public partial class Tools : MainShared
                     private Result ScanData()
                     {
                         Result result = Result.None;
-                        while (SubToolGeneralLimit > 0)
+                        try
                         {
-                            try
+                            do
                             {
-                                do
+                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+
+                                ulong il2cpp_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field");
+                                if (il2cpp_gc_wbarrier_set_field == 0) break;
+
+                                ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll");
+                                if (moduleBase == 0) break;
+
+                                List<ulong> results = TMemory.ScanMultiple(ProcessInstance, "48 83 C4 ?? 5B C3 48", "UnityPlayer.dll", 0x20).ToList();
+
+                                // ---
+                                if (results.Count > 1)
                                 {
-                                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
-
-                                    ulong il2cpp_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field");
-                                    if (il2cpp_gc_wbarrier_set_field == 0) break;
-
-                                    ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll");
-                                    if (moduleBase == 0) break;
-
-                                    List<ulong> results = TMemory.ScanMultiple(ProcessInstance, "48 83 C4 ?? 5B C3 48", "UnityPlayer.dll", 0x20).ToList();
-
-                                    // ---
-                                    if (results.Count > 1)
-                                    {
-                                        for (int i = 0; i < results.Count; i++)
-                                        {
-                                            try
-                                            {
-                                                GCCallsAll[results[i]] = new List<ulong>();
-
-                                                ulong pastFirstReturn = results[i] + 6;
-
-                                                ulong functionEnd = TMemory.GetFunctionReturn(ProcessInstance, pastFirstReturn);
-                                                if (functionEnd != 0)
-                                                {
-                                                    byte[] functionBytes = TMemory.ReadMemoryBytes(ProcessInstance, pastFirstReturn, (int)(functionEnd - pastFirstReturn));
-                                                    Instruction[] functionOps = TInstruction.GetInstructions2(functionBytes, pastFirstReturn);
-
-                                                    int counter = 0;
-                                                    foreach (Instruction op in functionOps)
-                                                    {
-                                                        // is searched call
-                                                        if (!op.ToString().StartsWith("call ")) continue;
-                                                        if (op.Bytes[0] != 0xFF || op.Bytes[1] != 0x15) continue;
-
-                                                        // relative check
-                                                        uint value = TMemory.ReadMemory<uint>(ProcessInstance, op.Offset + 0x2);
-                                                        ulong relativePtr = op.Offset + value + 0x6;
-                                                        ulong relative = 0; try { relative = TMemory.ReadMemory<ulong>(ProcessInstance, relativePtr); } catch { }
-                                                        if (relative != il2cpp_gc_wbarrier_set_field) continue;
-
-                                                        GCCallsAll[results[i]].Add(op.Offset);
-
-                                                        // counter update
-                                                        counter++;
-                                                    }
-
-                                                    if (counter >= 3)
-                                                        continue;
-
-                                                    results.RemoveAt(i);
-                                                    i--;
-                                                }
-                                            }
-                                            catch { }
-                                        }
-                                    }
-
-                                    // ---
-                                    if (results.Count > 1)
-                                    {
-                                        for (int i = 0; i < results.Count; i++)
-                                        {
-                                            try
-                                            {
-                                                byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i], 200);
-                                                byte[] signatureBytes = TSignature.GetBytes("48 83 C4 ?? 5B C3 CC CC");
-                                                string signatureMask = TSignature.GetMask("48 83 C4 ?? 5B C3 CC CC");
-
-                                                int offset = TMemory.FindInArray(byteBlock, signatureBytes, signatureMask);
-                                                if (offset == -1)
-                                                {
-                                                    results.RemoveAt(i);
-                                                    i--;
-                                                }
-                                            }
-                                            catch { }
-                                        }
-                                    }
-
-                                    // ---
-                                    if (results.Count > 1)
-                                    {
-                                        for (int i = 0; i < results.Count; i++)
-                                        {
-                                            try
-                                            {
-                                                byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i] - 0x40, 0x40);
-                                                byte[] signatureBytes = TSignature.GetBytes("CC 40 53 48 83 EC ??");
-                                                string signatureMask = TSignature.GetMask("CC 40 53 48 83 EC ??");
-
-                                                int offset = TMemory.FindInArray(byteBlock, signatureBytes, signatureMask);
-                                                if (offset == -1)
-                                                {
-                                                    results.RemoveAt(i);
-                                                    i--;
-                                                }
-                                            }
-                                            catch { }
-                                        }
-                                    }
-
-                                    // ---
-                                    if (results.Count == 1)
+                                    for (int i = 0; i < results.Count; i++)
                                     {
                                         try
                                         {
-                                            List<ulong> setFieldCalls = GCCallsAll[results[0]];
-                                            if (setFieldCalls.Count >= 3)
+                                            GCCallsAll[results[i]] = new List<ulong>();
+
+                                            ulong pastFirstReturn = results[i] + 6;
+
+                                            ulong functionEnd = TMemory.GetFunctionReturn(ProcessInstance, pastFirstReturn);
+                                            if (functionEnd != 0)
                                             {
-                                                CallFinalSetField = setFieldCalls[setFieldCalls.Count - 3];
+                                                byte[] functionBytes = TMemory.ReadMemoryBytes(ProcessInstance, pastFirstReturn, (int)(functionEnd - pastFirstReturn));
+                                                Instruction[] functionOps = TInstruction.GetInstructions2(functionBytes, pastFirstReturn);
+
+                                                int counter = 0;
+                                                foreach (Instruction op in functionOps)
+                                                {
+                                                    // is searched call
+                                                    if (!op.ToString().StartsWith("call ")) continue;
+                                                    if (op.Bytes[0] != 0xFF || op.Bytes[1] != 0x15) continue;
+
+                                                    // relative check
+                                                    uint value = TMemory.ReadMemory<uint>(ProcessInstance, op.Offset + 0x2);
+                                                    ulong relativePtr = op.Offset + value + 0x6;
+                                                    ulong relative = 0; try { relative = TMemory.ReadMemory<ulong>(ProcessInstance, relativePtr); } catch { }
+                                                    if (relative != il2cpp_gc_wbarrier_set_field) continue;
+
+                                                    GCCallsAll[results[i]].Add(op.Offset);
+
+                                                    // counter update
+                                                    counter++;
+                                                }
+
+                                                if (counter >= 3)
+                                                    continue;
+
+                                                results.RemoveAt(i);
+                                                i--;
                                             }
                                         }
                                         catch { }
                                     }
-
-                                    result = CallFinalSetField != 0 ? Result.Success : Result.Failed;
                                 }
-                                while (false);
-                                if (result != Result.None) break;
-                                Thread.Sleep(1000);
-                                SubToolGeneralLimit -= 1000;
+
+                                // ---
+                                if (results.Count > 1)
+                                {
+                                    for (int i = 0; i < results.Count; i++)
+                                    {
+                                        try
+                                        {
+                                            byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i], 200);
+                                            byte[] signatureBytes = TSignature.GetBytes("48 83 C4 ?? 5B C3 CC CC");
+                                            string signatureMask = TSignature.GetMask("48 83 C4 ?? 5B C3 CC CC");
+
+                                            int offset = TMemory.FindInArray(byteBlock, signatureBytes, signatureMask);
+                                            if (offset == -1)
+                                            {
+                                                results.RemoveAt(i);
+                                                i--;
+                                            }
+                                        }
+                                        catch { }
+                                    }
+                                }
+
+                                // ---
+                                if (results.Count > 1)
+                                {
+                                    for (int i = 0; i < results.Count; i++)
+                                    {
+                                        try
+                                        {
+                                            byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i] - 0x40, 0x40);
+                                            byte[] signatureBytes = TSignature.GetBytes("CC 40 53 48 83 EC ??");
+                                            string signatureMask = TSignature.GetMask("CC 40 53 48 83 EC ??");
+
+                                            int offset = TMemory.FindInArray(byteBlock, signatureBytes, signatureMask);
+                                            if (offset == -1)
+                                            {
+                                                results.RemoveAt(i);
+                                                i--;
+                                            }
+                                        }
+                                        catch { }
+                                    }
+                                }
+
+                                // ---
+                                if (results.Count == 1)
+                                {
+                                    try
+                                    {
+                                        List<ulong> setFieldCalls = GCCallsAll[results[0]];
+                                        if (setFieldCalls.Count >= 3)
+                                        {
+                                            CallFinalSetField = setFieldCalls[setFieldCalls.Count - 3];
+                                        }
+                                    }
+                                    catch { }
+                                }
+
+                                result = CallFinalSetField != 0 ? Result.Success : Result.Failed;
                             }
-                            catch { }
+                            while (false);
+                            if (result == Result.None) result = Result.Failed;
                         }
+                        catch { }
 
                         TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             " | " + "Result: " + result.ToString()); return result;

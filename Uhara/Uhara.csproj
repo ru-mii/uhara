@@ -116,6 +116,7 @@
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara9"
 copy "$(TargetPath)" "$(TargetDir)uhara9"
+copy "$(TargetPath)" "$(SolutionDir)bin\uhara9"
 del "$(TargetPath)"
 del "SharpDisasm.dll"</PostBuildEvent>
   </PropertyGroup>
