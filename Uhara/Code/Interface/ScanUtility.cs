@@ -120,6 +120,49 @@ internal class ScanUtility : MainShared
                         address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
+                    // ---
+                    if (address == 0)
+                    {
+                        byte[] logMessage = GetBytes("54 00 72 00 79 00 69 00 6E 00 67 00 20 00 74 00 " +
+                            "6F 00 20 00 63 00 61 00 6C 00 6C 00 20 00 55 00 4F 00 62 00 6A 00 65 00 63 " +
+                            "00 74 00 3A 00 3A 00 42 00 65 00 67 00 69 00 6E 00 44 00 65 00 73 00 74 00 " +
+                            "72 00 6F 00 79");
+
+                        ulong[] scanResults = TMemory.ScanMultiple(ProcessInstance, "C1 E8 0F A8 01 75", null, 0x20);
+                        foreach (ulong scanResult in scanResults)
+                        {
+                            try
+                            {
+                                byte[] scanBytes = TMemory.ReadMemoryBytes(ProcessInstance, scanResult, 0x150);
+                                Instruction[] instrs = TInstruction.GetInstructions2(scanBytes, scanResult);
+
+                                foreach (Instruction ins in instrs)
+                                {
+                                    if (ins.ToString().StartsWith("lea r8, ["))
+                                    {
+                                        int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 3);
+                                        ulong resolved = (ulong)((long)ins.Offset + value + ins.Bytes.Length);
+
+                                        byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, resolved, logMessage.Length);
+                                        if (readBytes == null) continue;
+
+                                        if (logMessage.SequenceEqual(readBytes))
+                                        {
+                                            ulong funcStart = TMemory.GetFunctionStart(ProcessInstance, scanResult);
+                                            if (funcStart == 0) continue;
+
+                                            address = funcStart;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+
+                            if (address != 0) break;
+                        }
+                    }
+
                     return address;
                 }
 
