@@ -73,24 +73,24 @@ public class MainShared
             if (timerForm == null) return;
 
             script = null;
-
             LiveSplitState currentState = timerForm.CurrentState;
-            foreach (var smth in currentState.Layout.LayoutComponents)
+
+            if (currentState?.Run?.AutoSplitter != null && currentState.Run.AutoSplitter.IsActivated)
             {
-                dynamic component = smth.Component;
-                if (component.GetType().Name.Contains("ASLComponent"))
-                {
-                    script = component.Script;
-                    if (script != null) break;
-                }
+                dynamic dynComponent = currentState.Run.AutoSplitter.Component;
+                script = dynComponent.Script;
             }
 
             if (script == null)
             {
-                if (currentState?.Run?.AutoSplitter != null && currentState.Run.AutoSplitter.IsActivated)
+                foreach (var smth in currentState.Layout.LayoutComponents)
                 {
-                    dynamic dynComponent = currentState.Run.AutoSplitter.Component;
-                    script = dynComponent.Script;
+                    dynamic component = smth.Component;
+                    if (component.GetType().Name.Contains("ASLComponent"))
+                    {
+                        script = component.Script;
+                        if (script != null) break;
+                    }
                 }
             }
 
