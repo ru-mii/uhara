@@ -26,12 +26,31 @@ public class MainShared
     internal static ulong UpdateCounter = 0;
 
     internal static dynamic script = null;
-    internal List<MemoryWatcher> MemoryWatchers = new List<MemoryWatcher>();
+    internal static List<MemoryWatcher> MemoryWatchers = new List<MemoryWatcher>();
 
     public static bool DebugMode = true;
+    private Dictionary<string, object> Indexer = new Dictionary<string, object>();
     #endregion
     #region PROPERTIES
-    internal static volatile Process ProcessInstance = null;
+    private static volatile Process _ProcessInstance = null;
+    internal static  Process ProcessInstance
+    {
+        get
+        {
+            if (script == null) CheckSetProcessAndValues();
+            if (_ProcessInstance == null)
+            {
+                FieldInfo gameField = script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
+                var gameInstance = gameField?.GetValue(script);
+                _ProcessInstance = (Process)gameInstance;
+            }
+            return _ProcessInstance;
+        }
+        set
+        {
+            _ProcessInstance = value;
+        }
+    }
 
     private static IDictionary<string, object> _current;
     internal static IDictionary<string, object> current
@@ -48,13 +67,39 @@ public class MainShared
     }
     #endregion
 
-    internal void AddWatcher(MemoryWatcher watcher)
+    public static void AddWatcher(MemoryWatcher watcher)
     {
         try
         {
             MemoryWatchers.Add(watcher);
         }
         catch { }
+    }
+
+    public static void AddWatcher<T>(DeepPointer deepPointer) where T : unmanaged
+    {
+        try
+        {
+            MemoryWatchers.Add(new MemoryWatcher<T>(deepPointer));
+        }
+        catch { }
+    }
+
+    public static void AddWatcher<T>(IntPtr baseAddress, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            MemoryWatchers.Add(new MemoryWatcher<T>(new DeepPointer(baseAddress, offsets)));
+        }
+        catch { }
+    }
+
+    public object this[string key]
+    {
+        set
+        {
+            //ProcessKeyValue(key, value);
+        }
     }
 
     internal static void CheckSetProcessAndValues()
@@ -100,7 +145,7 @@ public class MainShared
                 var gameInstance = gameField?.GetValue(script);
 
                 Vars = script.Vars;
-                ProcessInstance = (Process)gameInstance;
+                //ProcessInstance = (Process)gameInstance;
                 if (ProcessInstance != null) MemoryManager.ClearMemory();
             }
         }

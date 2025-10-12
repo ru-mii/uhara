@@ -1,10 +1,12 @@
-﻿using SharpDisasm;
+﻿using LiveSplit.ComponentUtil;
+using SharpDisasm;
 using System;
 using System.Collections.Generic;
 using System.Deployment.Internal;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,6 +31,16 @@ public partial class Tools : MainShared
                     return IntPtr.Zero;
                 }
 
+                public void FunctionFlag(string watcherName, string className, string objectName, string functionName)
+                {
+                    try
+                    {
+                        var memWatcher = new MemoryWatcher<ulong>(functionCall.AddArgument(FunctionCall.ArgTypes.Flag, className, objectName, functionName, 1));
+                        current[watcherName] = (ulong)0; memWatcher.Name = watcherName; AddWatcher(memWatcher);
+                    }
+                    catch { }
+                }
+
                 public IntPtr FunctionParentPtr(string className, string objectName, string functionName)
                 {
                     try
@@ -37,6 +49,16 @@ public partial class Tools : MainShared
                     }
                     catch { }
                     return IntPtr.Zero;
+                }
+
+                public void FunctionParentPtr<T>(string watcherName, string className, string objectName, string functionName) where T : unmanaged
+                {
+                    try
+                    {
+                        var memWatcher = new MemoryWatcher<T>(functionCall.AddArgument(FunctionCall.ArgTypes.Instance, className, objectName, functionName, 1));
+                        current[watcherName] = (IntPtr)0; memWatcher.Name = watcherName; AddWatcher(memWatcher);
+                    }
+                    catch { }
                 }
                 #endregion
 
@@ -259,6 +281,7 @@ public partial class Tools : MainShared
                     #region INITIALIZE
                     private bool Initiate()
                     {
+                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
                         if (InitResult == InitResults.Failed) return false;
                         else if (InitResult == InitResults.Loaded) return true;
                         try

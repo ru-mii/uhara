@@ -262,6 +262,7 @@ public partial class Tools : MainShared
                     #region INITIATE
                     private bool Initiate()
                     {
+                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
                         if (InitResult == InitResults.Failed) return false;
                         else if (InitResult == InitResults.Loaded) return true;
                         try
@@ -294,7 +295,6 @@ public partial class Tools : MainShared
                             {
                                 AddressAllocateStart = MemoryManager.AllocateSafe((int)AllocateSize);
                                 if (AddressAllocateStart == 0) break;
-
                                 AddressNativeCode = AddressAllocateStart + OffsetNativeCode;
                                 AddressNativeData = AddressAllocateStart + OffsetNativeData;
                                 AddressInterfaceArguments = AddressAllocateStart + OffsetInterfaceArguments;
