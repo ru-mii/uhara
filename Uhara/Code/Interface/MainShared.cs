@@ -38,7 +38,7 @@ public class MainShared
         get
         {
             if (script == null) CheckSetProcessAndValues();
-            if (_ProcessInstance == null)
+            if (_ProcessInstance == null || _ProcessInstance.HasExited)
             {
                 FieldInfo gameField = script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
                 var gameInstance = gameField?.GetValue(script);
