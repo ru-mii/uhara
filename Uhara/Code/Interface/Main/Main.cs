@@ -78,6 +78,8 @@ public partial class Main : MainShared
     {
         try
         {
+            CheckSetProcessAndValues();
+
             engine = engine.ToLower();
             type = type.ToLower();
             tool = tool.ToLower();
@@ -141,7 +143,7 @@ public partial class Main : MainShared
     {
         try
         {
-            //ProcessInstance = process;
+            ProcessInstance = process;
         }
         catch { }
     }

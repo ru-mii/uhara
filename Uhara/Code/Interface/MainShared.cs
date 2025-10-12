@@ -145,7 +145,7 @@ public class MainShared
                 var gameInstance = gameField?.GetValue(script);
 
                 Vars = script.Vars;
-                //ProcessInstance = (Process)gameInstance;
+                ProcessInstance = (Process)gameInstance;
                 if (ProcessInstance != null) MemoryManager.ClearMemory();
             }
         }
