@@ -12,12 +12,14 @@ public partial class Tools : MainShared
     {
         public void LockFps(float fps)
         {
+            string uniqueId = "NTpcAJCLFFCMrnGv";
             bool success = false;
             try
             {
                 do
                 {
                     ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                    MemoryManager.ClearMemory(uniqueId);
 
                     // ---
                     fps = (int)(fps);
@@ -37,15 +39,15 @@ public partial class Tools : MainShared
                     if (instrs[1].ToString() != "movaps xmm0, xmm6") break;
 
                     // ---
+                    ulong allocated = MemoryManager.AllocateSafe(0x1000, uniqueId);
+
                     address = instrs[2].Offset;
                     int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, address, 14);
                     if (minimumOverwrite == 0) break;
 
                     byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, address, minimumOverwrite);
                     if (stolen == null) break;
-                    MemoryManager.AddOverwrite(address, stolen);
-
-                    ulong allocated = MemoryManager.AllocateSafe(0x1000);
+                    MemoryManager.AddOverwrite(address, stolen, uniqueId);
 
                     RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(fps));
                     allocated += 0x8;
