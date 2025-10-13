@@ -12,68 +12,69 @@ public partial class Tools : MainShared
     {
         public void LockFps(float fps)
         {
+            bool success = false;
             try
             {
-                bool success = false;
-                try
+                do
                 {
-                    do
-                    {
-                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
 
-                        // ---
-                        ulong address = TMemory.ScanSingle(ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 44 0F 28 4C 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
-                        if (address == 0) TMemory.ScanSingle(ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
-                        if (address == 0) break;
+                    // ---
+                    fps = (int)(fps);
 
-                        // ---
-                        byte[] ending = TMemory.ReadMemoryBytes(ProcessInstance, address, 0x100);
-                        if (ending == null) break;
+                    // ---
+                    ulong address = TMemory.ScanSingle(ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 44 0F 28 4C 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
+                    if (address == 0) TMemory.ScanSingle(ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
+                    if (address == 0) break;
 
-                        Instruction[] instrs = TInstruction.GetInstructions2(ending, address);
-                        if (instrs == null || instrs.Length < 3) break;
+                    // ---
+                    byte[] ending = TMemory.ReadMemoryBytes(ProcessInstance, address, 0x100);
+                    if (ending == null) break;
 
-                        if (instrs[1].ToString() != "movaps xmm0, xmm6") break;
+                    Instruction[] instrs = TInstruction.GetInstructions2(ending, address);
+                    if (instrs == null || instrs.Length < 3) break;
 
-                        // ---
-                        address = instrs[2].Offset;
-                        int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, address, 14);
-                        if (minimumOverwrite == 0) break;
+                    if (instrs[1].ToString() != "movaps xmm0, xmm6") break;
 
-                        byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, address, minimumOverwrite);
-                        if (stolen == null) break;
-                        MemoryManager.AddOverwrite(address, stolen);
+                    // ---
+                    address = instrs[2].Offset;
+                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, address, 14);
+                    if (minimumOverwrite == 0) break;
 
-                        ulong allocated = MemoryManager.AllocateSafe(0x1000);
+                    byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, address, minimumOverwrite);
+                    if (stolen == null) break;
+                    MemoryManager.AddOverwrite(address, stolen);
 
-                        RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(fps));
-                        allocated += 0x8;
+                    ulong allocated = MemoryManager.AllocateSafe(0x1000);
 
-                        ulong myCodeStart = allocated;
+                    RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(fps));
+                    allocated += 0x8;
 
-                        byte[] overwriteXmm = new byte[] { 0x50, 0x48, 0x8B, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x66, 0x48, 0x0F, 0x6E, 0xC0, 0x58 };
-                        RefWriteBytes(ProcessInstance, allocated, overwriteXmm);
-                        allocated += (ulong)overwriteXmm.Length;
-                        RefWriteBytes(ProcessInstance, allocated, stolen);
-                        allocated += (ulong)stolen.Length;
+                    ulong myCodeStart = allocated;
 
-                        TMemory.CreateAbsoluteJump(ProcessInstance, allocated, address + (ulong)minimumOverwrite);
-                        TMemory.CreateAbsoluteJump(ProcessInstance, address, myCodeStart);
+                    byte[] overwriteXmm = new byte[] { 0x50, 0x48, 0x8B, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x66, 0x48, 0x0F, 0x6E, 0xC0, 0x58 };
+                    RefWriteBytes(ProcessInstance, allocated, overwriteXmm);
+                    allocated += (ulong)overwriteXmm.Length;
+                    RefWriteBytes(ProcessInstance, allocated, stolen);
+                    allocated += (ulong)stolen.Length;
 
-                        success = true;
-                    }
-                    while (false);
+                    TMemory.CreateAbsoluteJump(ProcessInstance, allocated, address + (ulong)minimumOverwrite);
+                    TMemory.CreateAbsoluteJump(ProcessInstance, address, myCodeStart);
 
+                    // ---
+                    TUtils.Print("Utils | FPS locked to " + fps.ToString());
+                    success = true;
                 }
-                catch { }
+                while (false);
 
-                if (!success)
-                {
-                    TUtils.Print("LockFps function failed, this game might be incompatible, retrying...");
-                    Thread.Sleep(1000);
-                }
             }
             catch { }
+            if (!success)
+            {
+                TUtils.Print("Utils | \"LockFps\" failed, retrying...");
+                Thread.Sleep(1000);
+                throw new Exception();
+            }
         }
 
         public string FNameToString(uint fName)
