@@ -12,6 +12,7 @@ public partial class Tools : MainShared
     {
         public void LockFps(float fps)
         {
+            return;
             string uniqueId = "NTpcAJCLFFCMrnGv";
             bool success = false;
             try
