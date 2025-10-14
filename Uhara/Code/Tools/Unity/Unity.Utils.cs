@@ -67,8 +67,13 @@ public partial class Tools : MainShared
                                         ins = TInstruction.GetInstruction2(ProcessInstance, result);
                                         if (!ins.ToString().Contains(", [") || ins.Bytes.Length != 7) break;
 
+                                        value = TMemory.ReadMemory<int>(ProcessInstance, result + 3);
                                         SceneManager_ManagerPtr = (ulong)((long)result + value + 7);
                                         SceneManager_NameOffset = 0x40;
+
+                                        // ---
+                                        _SceneManager = true;
+                                        return;
                                     }
                                 }
                             }
