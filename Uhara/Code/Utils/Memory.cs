@@ -13,6 +13,12 @@ using static TImports;
 
 internal class TMemory : MainShared
 {
+    internal static string ReadMemoryString(Process process, ulong address, int maxLength)
+    {
+        byte[] textBytes = ReadMemoryBytes(process, address, maxLength);
+        return TUtils.MultibyteToString(textBytes);
+    }
+
     internal static ulong[] ScanMultiple(Process process, string signature, string moduleName = null, int memoryProtection = -1)
     {
         List<ulong> resultsRaw = new List<ulong>();

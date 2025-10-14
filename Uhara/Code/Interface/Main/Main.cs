@@ -99,7 +99,7 @@ public partial class Main : MainShared
                     }
                 }
 
-                else if (ToolsShared.ToolNames.Unity.Il2Cpp.Data.Contains(type))
+                if (ToolsShared.ToolNames.Unity.Il2Cpp.Data.Contains(type))
                 {
                     if (ToolsShared.ToolNames.Unity.Il2Cpp.JitSave.Data.Contains(tool))
                     {
@@ -110,6 +110,11 @@ public partial class Main : MainShared
                     {
                         return new Tools.Unity.IL2CPP.Instance();
                     }
+                }
+
+                if (ToolsShared.ToolNames.Unity.Utils.Data.Contains(tool))
+                {
+                    return new Tools.Unity.Utils();
                 }
             }
 

@@ -21,7 +21,12 @@ internal class ToolsShared
     {
         internal class Unity
         {
-            internal static readonly string[] Data = new string[] { "unity", "unity3d" };
+            internal static readonly string[] Data = new string[] { "unity", "unityengine", "unity3d" };
+
+            internal class Utils
+            {
+                internal static readonly string[] Data = new string[] { "utils" };
+            }
 
             internal class DotNet
             {

@@ -86,6 +86,7 @@
     <Compile Include="Code\Tools\Unity\IL2CPP\Instance\IL2CPP.Instance.InstanceCreation.cs" />
     <Compile Include="Code\Tools\Unity\IL2CPP\Instance\IL2CPP.Instance.InstanceDestroy.cs" />
     <Compile Include="Code\Tools\Unity\IL2CPP\Instance\IL2CPP.Instance.OffsetResolver.cs" />
+    <Compile Include="Code\Tools\Unity\Unity.Utils.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.FunctionCall.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.InstanceCreation.cs" />
     <Compile Include="Code\Tools\UnrealEngine\UnrealEngine.cs" />
