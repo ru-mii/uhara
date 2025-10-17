@@ -34,7 +34,7 @@ class TUtils : MainShared
             else sb.Append((char)bytes[i]);
         }
 
-        sb.Append(0);
+        //sb.Append(0);
         return sb.ToString();
     }
 
