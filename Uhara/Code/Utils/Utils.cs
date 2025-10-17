@@ -14,11 +14,13 @@ class TUtils : MainShared
             return string.Empty;
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bytes.Length && bytes[i] != 0; i++)
+        for (int i = 0; i < bytes.Length; i++)
         {
-            sb.Append((char)bytes[i]);
+            if (bytes[i] < 32 || bytes[i] > 126) break;
+            else sb.Append((char)bytes[i]);
         }
 
+        sb.Append(0);
         return sb.ToString();
     }
 
