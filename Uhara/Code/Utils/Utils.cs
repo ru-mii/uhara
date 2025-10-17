@@ -14,6 +14,20 @@ class TUtils : MainShared
             return string.Empty;
 
         StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.Length && bytes[i] != 0; i++)
+        {
+            sb.Append((char)bytes[i]);
+        }
+
+        return sb.ToString();
+    }
+
+    internal static string MultibyteToString2(byte[] bytes)
+    {
+        if (bytes == null || bytes.Length == 0)
+            return string.Empty;
+
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.Length; i++)
         {
             if (bytes[i] < 32 || bytes[i] > 126) break;
