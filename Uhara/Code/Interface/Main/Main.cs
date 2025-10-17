@@ -68,6 +68,7 @@ public partial class Main : MainShared
     {
         try
         {
+            Thread.Sleep(1000);
             return CreateTool(engine, "default", tool);
         }
         catch { }
