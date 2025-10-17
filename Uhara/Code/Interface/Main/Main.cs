@@ -18,6 +18,7 @@ public partial class Main : MainShared
     {
         try
         {
+            Thread.Sleep(1000);
             TSaves2.Register("rumii", "uhara");
             UniqueScriptLoadID = TUtils.GenerateRandomString(32);
             TSaves2.Set(UniqueScriptLoadID, "IDs", "UniqueScriptLoadID");
@@ -68,7 +69,6 @@ public partial class Main : MainShared
     {
         try
         {
-            Thread.Sleep(1000);
             return CreateTool(engine, "default", tool);
         }
         catch { }
