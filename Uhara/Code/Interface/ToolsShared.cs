@@ -25,7 +25,7 @@ internal class ToolsShared
 
             internal class Utils
             {
-                internal static readonly string[] Data = new string[] { "utils" };
+                internal static readonly string[] Data = new string[] { "utils", "utilities" };
             }
 
             internal class DotNet
