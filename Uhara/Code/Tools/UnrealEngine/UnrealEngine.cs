@@ -22,7 +22,7 @@ public partial class Tools : MainShared
                     fps = (int)(fps);
 
                     // ---
-                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                    if (!ReloadProcess()) throw new Exception();
                     if (ProcessInstance.ProcessName != "VanWheelGone-Win64-Shipping")
                         break;
 
@@ -118,7 +118,7 @@ public partial class Tools : MainShared
             {
                 do
                 {
-                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                    if (!ReloadProcess()) throw new Exception();
                     MemoryManager.ClearMemory(uniqueId);
 
                     // ---

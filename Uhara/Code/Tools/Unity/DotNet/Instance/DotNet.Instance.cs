@@ -86,9 +86,13 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        while (ProcessInstance.MainWindowHandle == IntPtr.Zero)
+                        while (true)
                         {
-                            ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                            if (!ReloadProcess()) throw new Exception();
+
+                            if (ProcessInstance.MainWindowHandle != IntPtr.Zero)
+                                break;
+
                             Thread.Sleep(100);
                         }
 
@@ -97,7 +101,9 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                ReloadProcess();
+                                if (ProcessInstance == null) break;
+
                                 if (TProcess.GetModuleBase(ProcessInstance, "mono-2.0-bdwgc.dll") == 0) break;
                                 if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
                                 if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;

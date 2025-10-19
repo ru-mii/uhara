@@ -172,7 +172,7 @@ public partial class Tools : MainShared
                         Result result = Result.None;
                         do
                         {
-                            ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                            if (!ReloadProcess()) throw new Exception();
 
                             // ---
                             {

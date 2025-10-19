@@ -281,7 +281,7 @@ public partial class Tools : MainShared
                     #region INITIALIZE
                     private bool Initiate()
                     {
-                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                        if (!ReloadProcess()) throw new Exception();
                         if (InitResult == InitResults.Failed) return false;
                         else if (InitResult == InitResults.Loaded) return true;
                         try

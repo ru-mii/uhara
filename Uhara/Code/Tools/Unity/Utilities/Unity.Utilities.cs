@@ -25,7 +25,7 @@ public partial class Tools : MainShared
                 {
                     do
                     {
-                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                        if (!ReloadProcess()) throw new Exception();
                         Thread.Sleep(100);
                     }
                     while (ProcessInstance.MainWindowHandle == IntPtr.Zero);
@@ -35,7 +35,7 @@ public partial class Tools : MainShared
                     {
                         do
                         {
-                            ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                            if (!ReloadProcess()) throw new Exception();
                             if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
                             success = true;
                         }
@@ -43,7 +43,7 @@ public partial class Tools : MainShared
                         Thread.Sleep(100);
                     }
 
-                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                    if (!ReloadProcess()) throw new Exception();
                     MemoryManager.ClearMemory(ToolUniqueID);
 
                     // ---

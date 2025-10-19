@@ -87,7 +87,7 @@ public partial class Tools : MainShared
                     {
                         while (ProcessInstance.MainWindowHandle == IntPtr.Zero)
                         {
-                            ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                            if (!ReloadProcess()) throw new Exception();
                             Thread.Sleep(100);
                         }
 
@@ -96,7 +96,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                if (!ReloadProcess()) throw new Exception();
                                 if (TProcess.GetModuleBase(ProcessInstance, "GameAssembly.dll") == 0) break;
                                 if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
                                 if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;

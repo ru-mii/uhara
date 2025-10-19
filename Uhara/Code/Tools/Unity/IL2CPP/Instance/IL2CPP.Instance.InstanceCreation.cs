@@ -317,9 +317,9 @@ public partial class Tools : MainShared
 								{
 									try
 									{
-                                        ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                        if (!ReloadProcess()) throw new Exception();
 
-										ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
+                                        ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
 										if (moduleBase == 0) break;
 
 										ulong _Sleep = TProcess.GetProcAddress(ProcessInstance, moduleBase, "Sleep");
@@ -359,7 +359,7 @@ public partial class Tools : MainShared
 							{
 								do
 								{
-                                    ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                    if (!ReloadProcess()) throw new Exception();
 
                                     // ---
                                     ulong il2cpp_object_new = TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_object_new");

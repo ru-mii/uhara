@@ -102,6 +102,24 @@ public class MainShared
         }
     }
 
+    internal static bool ReloadProcess()
+    {
+        try
+        {
+            do
+            {
+                if (ProcessInstance == null) break;
+                ProcessInstance = Process.GetProcessById(ProcessInstance.Id);
+                if (ProcessInstance == null || ProcessInstance.HasExited) break;
+
+                return true;
+            }
+            while (false);
+        }
+        catch { }
+        return false;
+    }
+
     internal static void CheckSetProcessAndValues()
     {
         try

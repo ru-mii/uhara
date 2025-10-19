@@ -165,28 +165,6 @@ internal class TProcess
         return currentTime - startTime;
     }
 
-    internal static Process RefreshProcess(Process process)
-    {
-        try
-        {
-            do
-            {
-                Process newProcess = Process.GetProcessById(process.Id);
-                if (newProcess == null) break;
-
-                if (GetToken(process) != GetToken(newProcess)) break;
-                if (process.ProcessName != newProcess.ProcessName) break;
-
-                process = newProcess;
-                return process;
-            }
-            while (false);
-        }
-        catch { }
-        process = null;
-        return null;
-    }
-
     internal static bool IsAlive(Process process)
     {
         try

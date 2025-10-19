@@ -95,7 +95,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                if (!ReloadProcess()) throw new Exception();
 
                                 ulong il2cpp_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field");
                                 if (il2cpp_gc_wbarrier_set_field == 0) break;

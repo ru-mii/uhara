@@ -91,7 +91,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                if (!ReloadProcess()) throw new Exception();
 
                                 ulong mono_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "mono-2.0-bdwgc.dll", "mono_gc_wbarrier_set_field");
                                 if (mono_gc_wbarrier_set_field == 0) break;

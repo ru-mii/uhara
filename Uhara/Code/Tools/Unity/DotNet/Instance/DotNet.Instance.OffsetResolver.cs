@@ -195,7 +195,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                ProcessInstance = TProcess.RefreshProcess(ProcessInstance);
+                                if (!ReloadProcess()) throw new Exception();
 
                                 ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
                                 if (moduleBase == 0) break;
