@@ -78,9 +78,8 @@ public partial class Main : MainShared
     {
         try
         {
-            CheckSetProcessAndValues();
-            if (ProcessInstance == null) throw new Exception();
-            if (!TProcess.WaitTillSecondsOld(ProcessInstance, 3)) throw new Exception();
+            TProcess.WaitTillSecondsOld(ProcessInstance, 3);
+            if (!ReloadProcess()) throw new Exception();
 
             engine = engine.ToLower();
             type = type.ToLower();

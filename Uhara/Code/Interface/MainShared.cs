@@ -107,8 +107,20 @@ public class MainShared
         do
         {
             if (ProcessInstance == null) break;
+
+            string lastName = ProcessInstance.ProcessName;
+            string lastToken = TProcess.GetToken(ProcessInstance);
+            if (string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(lastToken)) break;
+
             ProcessInstance = Process.GetProcessById(ProcessInstance.Id);
             if (ProcessInstance == null || ProcessInstance.HasExited) break;
+
+            string currentName = ProcessInstance.ProcessName;
+            string currentToken = TProcess.GetToken(ProcessInstance);
+            if (string.IsNullOrEmpty(currentName) || string.IsNullOrEmpty(currentToken)) break;
+
+            if (currentName != lastName) break;
+            if (currentToken != lastToken) break;
 
             return true;
         }
@@ -160,7 +172,11 @@ public class MainShared
 
                 Vars = script.Vars;
                 ProcessInstance = (Process)gameInstance;
-                if (ProcessInstance != null) MemoryManager.ClearMemory();
+                if (ProcessInstance != null)
+                {
+                    MemoryManager.ClearMemory();
+                    
+                }
             }
         }
         catch { }

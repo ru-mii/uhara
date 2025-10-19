@@ -101,7 +101,7 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                ReloadProcess();
+                                if (!ReloadProcess()) throw new Exception();
                                 if (ProcessInstance == null) break;
 
                                 if (TProcess.GetModuleBase(ProcessInstance, "mono-2.0-bdwgc.dll") == 0) break;
