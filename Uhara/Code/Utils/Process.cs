@@ -3,11 +3,26 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 internal class TProcess
 {
+    internal static bool WaitTillSecondsOld(Process process, int seconds)
+    {
+        ulong currentTime = TUtils.GetTimeMiliseconds();
+        ulong processStartTime = GetStartTimeMiliseconds(process);
+
+        if (processStartTime != 0)
+        {
+            long waitTime = (long)((processStartTime + (ulong)(seconds * 1000) - currentTime));
+            if (waitTime > 0) Thread.Sleep((int)waitTime);
+            return true;
+        }
+        return false;
+    }
+
     internal static ulong GetModuleEnd(Process process, string name = null)
     {
         if (name == null) return (ulong)process.MainModule.BaseAddress + (ulong)process.MainModule.ModuleMemorySize;
@@ -115,10 +130,15 @@ internal class TProcess
 
     internal static string GetToken(Process process)
     {
-        return GetStartTime(process).ToString("X") + "-" + process.Id.ToString("X");
+        return GetStartTimeMiliseconds(process).ToString("X") + "-" + process.Id.ToString("X");
     }
 
-    internal static ulong GetStartTime(Process process)
+    internal static ulong GetStartTimeSeconds(Process process)
+    {
+        return (ulong)((DateTimeOffset)process.StartTime).ToUnixTimeSeconds();
+    }
+
+    internal static ulong GetStartTimeMiliseconds(Process process)
     {
         return (ulong)((DateTimeOffset)process.StartTime).ToUnixTimeMilliseconds();
     }

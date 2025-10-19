@@ -18,7 +18,6 @@ public partial class Main : MainShared
     {
         try
         {
-            Thread.Sleep(1000);
             TSaves2.Register("rumii", "uhara");
             UniqueScriptLoadID = TUtils.GenerateRandomString(32);
             TSaves2.Set(UniqueScriptLoadID, "IDs", "UniqueScriptLoadID");
@@ -80,6 +79,8 @@ public partial class Main : MainShared
         try
         {
             CheckSetProcessAndValues();
+            if (ProcessInstance == null) throw new Exception();
+            if (!TProcess.WaitTillSecondsOld(ProcessInstance, 3)) throw new Exception();
 
             engine = engine.ToLower();
             type = type.ToLower();
@@ -115,7 +116,7 @@ public partial class Main : MainShared
 
                 if (ToolsShared.ToolNames.Unity.Utils.Data.Contains(tool))
                 {
-                    return new Tools.Unity.Utils();
+                    return new Tools.Unity.Utilities();
                 }
             }
 

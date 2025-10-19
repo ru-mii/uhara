@@ -203,7 +203,7 @@ public partial class Tools : MainShared
                 }
                 while (false);
             }
-            catch { }
+            catch { TUtils.Print("fname reading exception"); }
             return null;
         }
     }

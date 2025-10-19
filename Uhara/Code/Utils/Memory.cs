@@ -13,6 +13,25 @@ using static TImports;
 
 internal class TMemory : MainShared
 {
+    internal static ulong DerefPointer(Process process, ulong address, params int[] offsets)
+    {
+        do
+        {
+            address = ReadMemory<ulong>(process, address);
+            if (address == 0) break;
+
+            for (int i = 0; i < offsets.Length; i++)
+            {
+                address = ReadMemory<ulong>(process, address + (ulong)offsets[i]);
+                if (address == 0) return 0;
+            }
+
+            return address;
+        }
+        while (false);
+        return 0;
+    }
+
     internal static string ReadMemoryString(Process process, ulong address, int maxLength)
     {
         byte[] textBytes = ReadMemoryBytes(process, address, maxLength);
