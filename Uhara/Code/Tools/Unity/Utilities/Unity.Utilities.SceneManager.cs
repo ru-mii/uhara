@@ -136,15 +136,21 @@ public partial class Tools : MainShared
 					{
 						if (scene == 0) break;
 
-						ulong namePtr = TMemory.ReadMemory<ulong>(ProcessInstance, scene + 0x10);
-						if (namePtr == 0) break;
+						// Assets/
+						byte[] assetsBytes = new byte[] { 0x41, 0x73, 0x73, 0x65, 0x74, 0x73, 0x2F };
 
-						if (namePtr == 0x532F737465737341) namePtr = scene + 0x10;
-						else
+						ulong namePtr = scene + 0x10;
+
+                        byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, namePtr, assetsBytes.Length);
+						if (readBytes == null || readBytes.Length != assetsBytes.Length) break;
+
+						if (!assetsBytes.SequenceEqual(readBytes))
 						{
-							ulong testValue = TMemory.ReadMemory<ulong>(ProcessInstance, namePtr);
-							if (testValue != 0x532F737465737341) break;
-						}
+                            namePtr = TMemory.ReadMemory<ulong>(ProcessInstance, namePtr);
+                            readBytes = TMemory.ReadMemoryBytes(ProcessInstance, namePtr, assetsBytes.Length);
+                            if (readBytes == null || readBytes.Length != assetsBytes.Length) break;
+                            if (!assetsBytes.SequenceEqual(readBytes)) break;
+                        }
 
 						// ---
 						string name = ConvertToShortName(TMemory.ReadMemoryString(ProcessInstance, namePtr, 128));
@@ -187,7 +193,7 @@ public partial class Tools : MainShared
 						do
 						{
 							if (string.IsNullOrEmpty(name)) break;
-							if (!name.StartsWith("Assets/Scenes")) break;
+							if (!name.StartsWith("Assets/")) break;
 
 							return true;
 						}
