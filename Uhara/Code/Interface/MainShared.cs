@@ -104,19 +104,15 @@ public class MainShared
 
     internal static bool ReloadProcess()
     {
-        try
+        do
         {
-            do
-            {
-                if (ProcessInstance == null) break;
-                ProcessInstance = Process.GetProcessById(ProcessInstance.Id);
-                if (ProcessInstance == null || ProcessInstance.HasExited) break;
+            if (ProcessInstance == null) break;
+            ProcessInstance = Process.GetProcessById(ProcessInstance.Id);
+            if (ProcessInstance == null || ProcessInstance.HasExited) break;
 
-                return true;
-            }
-            while (false);
+            return true;
         }
-        catch { }
+        while (false);
         return false;
     }
 
