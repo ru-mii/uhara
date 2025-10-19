@@ -16,7 +16,7 @@ public partial class Tools : MainShared
         {
             private static string ToolUniqueID = "LMYpsRecShieLHhD";
 
-            SceneManager currentSceneName;
+            SceneManager sceneManager;
 
             #region CONSTRUCTOR
             public Utilities()
@@ -47,7 +47,7 @@ public partial class Tools : MainShared
                     MemoryManager.ClearMemory(ToolUniqueID);
 
                     // ---
-                    currentSceneName = new SceneManager();
+                    sceneManager = new SceneManager();
                 }
                 catch { }
             }

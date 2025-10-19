@@ -21,7 +21,7 @@ public partial class Tools : MainShared
 				{
 					do
 					{
-						return currentSceneName.GetCurrentSceneName();
+						return sceneManager.GetCurrentSceneName();
 					}
 					while (false);
 				}
@@ -35,7 +35,7 @@ public partial class Tools : MainShared
 				{
 					do
 					{
-						return currentSceneName.GetCurrentSceneName();
+						return sceneManager.GetCurrentSceneName();
 					}
 					while (false);
 				}
@@ -49,7 +49,7 @@ public partial class Tools : MainShared
 				{
 					do
 					{
-						return currentSceneName.GetLoadingSceneName();
+						return sceneManager.GetLoadingSceneName();
 					}
 					while (false);
 				}
