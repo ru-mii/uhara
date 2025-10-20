@@ -20,7 +20,7 @@ public partial class Tools : MainShared
             {
                 private InstanceCreation instanceCreation = new InstanceCreation();
 
-                #region API
+                #region PUBLIC_API
                 public IntPtr InstancePtr(string className, string objectName)
                 {
                     try
@@ -216,6 +216,7 @@ public partial class Tools : MainShared
                             }
 
                             // update begin destroy check pool
+                            if (ArgTypes.Instance == argType)
                             {
                                 for (int i = 0; i < instances; i++)
                                 {

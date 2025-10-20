@@ -20,7 +20,7 @@ public partial class Tools : MainShared
             {
                 private FunctionCall functionCall = new FunctionCall();
 
-                #region API
+                #region PUBLIC_API
                 public IntPtr FunctionFlag(string className, string objectName, string functionName)
                 {
                     try
@@ -233,6 +233,7 @@ public partial class Tools : MainShared
                             }
 
                             // update begin destroy check pool
+                            if (ArgTypes.Instance == argType)
                             {
                                 for (int i = 0; i < instances; i++)
                                 {
