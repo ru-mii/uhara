@@ -172,11 +172,7 @@ public class MainShared
 
                 Vars = script.Vars;
                 ProcessInstance = (Process)gameInstance;
-                if (ProcessInstance != null)
-                {
-                    MemoryManager.ClearMemory();
-                    
-                }
+                if (ProcessInstance != null) MemoryManager.ClearMemory();
             }
         }
         catch { }

@@ -94,7 +94,7 @@ internal class MemoryManager : MainShared
         catch { }
     }
 
-    internal static void ClearMemory(string randomId = "")
+    internal static void ClearMemory(string uniqueId = "")
     {
         try
         {
@@ -104,7 +104,7 @@ internal class MemoryManager : MainShared
             foreach (string key in keys)
             {
                 if (!key.StartsWith(token)) TSaves2.DeleteKey(RegistryName, key);
-                else if (!key.Contains(UniqueScriptLoadID) || (!string.IsNullOrEmpty(randomId) && key.EndsWith(randomId)))
+                else if (!key.Contains(UniqueScriptLoadID) || (!string.IsNullOrEmpty(uniqueId) && key.EndsWith(uniqueId)))
                 {
                     // recover
                     {
@@ -149,7 +149,7 @@ internal class MemoryManager : MainShared
         catch { }
     }
 
-    internal static ulong AllocateSafe(int size, string randomId = "")
+    internal static ulong AllocateSafe(int size, string uniqueId = "")
     {
         try
         {
@@ -157,7 +157,7 @@ internal class MemoryManager : MainShared
             if (address != 0)
             {
                 string token = TProcess.GetToken(ProcessInstance);
-                string tokenPlus = token + UniqueScriptLoadID + randomId;
+                string tokenPlus = token + UniqueScriptLoadID + uniqueId;
                 TSaves2.Set("0x" + size.ToString("X"), RegistryName, tokenPlus,
                     Allocate, "0x" + address.ToString("X"));
 
@@ -168,7 +168,7 @@ internal class MemoryManager : MainShared
         return 0;
     }
 
-    internal static void AddOverwrite(ulong address, byte[] recover, string randomId = "")
+    internal static void AddOverwrite(ulong address, byte[] recover, string uniqueId = "")
     {
         try
         {
@@ -178,7 +178,7 @@ internal class MemoryManager : MainShared
             string data = TMemory.GetSignature(recover, true);
 
             string token = TProcess.GetToken(ProcessInstance);
-            string tokenPlus = token + UniqueScriptLoadID + randomId;
+            string tokenPlus = token + UniqueScriptLoadID + uniqueId;
 
             if (TSaves2.Get(RegistryName, tokenPlus, Overwrite, "0x" + address.ToString("X")) == null)
                 TSaves2.Set(data, RegistryName, tokenPlus, Overwrite, "0x" + address.ToString("X"));
