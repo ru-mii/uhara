@@ -27,6 +27,7 @@ public class MainShared
 
     internal static dynamic script = null;
     internal static List<MemoryWatcher> MemoryWatchers = new List<MemoryWatcher>();
+    internal static List<StringWatcher> StringWatchers = new List<StringWatcher>();
 
     public static bool DebugMode = true;
     private Dictionary<string, object> Indexer = new Dictionary<string, object>();

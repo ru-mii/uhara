@@ -76,6 +76,7 @@
     <Compile Include="Code\Interface\Main\Main.cs" />
     <Compile Include="Code\Interface\MemoryManager.cs" />
     <Compile Include="Code\Interface\MainShared.cs" />
+    <Compile Include="Code\Interface\PtrResolver.cs" />
     <Compile Include="Code\Interface\ScanUtility.cs" />
     <Compile Include="Code\Interface\ToolsShared.cs" />
     <Compile Include="Code\Other\AsmBlocks.cs" />

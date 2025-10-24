@@ -24,6 +24,7 @@ public partial class Main : MainShared
 
             CheckSetProcessAndValues();
             Vars.Uhara = this;
+            Vars.Resolver = new PtrResolver();
 
             Assembly liveSplitAssembly = Assembly.Load("LiveSplit.Core");
             Type extensionMethodsType = liveSplitAssembly.GetType("LiveSplit.ComponentUtil.ExtensionMethods");
@@ -56,6 +57,12 @@ public partial class Main : MainShared
         try
         {
             foreach (var watcher in MemoryWatchers)
+            {
+                watcher.Update(ProcessInstance);
+                current[watcher.Name] = watcher.Current;
+            }
+
+            foreach (var watcher in StringWatchers)
             {
                 watcher.Update(ProcessInstance);
                 current[watcher.Name] = watcher.Current;
