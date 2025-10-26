@@ -30,6 +30,16 @@ public partial class Tools : MainShared
                     catch { }
                 }
 
+                public void Watch<T>(string watcherName, string fullName, params string[] fieldsNames) where T : unmanaged
+                {
+                    try
+                    {
+                        InstanceWatcherBuild watcherBuild = instanceCreation.AddArgument(ArgTypes.Instance, 1, fullName, fieldsNames);
+                        new PtrResolver().Watch<T>(watcherName, watcherBuild.Base, watcherBuild.Offsets);
+                    }
+                    catch { }
+                }
+
                 public InstanceWatcherBuild Get(string fullName, params string[] fieldsNames)
                 {
                     try
@@ -38,6 +48,23 @@ public partial class Tools : MainShared
                     }
                     catch { }
                     return null;
+                }
+
+                public void Watch<T>(string watcherName, short instances, string fullName, params string[] fieldsNames) where T : unmanaged
+                {
+                    try
+                    {
+                        do
+                        {
+                            PtrResolver ptrResolver = new PtrResolver();
+                            InstanceWatcherBuildMultiple watcherBuildMultiple = instanceCreation.AddArgumentMultiple(ArgTypes.Instance, instances, fullName, fieldsNames);
+
+                            for (int i = 0; i < watcherBuildMultiple.Base.Length; i++)
+                                ptrResolver.Watch<T>(watcherName + i.ToString(), watcherBuildMultiple.Base[i], watcherBuildMultiple.Offsets);
+                        }
+                        while (false);
+                    }
+                    catch { }
                 }
 
                 public InstanceWatcherBuildMultiple Get(short instances, string fullName, params string[] fieldsNames)
@@ -52,6 +79,16 @@ public partial class Tools : MainShared
                     }
                     catch { }
                     return null;
+                }
+
+                public void WatchFlag(string watcherName, string fullName)
+                {
+                    try
+                    {
+                        InstanceWatcherBuild watcherBuild = instanceCreation.AddArgument(ArgTypes.Flag, 1, fullName);
+                        new PtrResolver().Watch<ulong>(watcherName, watcherBuild.Base, watcherBuild.Offsets);
+                    }
+                    catch { }
                 }
 
                 public InstanceWatcherBuild Flag(string fullName)
