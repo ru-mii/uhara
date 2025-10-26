@@ -360,10 +360,28 @@ public partial class Tools : MainShared
 
 								byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
 								if (stolenCode == null || stolenCode.Length == 0) break;
-
 								MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
 
-								RefWriteBytes(ProcessInstance, AddressFreeUse, stolenCode);
+                                // fix relative call
+                                {
+                                    List<byte[]> converted = new List<byte[]>();
+                                    Instruction[] instrs = TInstruction.GetInstructions2(stolenCode, hookAddress);
+                                    bool relativeFound = false;
+                                    foreach (Instruction ins in instrs)
+                                    {
+                                        if (ins.Bytes.Length == 5 && ins.ToString().StartsWith("call"))
+                                        {
+                                            int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 1);
+                                            ulong resolved = (ulong)((long)ins.Offset + value + 5);
+                                            converted.Add(TMemory.GetAbsoluteCallBytes(resolved));
+                                            relativeFound = true;
+                                        }
+                                        else converted.Add(ins.Bytes);
+                                    }
+                                    if (relativeFound) stolenCode = TArray.Merge(converted);
+                                }
+
+                                RefWriteBytes(ProcessInstance, AddressFreeUse, stolenCode);
 								AddressFreeUse += (ulong)stolenCode.Length;
 
 								AddressFreeUse += TMemory.CreateAbsoluteCall(ProcessInstance, AddressFreeUse, jumpNative, 0x28);

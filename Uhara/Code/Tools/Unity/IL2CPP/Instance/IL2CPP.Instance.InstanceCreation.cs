@@ -376,7 +376,6 @@ public partial class Tools : MainShared
 
 									byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
 									if (stolenCode == null || stolenCode.Length == 0) break;
-
 									MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
 
                                     stolenCode = FixCall(stolenCode, hookAddress);
