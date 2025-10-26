@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 public class PtrResolver : MainShared
 {
+    public void Watch<T>(string name, (IntPtr base_, int[] offsets) offsets) where T : unmanaged
+    {
+        _Watch<T>(name, offsets.base_, offsets: offsets.offsets);
+    }
+
     public void Watch<T>(string name, object base_, params int[] offsets) where T : unmanaged
     {
         _Watch<T>(name, base_, offsets: offsets);
@@ -50,6 +55,10 @@ public class PtrResolver : MainShared
     }
 
     // ---
+    public void WatchString(string name, (IntPtr base_, int[] offsets) offsets)
+    {
+        _WatchString(name, offsets.base_, offsets: offsets.offsets);
+    }
 
     public void WatchString(string name, object base_, params int[] offsets)
     {
