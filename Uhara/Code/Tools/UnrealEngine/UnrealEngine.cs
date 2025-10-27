@@ -185,6 +185,10 @@ public partial class Tools : MainShared
             {
                 do
                 {
+                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
+                        ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
+                            ScanUtility.UnrealEngine.SearchAddress(ScanUtility.UnrealEngine.Data.FNamePool);
+
                     ulong FNamePoolAddress = ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress;
                     if (FNamePoolAddress == 0) break;
 

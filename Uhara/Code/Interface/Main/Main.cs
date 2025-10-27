@@ -22,11 +22,13 @@ public partial class Main : MainShared
             TSaves2.Register("rumii", "uhara");
             UniqueScriptLoadID = TUtils.GenerateRandomString(32);
             TSaves2.Set(UniqueScriptLoadID, "IDs", "UniqueScriptLoadID");
-
             CheckSetProcessAndValues();
+
+            // ---
             Vars.Uhara = this;
             Vars.Resolver = new PtrResolver();
 
+            // ---
             Assembly liveSplitAssembly = Assembly.Load("LiveSplit.Core");
             Type extensionMethodsType = liveSplitAssembly.GetType("LiveSplit.ComponentUtil.ExtensionMethods");
 
@@ -35,6 +37,7 @@ public partial class Main : MainShared
             _RefWriteBytes = extensionMethodsType.GetMethod("WriteBytes", new Type[] { typeof(Process), typeof(IntPtr), typeof(byte[]) });
             _RefCreateThread = extensionMethodsType.GetMethod("CreateThread", new Type[] { typeof(Process), typeof(IntPtr) });
 
+            // ---
             if (!File.Exists("SharpDisasm.dll"))
                 File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
         }
@@ -43,16 +46,30 @@ public partial class Main : MainShared
 
     }
 
+    public void Log(string message)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(message))
+                TImports.OutputDebugString("[UHARA] " + message);
+        }
+        catch { }
+    }
+
     public void AlertLoadless()
     {
-        if (CurrentState.CurrentTimingMethod == TimingMethod.RealTime)
+        try
         {
-            if (MessageBox.Show("This autosplitter recommends using GameTime, you're currently using RealTime comparison method, do you want to switch to GameTime?", "LiveSplit",
-            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (CurrentState.CurrentTimingMethod == TimingMethod.RealTime)
             {
-                CurrentState.CurrentTimingMethod = TimingMethod.GameTime;
+                if (MessageBox.Show("This autosplitter recommends using GameTime, you're currently using RealTime comparison method, do you want to switch to GameTime?", "LiveSplit",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    CurrentState.CurrentTimingMethod = TimingMethod.GameTime;
+                }
             }
         }
+        catch { }
     }
 
     public void EnableDebug()
