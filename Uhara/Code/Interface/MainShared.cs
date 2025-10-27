@@ -25,6 +25,7 @@ public class MainShared
     internal static string UniqueScriptLoadID = null;
     internal static ulong UpdateCounter = 0;
 
+    internal static LiveSplitState CurrentState = null;
     internal static dynamic script = null;
     internal static List<MemoryWatcher> MemoryWatchers = new List<MemoryWatcher>();
     internal static List<StringWatcher> StringWatchers = new List<StringWatcher>();
@@ -145,17 +146,18 @@ public class MainShared
             if (timerForm == null) return;
 
             script = null;
-            LiveSplitState currentState = timerForm.CurrentState;
+            CurrentState = timerForm.CurrentState;
+            
 
-            if (currentState?.Run?.AutoSplitter != null && currentState.Run.AutoSplitter.IsActivated)
+            if (CurrentState?.Run?.AutoSplitter != null && CurrentState.Run.AutoSplitter.IsActivated)
             {
-                dynamic dynComponent = currentState.Run.AutoSplitter.Component;
+                dynamic dynComponent = CurrentState.Run.AutoSplitter.Component;
                 script = dynComponent.Script;
             }
 
             if (script == null)
             {
-                foreach (var smth in currentState.Layout.LayoutComponents)
+                foreach (var smth in CurrentState.Layout.LayoutComponents)
                 {
                     dynamic component = smth.Component;
                     if (component.GetType().Name.Contains("ASLComponent"))

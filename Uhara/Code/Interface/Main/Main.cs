@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LiveSplit.ComponentUtil;
+using LiveSplit.Model;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,7 +12,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using LiveSplit.ComponentUtil;
 
 public partial class Main : MainShared
 {
@@ -39,6 +40,19 @@ public partial class Main : MainShared
         }
         catch { }
         DebugMode = false;
+
+    }
+
+    public void AlertLoadless()
+    {
+        if (CurrentState.CurrentTimingMethod == TimingMethod.RealTime)
+        {
+            if (MessageBox.Show("This autosplitter recommends using GameTime, you're currently using RealTime comparison method, do you want to switch to GameTime?", "LiveSplit",
+            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                CurrentState.CurrentTimingMethod = TimingMethod.GameTime;
+            }
+        }
     }
 
     public void EnableDebug()
