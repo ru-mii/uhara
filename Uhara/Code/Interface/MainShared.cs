@@ -98,9 +98,16 @@ public class MainShared
 
     public object this[string key]
     {
-        set
+        get
         {
-            //ProcessKeyValue(key, value);
+            try
+            {
+                MemoryWatcher watcher = MemoryWatchers.FirstOrDefault(m => m.Name == key);
+                if (watcher == null) watcher = StringWatchers.FirstOrDefault(m => m.Name == key);
+                return watcher;
+            }
+            catch { }
+            return null;
         }
     }
 
@@ -148,7 +155,6 @@ public class MainShared
             script = null;
             CurrentState = timerForm.CurrentState;
             
-
             if (CurrentState?.Run?.AutoSplitter != null && CurrentState.Run.AutoSplitter.IsActivated)
             {
                 dynamic dynComponent = CurrentState.Run.AutoSplitter.Component;
