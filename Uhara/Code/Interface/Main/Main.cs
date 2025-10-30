@@ -346,6 +346,11 @@ public partial class Main : MainShared
                     {
                         return new Tools.UnrealEngine.Default.Events();
                     }
+
+                    if (ToolsShared.ToolNames.UnrealEngine.Default.Utilities.Data.Contains(tool))
+                    {
+                        return new Tools.UnrealEngine.Default.Utilities();
+                    }
                 }
             }
 

@@ -16,9 +16,40 @@ public partial class Tools : MainShared
 				internal static string ToolUniqueID = "UCyEljVfhjUoJhDU";
 
 				private DataRetriever dataRetriever = new DataRetriever();
+				private TextReader textReader = new TextReader();
 
 				#region PUBLIC_API
-				IntPtr _GEngine = IntPtr.Zero;
+				public string FNameToString(uint fName)
+				{
+					try
+					{
+						return textReader.FNameToString(fName);
+					}
+					catch { }
+					return null;
+				}
+
+                public string FNameToShortString(uint fName)
+                {
+                    try
+                    {
+                        return textReader.FNameToShortString(fName);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public string FNameToShortString2(uint fName)
+                {
+                    try
+                    {
+                        return textReader.FNameToShortString2(fName);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                IntPtr _GEngine = IntPtr.Zero;
 				public IntPtr GEngine
 				{
 					get

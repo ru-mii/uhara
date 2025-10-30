@@ -26,7 +26,9 @@ public partial class Tools : MainShared
 						{
 							do
 							{
-								var nameIdx = (fName & 0x000000000000FFFF) >> 0x00;
+                                if (!Loaded) break;
+
+                                var nameIdx = (fName & 0x000000000000FFFF) >> 0x00;
 								var chunkIdx = (fName & 0x00000000FFFF0000) >> 0x10;
 								var number = (fName & 0xFFFFFFFF00000000) >> 0x20;
 
@@ -52,7 +54,9 @@ public partial class Tools : MainShared
 						{
 							do
 							{
-								string name = FNameToString(fName);
+                                if (!Loaded) break;
+
+                                string name = FNameToString(fName);
 								if (string.IsNullOrEmpty(name)) break;
 
 								int dot = name.LastIndexOf('.');
@@ -72,6 +76,8 @@ public partial class Tools : MainShared
 						{
 							do
 							{
+								if (!Loaded) break;
+
 								string name = FNameToString(fName);
 								if (string.IsNullOrEmpty(name)) break;
 

@@ -32,7 +32,8 @@ public partial class Tools : MainShared
 
 							else if (dataNameLower == "gworld" || dataNameLower == "world")
 							{
-								data = TMemory.ScanRel(ProcessInstance, 3, "48 8B 05 ???????? 48 3B C? 48 0F 44 C? 48 89 05 ???????? E8");
+								data = TMemory.ScanRel(ProcessInstance, 3, "48 8B 1D ?? ?? ?? ?? 48 85 DB 74 ?? 41 B0 01");
+                                if (data == 0) data = TMemory.ScanRel(ProcessInstance, 3, "48 8B 05 ???????? 48 3B C? 48 0F 44 C? 48 89 05 ???????? E8");
 							}
 
 							else if (dataNameLower == "fnamepool" || dataNameLower == "fnames")

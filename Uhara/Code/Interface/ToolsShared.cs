@@ -72,6 +72,11 @@ internal class ToolsShared
                     internal static readonly string[] Data = new string[] { "events" };
                 }
 
+                internal class Utilities
+                {
+                    internal static readonly string[] Data = new string[] { "utils", "utilities" };
+                }
+
                 internal class CutsceneManager
                 {
                     internal static readonly string[] Data = new string[] { "cutscenemanager" };
