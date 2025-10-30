@@ -48,7 +48,7 @@ public partial class Tools : MainShared
 								byte[] OHGMSZBF = TMemory.ReadMemoryBytes(ProcessInstance, ORCFMRAE, 128);
 
 								string BONYDQDT = TUtils.MultibyteToString(OHGMSZBF);
-								if (string.IsNullOrEmpty(BONYDQDT)) return BONYDQDT;
+								if (!string.IsNullOrEmpty(BONYDQDT)) return BONYDQDT;
                             }
                             while (false);
                         }
