@@ -8,6 +8,17 @@ using System.Threading.Tasks;
 
 class TUtils : MainShared
 {
+    internal static decimal ToDecimal(byte[] bytes)
+    {
+        if (bytes == null || bytes.Length != 16) return 0;
+
+        int[] bits = new int[4];
+        for (int i = 0; i < 4; i++)
+            bits[i] = BitConverter.ToInt32(bytes, i * 4);
+
+        return new decimal(bits);
+    }
+
     internal static ulong GetTimeDays()
     {
         return (ulong)((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() / 86400;

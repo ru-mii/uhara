@@ -268,6 +268,7 @@ internal class ScanUtility : MainShared
                 {
                     ulong address = TMemory.ScanRel2(ProcessInstance, "48 8D 05 ???????? EB ?? 48 8D 0D ???????? E8 ???????? C6 05");
                     if (address == 0) address = TMemory.ScanRel2(ProcessInstance, "8B D9 74 ?? 48 8D 15 ???????? EB", offset: 4);
+                    if (address == 0) address = TMemory.ScanRel2(ProcessInstance, "48 8B ?????????? 41 0F B7 C4");
                     return address;
                 }
             }

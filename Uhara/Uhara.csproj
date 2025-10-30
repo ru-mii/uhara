@@ -49,6 +49,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LiveSplit.AutoSplittingRuntime">
+      <HintPath>..\..\..\..\Desktop\Programs\LiveSplit\Components\LiveSplit.AutoSplittingRuntime.dll</HintPath>
+    </Reference>
     <Reference Include="LiveSplit.Core">
       <HintPath>..\..\..\..\Desktop\Programs\LiveSplit\LiveSplit.Core.dll</HintPath>
     </Reference>
@@ -113,6 +116,10 @@
     <Compile Include="Code\Tools\Unity\DotNet\Instance\DotNet.Instance.OffsetResolver.cs" />
     <Compile Include="Code\Tools\Unity\DotNet\Instance\DotNet.Instance.GetInstances.cs" />
     <Compile Include="Code\Tools\Unity\Utilities\Unity.Utilities.SceneManager.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Utilities\Default.Utilities.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Utilities\Default.Utilities.DataRetriever.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Utilities\Default.Utilities.TextReader.cs" />
+    <Compile Include="Code\Interface\Main\Main.Settings.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

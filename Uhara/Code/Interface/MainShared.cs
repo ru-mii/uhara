@@ -26,8 +26,10 @@ public class MainShared
     internal static ulong UpdateCounter = 0;
 
     internal static LiveSplitState CurrentState = null;
+    internal static dynamic _ScriptSettings;
     internal static dynamic script = null;
     internal static List<MemoryWatcher> MemoryWatchers = new List<MemoryWatcher>();
+    internal static List<(Type type, MemoryWatcher memoryWatcher)> ListWatchers = new List<(Type, MemoryWatcher)>();
     internal static List<StringWatcher> StringWatchers = new List<StringWatcher>();
 
     public static bool DebugMode = true;
@@ -176,11 +178,17 @@ public class MainShared
 
             if (script != null)
             {
-                FieldInfo gameField = script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
-                var gameInstance = gameField?.GetValue(script);
-
                 Vars = script.Vars;
-                ProcessInstance = (Process)gameInstance;
+
+                FieldInfo gameField = script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
+                var gameRaw = gameField?.GetValue(script);
+                ProcessInstance = (Process)gameRaw;
+
+                FieldInfo settingsField = script.GetType().GetField("_settings", BindingFlags.NonPublic | BindingFlags.Instance);
+                var settingsRaw = settingsField?.GetValue(script);
+                _ScriptSettings = settingsRaw;
+
+                // ---
                 if (ProcessInstance != null) MemoryManager.ClearMemory();
             }
         }

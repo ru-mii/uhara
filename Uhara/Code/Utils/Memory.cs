@@ -572,6 +572,8 @@ internal class TMemory : MainShared
 
     internal static int FindInArray(byte[] chunkData, byte[] byteSignature, string mask = "", int startPosition = 0, int maxDistance = 0)
     {
+        if (mask.Contains("<") || mask.Contains(">")) return FindInArrayWithHalfBytes(chunkData, byteSignature, mask, startPosition, maxDistance);
+
         int position = startPosition;
         bool maskOn = mask.Contains("?") || mask.Contains("!");
         int found = 0; bool flag = false;
@@ -582,7 +584,49 @@ internal class TMemory : MainShared
             if (maskOn)
             {
                 if ((mask[found] == 'x' && chunkData[position] == byteSignature[found]) ||
+                (mask[found] == '?') || (mask[found] == '!' && chunkData[position] != byteSignature[found]))
+                {
+                    flag = true;
+                }
+            }
+            else if (chunkData[position] == byteSignature[found]) flag = true;
+
+            if (flag == true)
+            {
+                found += 1;
+                if (found == byteSignature.Length) return position - found + 1;
+
+            }
+            else
+            {
+                position -= found - 1;
+                found = 0;
+            }
+
+            if (flag) position += 1;
+            if (maxDistance != 0 && position >= startPosition + maxDistance)
+            {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    private static int FindInArrayWithHalfBytes(byte[] chunkData, byte[] byteSignature, string mask = "", int startPosition = 0, int maxDistance = 0)
+    {
+        int position = startPosition;
+        bool maskOn = true;
+        int found = 0; bool flag = false;
+
+        while (position < chunkData.Length)
+        {
+            flag = false;
+            if (maskOn)
+            {
+                if ((mask[found] == 'x' && chunkData[position] == byteSignature[found]) ||
                 (mask[found] == '?') ||
+                (mask[found] == '<' && BitConverter.ToString(new byte[] { chunkData[found] })[1] == BitConverter.ToString(new byte[] { byteSignature[found] })[1]) || 
+                (mask[found] == '>' && BitConverter.ToString(new byte[] { chunkData[found] })[0] == BitConverter.ToString(new byte[] { byteSignature[found] })[0]) || 
                 (mask[found] == '!' && chunkData[position] != byteSignature[found]))
                 {
                     flag = true;
@@ -621,17 +665,22 @@ internal class TMemory : MainShared
         int typeSize = Marshal.SizeOf(typeof(T));
         byte[] data = new byte[typeSize];
 
-        if (TImports.ReadProcessMemory(process.Handle, address, data, data.Length, out _))
+        if (ReadProcessMemory(process.Handle, address, data, data.Length, out _))
         {
-            if (typeof(T) == typeof(byte)) return (T)(object)data[0];
+            if (typeof(T) == typeof(IntPtr)) return (T)(object)(IntPtr)BitConverter.ToUInt64(data, 0);
+            else if (typeof(T) == typeof(bool)) return (T)(object)BitConverter.ToBoolean(data, 0);
+            else if (typeof(T) == typeof(byte)) return (T)(object)data[0];
+            else if (typeof(T) == typeof(sbyte)) return (T)(object)data[0];
+            else if (typeof(T) == typeof(char)) return (T)(object)data[0];
             else if (typeof(T) == typeof(short)) return (T)(object)BitConverter.ToInt16(data, 0);
             else if (typeof(T) == typeof(ushort)) return (T)(object)BitConverter.ToUInt16(data, 0);
             else if (typeof(T) == typeof(int)) return (T)(object)BitConverter.ToInt32(data, 0);
             else if (typeof(T) == typeof(uint)) return (T)(object)BitConverter.ToUInt32(data, 0);
             else if (typeof(T) == typeof(long)) return (T)(object)BitConverter.ToInt64(data, 0);
             else if (typeof(T) == typeof(ulong)) return (T)(object)BitConverter.ToUInt64(data, 0);
-            else if (typeof(T) == typeof(double)) return (T)(object)BitConverter.ToDouble(data, 0);
             else if (typeof(T) == typeof(float)) return (T)(object)BitConverter.ToSingle(data, 0);
+            else if (typeof(T) == typeof(double)) return (T)(object)BitConverter.ToDouble(data, 0);
+            else if (typeof(T) == typeof(decimal)) return (T)(object)TUtils.ToDecimal(data);
         }
         return default(T);
     }

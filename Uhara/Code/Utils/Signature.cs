@@ -45,12 +45,14 @@ internal class TSignature
         {
             string byteValue = signature.Substring(i * 2, 2);
 
-            if (byteValue != "??")
+            if (byteValue == "??") byteArray[i] = 0x00;
+            else if (byteValue[0] == '?') byteArray[i] = Convert.ToByte("0" + byteValue[1], 16);
+            else if (byteValue[1] == '?') byteArray[i] = Convert.ToByte(byteValue[0] + "0", 16);
+            else
             {
                 if (!Uri.IsHexDigit(byteValue[0]) || !Uri.IsHexDigit(byteValue[1])) return null;
                 else byteArray[i] = Convert.ToByte(byteValue, 16);
             }
-            else byteArray[i] = 0x00;
         }
 
         return byteArray;
@@ -62,15 +64,17 @@ internal class TSignature
         signature = signature.Replace(" ", "");
         if (signature.Replace("!", "").Length % 2 == 0)
         {
-            for (int i = 0; i < signature.Length; i++)
+            for (int i = 0; i < signature.Length; i += 2)
             {
                 if (signature[i] == '!')
                 {
                     mask += "!";
                     i += 1;
                 }
-                else if (signature[i] == '?') mask += "?";
-                else mask += "x"; i += 1;
+                else if (signature[i] == '?' || signature[i+1] == '?') mask += "?";
+                else if (signature[i] == '?') mask += "<";
+                else if (signature[i+1] == '?') mask += ">";
+                else mask += "x";
             }
         }
 
