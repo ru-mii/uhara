@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using static ScanUtility.UnrealEngine;
 
 public partial class Tools : MainShared
 {
@@ -20,7 +20,85 @@ public partial class Tools : MainShared
 					bool Loaded = false;
 					ulong FNamePool = 0;
 
-					internal string FNameToString(uint fName)
+                    internal string FNameToStringLegacy(uint fName)
+                    {
+                        try
+                        {
+                            do
+                            {
+                                if (!Loaded) break;
+
+								uint AEWJCWUH = fName;
+                                uint JNJXDZWC = fName;
+
+                                AEWJCWUH = AEWJCWUH & 0x3FFF;
+                                JNJXDZWC = (uint)((int)JNJXDZWC >> 14);
+
+                                ulong VHMNULIN = AEWJCWUH;
+                                ulong YISGISGE = JNJXDZWC;
+
+                                ulong BSQEHBVH = TMemory.ReadMemory<ulong>(ProcessInstance, FNamePool);
+                                YISGISGE = TMemory.ReadMemory<ulong>(ProcessInstance, BSQEHBVH + (YISGISGE * 8));
+                                ulong RYJWMIBA = TMemory.ReadMemory<ulong>(ProcessInstance, YISGISGE + (VHMNULIN * 8));
+
+                                YISGISGE = YISGISGE | ulong.MaxValue;
+                                YISGISGE += 1;
+
+                                ulong ORCFMRAE = RYJWMIBA + (YISGISGE + 0x10);
+								byte[] OHGMSZBF = TMemory.ReadMemoryBytes(ProcessInstance, ORCFMRAE, 128);
+
+								string BONYDQDT = TUtils.MultibyteToString(OHGMSZBF);
+								if (string.IsNullOrEmpty(BONYDQDT)) return BONYDQDT;
+                            }
+                            while (false);
+                        }
+                        catch { }
+                        return null;
+                    }
+
+                    internal string FNameToShortStringLegacy(uint fName)
+                    {
+                        try
+                        {
+                            do
+                            {
+                                if (!Loaded) break;
+
+                                string name = FNameToStringLegacy(fName);
+                                if (string.IsNullOrEmpty(name)) break;
+
+                                int dot = name.LastIndexOf('.');
+                                int slash = name.LastIndexOf('/');
+
+                                return name.Substring(Math.Max(dot, slash) + 1);
+                            }
+                            while (false);
+                        }
+                        catch { }
+                        return null;
+                    }
+
+                    internal string FNameToShortStringLegacy2(uint fName)
+                    {
+                        try
+                        {
+                            do
+                            {
+                                if (!Loaded) break;
+
+                                string name = FNameToStringLegacy(fName);
+                                if (string.IsNullOrEmpty(name)) break;
+
+                                int under = name.LastIndexOf('_');
+                                return name.Substring(0, under + 1);
+                            }
+                            while (false);
+                        }
+                        catch { }
+                        return null;
+                    }
+
+                    internal string FNameToString(uint fName)
 					{
 						try
 						{

@@ -18,8 +18,38 @@ public partial class Tools : MainShared
 				private DataRetriever dataRetriever = new DataRetriever();
 				private TextReader textReader = new TextReader();
 
-				#region PUBLIC_API
-				public string FNameToString(uint fName)
+                #region PUBLIC_API
+                public string FNameToStringLegacy(uint fName)
+                {
+                    try
+                    {
+                        return textReader.FNameToStringLegacy(fName);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public string FNameToShortStringLegacy(uint fName)
+                {
+                    try
+                    {
+                        return textReader.FNameToShortStringLegacy(fName);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public string FNameToShortStringLegacy2(uint fName)
+                {
+                    try
+                    {
+                        return textReader.FNameToShortStringLegacy2(fName);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public string FNameToString(uint fName)
 				{
 					try
 					{
