@@ -35,7 +35,13 @@ internal class TConvert
 
             if (forceHex) numberStyle = NumberStyles.HexNumber;
 
-            if (typeof(T) == typeof(sbyte))
+
+            if (typeof(T) == typeof(bool))
+            {
+                bool val = false; if (bool.TryParse(number, out val))
+                    return (T)(object)val;
+            }
+            else if (typeof(T) == typeof(sbyte))
             {
                 sbyte val = 0; if (sbyte.TryParse(number, numberStyle, CultureInfo.InvariantCulture, out val))
                     return (T)(object)(val * multiplier);

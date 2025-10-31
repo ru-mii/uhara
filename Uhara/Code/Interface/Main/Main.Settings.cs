@@ -1,15 +1,59 @@
 ﻿using LiveSplit.ASL;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 
 public partial class Main : MainShared
 {
 	public class ScriptSettings
 	{
+        public void CreateFromXml(string path)
+        {
+            try
+            {
+                do
+                {
+                    if (!File.Exists(path)) break;
+
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.Load(path);
+
+                    XmlNodeList nodes = xmlDoc.SelectNodes("//Setting");
+                    if (nodes == null) break;
+
+                    foreach (XmlNode node in nodes)
+                    {
+                        XmlElement setting = node as XmlElement;
+                        if (setting != null)
+                        {
+                            string id = setting.GetAttribute("Id");
+                            string label = setting.GetAttribute("Label");
+                            bool state = bool.Parse(setting.GetAttribute("State"));
+                            string tooltip = setting.GetAttribute("ToolTip");
+
+                            string group = null;
+                            if (node.ParentNode != null && node.ParentNode.Name == "Setting")
+                            {
+                                XmlElement parent = node.ParentNode as XmlElement;
+                                group = parent.GetAttribute("Id");
+                            }
+
+                            _ScriptSettings.AddSetting(id, state, label, group);
+                            if (!string.IsNullOrEmpty(tooltip))
+                                _ScriptSettings.Settings[id].ToolTip = tooltip;
+                        }
+                    }
+                }
+                while (false);
+            }
+            catch { }
+        }
+
         public void CreateCustom(dynamic[,] settings, params int[] order)
         {
             try
@@ -26,7 +70,7 @@ public partial class Main : MainShared
 				int rows = settings.GetLength(0);
 				int cols = settings.GetLength(1);
 
-				if (cols != 4 && cols != 3 && cols != 5)
+				if (cols != 3 && cols != 4 && cols != 5)
 				{
 					TUtils.Print("Settings could not be parsed");
 					return;
