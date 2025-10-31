@@ -26,13 +26,13 @@ public partial class Main : MainShared
 				int rows = settings.GetLength(0);
 				int cols = settings.GetLength(1);
 
-				if (cols != 4 && cols != 3)
+				if (cols != 4 && cols != 3 && cols != 5)
 				{
 					TUtils.Print("Settings could not be parsed");
 					return;
 				}
 
-                int[] _order = new int[] { 1, 2, 3, 4 };
+                int[] _order = new int[] { 1, 2, 3, 4, 5 };
                 if (order.Length != 0)
 				{
 					if (order.Length != cols)
@@ -48,17 +48,28 @@ public partial class Main : MainShared
 				{
                     for (int i = 0; i < rows; i++)
 					{
-                        MainShared._ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], null);
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], null);
                     }
                 }
 				else if (cols == 4)
 				{
                     for (int i = 0; i < rows; i++)
                     {
-                        MainShared._ScriptSettings.AddSetting(settings[i, _order[0]], settings[i, _order[1]], settings[i, _order[2]], settings[i, _order[3]]);
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
                     }
                 }
-			}
+                else if (cols == 5)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
+
+                        string newTooltip = settings[i, _order[4] - 1];
+                        if (!string.IsNullOrEmpty(newTooltip))
+                            _ScriptSettings.Settings[settings[i, _order[0] - 1]].ToolTip = newTooltip;
+                    }
+                }
+            }
 			catch { }
 		}
 	}
