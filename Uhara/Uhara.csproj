@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\Interface\FileLogger.cs" />
     <Compile Include="Code\Interface\Main\Main.Helper.cs" />
     <Compile Include="Code\Interface\Main\Main.cs" />
     <Compile Include="Code\Interface\MemoryManager.cs" />

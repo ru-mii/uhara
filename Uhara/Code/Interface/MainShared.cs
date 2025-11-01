@@ -33,6 +33,7 @@ public class MainShared
     internal static List<StringWatcher> StringWatchers = new List<StringWatcher>();
 
     public static bool DebugMode = true;
+
     private Dictionary<string, object> Indexer = new Dictionary<string, object>();
     #endregion
     #region PROPERTIES

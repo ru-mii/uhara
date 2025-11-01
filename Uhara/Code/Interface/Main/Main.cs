@@ -17,6 +17,7 @@ using System.Windows.Forms;
 public partial class Main : MainShared
 {
     public ScriptSettings Settings = new ScriptSettings();
+    public FileLogger FileLogger = new FileLogger();
 
     public Main()
     {

@@ -17,7 +17,9 @@ internal class MemoryManager : MainShared
     {
         try
         {
-            new Thread(() => { _FreeMemoryDelayed(address, size); }).Start();
+            Thread newThread = new Thread(() => { _FreeMemoryDelayed(address, size); });
+            newThread.IsBackground = true;
+            newThread.Start();
         }
         catch { }
     }
