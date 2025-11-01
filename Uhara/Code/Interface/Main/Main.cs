@@ -243,7 +243,7 @@ public partial class Main : MainShared
                     {
                         watcher.Update(ProcessInstance);
                         //if (watcher.Current != null)
-                            current[watcher.Name] = watcher.Current;
+                        current[watcher.Name] = watcher.Current;
                     }
 
                     foreach (var watcher in StringWatchers)
