@@ -62,12 +62,44 @@ public partial class Main : MainShared
     {
         try
         {
-            if (CurrentState.CurrentTimingMethod == TimingMethod.RealTime)
+            if (CurrentState.CurrentTimingMethod != TimingMethod.GameTime)
             {
-                if (MessageBox.Show("This autosplitter recommends using GameTime, you're currently using RealTime comparison method, do you want to switch to GameTime?", "LiveSplit",
+                if (MessageBox.Show("This autosplitter is using load removal and recommends using GameTime comparison, would you like to switch to it?", "LiveSplit",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     CurrentState.CurrentTimingMethod = TimingMethod.GameTime;
+                }
+            }
+        }
+        catch { }
+    }
+
+    public void AlertGameTime()
+    {
+        try
+        {
+            if (CurrentState.CurrentTimingMethod != TimingMethod.GameTime)
+            {
+                if (MessageBox.Show("This autosplitter recommends using GameTime comparison, would you like to switch to it?", "LiveSplit",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    CurrentState.CurrentTimingMethod = TimingMethod.GameTime;
+                }
+            }
+        }
+        catch { }
+    }
+
+    public void AlertRealTime()
+    {
+        try
+        {
+            if (CurrentState.CurrentTimingMethod != TimingMethod.RealTime)
+            {
+                if (MessageBox.Show("This autosplitter recommends using RealTime comparison, would you like to switch to it?", "LiveSplit",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    CurrentState.CurrentTimingMethod = TimingMethod.RealTime;
                 }
             }
         }

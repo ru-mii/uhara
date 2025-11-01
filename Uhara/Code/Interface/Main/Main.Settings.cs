@@ -28,8 +28,7 @@ public partial class Main : MainShared
 
                     foreach (XmlNode node in nodes)
                     {
-                        XmlElement setting = node as XmlElement;
-                        if (setting != null)
+                        if (node is XmlElement setting)
                         {
                             string id = setting.GetAttribute("Id");
                             string label = setting.GetAttribute("Label");
@@ -63,40 +62,54 @@ public partial class Main : MainShared
             catch { }
         }
 
-        public void Create(dynamic[,] settings, params int[] order)
-		{
-			try
-			{
-				int rows = settings.GetLength(0);
-				int cols = settings.GetLength(1);
+        public void Create(dynamic[,] settings, bool defaultValue = true, string defaultParent = null, params int[] order)
+        {
+            try
+            {
+                int rows = settings.GetLength(0);
+                int cols = settings.GetLength(1);
 
-				if (cols != 3 && cols != 4 && cols != 5)
-				{
-					TUtils.Print("Settings could not be parsed");
-					return;
-				}
+                if (cols < 1 || cols > 5)
+                {
+                    TUtils.Print("Settings could not be parsed");
+                    return;
+                }
 
                 int[] _order = new int[] { 1, 2, 3, 4, 5 };
                 if (order.Length != 0)
-				{
-					if (order.Length != cols)
-					{
-						TUtils.Print("Order count did not match the settings columns");
-						return;
-					}
+                {
+                    if (order.Length != cols)
+                    {
+                        TUtils.Print("Order count did not match the settings columns");
+                        return;
+                    }
 
-					_order = order;
-				}
+                    _order = order;
+                }
 
-                if (cols == 3)
-				{
+                if (cols == 1)
+                {
                     for (int i = 0; i < rows; i++)
-					{
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], null);
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[0] - 1], defaultParent);
                     }
                 }
-				else if (cols == 4)
-				{
+                else if (cols == 2)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[1] - 1], defaultParent);
+                    }
+                }
+                else if (cols == 3)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[0] - 1], defaultParent);
+                    }
+                }
+                else if (cols == 4)
+                {
                     for (int i = 0; i < rows; i++)
                     {
                         _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
@@ -114,7 +127,78 @@ public partial class Main : MainShared
                     }
                 }
             }
-			catch { }
-		}
+            catch { }
+        }
+
+        public void Create(dynamic[,] settings, params int[] order)
+		{
+            try
+            {
+                bool defaultValue = true;
+                string defaultParent = null;
+
+                int rows = settings.GetLength(0);
+                int cols = settings.GetLength(1);
+
+                if (cols < 1 || cols > 5)
+                {
+                    TUtils.Print("Settings could not be parsed");
+                    return;
+                }
+
+                int[] _order = new int[] { 1, 2, 3, 4, 5 };
+                if (order.Length != 0)
+                {
+                    if (order.Length != cols)
+                    {
+                        TUtils.Print("Order count did not match the settings columns");
+                        return;
+                    }
+
+                    _order = order;
+                }
+
+                if (cols == 1)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[0] - 1], defaultParent);
+                    }
+                }
+                else if (cols == 2)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[1] - 1], defaultParent);
+                    }
+                }
+                else if (cols == 3)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[0] - 1], defaultParent);
+                    }
+                }
+                else if (cols == 4)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
+                    }
+                }
+                else if (cols == 5)
+                {
+                    for (int i = 0; i < rows; i++)
+                    {
+                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
+
+                        string newTooltip = settings[i, _order[4] - 1];
+                        if (!string.IsNullOrEmpty(newTooltip))
+                            _ScriptSettings.Settings[settings[i, _order[0] - 1]].ToolTip = newTooltip;
+                    }
+                }
+            }
+            catch { }
+        }
 	}
 }
