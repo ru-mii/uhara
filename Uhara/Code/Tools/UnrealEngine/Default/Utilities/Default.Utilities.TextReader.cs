@@ -115,11 +115,18 @@ public partial class Tools : MainShared
 								IntPtr chunk = (IntPtr)TMemory.ReadMemory<ulong>(ProcessInstance,
 									FNamePool + (ulong)(0x10 + (int)chunkIdx * 0x8));
 
+                                if (chunk == IntPtr.Zero) break;
+
 								IntPtr entry = chunk + (int)nameIdx * sizeof(short);
-								int length = TMemory.ReadMemory<short>(ProcessInstance, entry) >> 6;
+                                if (entry == IntPtr.Zero) break;
+
+                                int length = TMemory.ReadMemory<short>(ProcessInstance, entry) >> 6;
 								if (length > byte.MaxValue || length <= 0) break;
 
-								string toReturn = TUtils.MultibyteToString(TMemory.ReadMemoryBytes(ProcessInstance, entry + sizeof(short), length));
+                                byte[] textBytes = TMemory.ReadMemoryBytes(ProcessInstance, entry + sizeof(short), length);
+                                if (textBytes == null) break;
+
+                                string toReturn = TUtils.MultibyteToString(textBytes);
 								return number == 0 ? toReturn : toReturn + "_" + number;
 							}
 							while (false);

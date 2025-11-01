@@ -242,18 +242,21 @@ public partial class Main : MainShared
                     foreach (var watcher in MemoryWatchers)
                     {
                         watcher.Update(ProcessInstance);
-                        current[watcher.Name] = watcher.Current;
+                        //if (watcher.Current != null)
+                            current[watcher.Name] = watcher.Current;
                     }
 
                     foreach (var watcher in StringWatchers)
                     {
                         watcher.Update(ProcessInstance);
-                        current[watcher.Name] = watcher.Current;
+                        if (!string.IsNullOrEmpty(watcher.Current))
+                            current[watcher.Name] = watcher.Current;
                     }
 
                     foreach (var watcher in ListWatchers)
                     {
                         watcher.memoryWatcher.Update(ProcessInstance);
+                        if (watcher.memoryWatcher.Current == null) continue;
                         if ((IntPtr)watcher.memoryWatcher.Current == IntPtr.Zero) continue;
 
                         ulong address = (ulong)watcher.memoryWatcher.Current;
