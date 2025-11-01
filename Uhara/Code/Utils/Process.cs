@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,45 @@ using System.Windows.Forms;
 
 internal class TProcess
 {
+    internal static bool Is64Bit(Process process)
+    {
+        IntPtr processHandle = TImports.OpenProcess(0x0400 | 0x0010, false, process.Id);
+
+        if (processHandle != IntPtr.Zero)
+        {
+            IntPtr peHeaderAddress = process.MainModule.BaseAddress;
+            byte[] buffer = new byte[4096];
+            TImports.ReadProcessMemory(processHandle, peHeaderAddress, buffer, buffer.Length, out _);
+
+            int peHeaderOffset = BitConverter.ToInt32(buffer, 0x3C);
+            int machineOffset = peHeaderOffset + 4;
+            ushort machine = BitConverter.ToUInt16(buffer, machineOffset);
+
+            TImports.CloseHandle(processHandle);
+            if (machine == 0x014c) return false;
+            else return true;
+        }
+        return true;
+    }
+
+    internal static int GetImageSize(Process process, ProcessModule module)
+    {
+        if (module == null) module = process.MainModule;
+
+        TImports.MODULEINFO modInfo;
+        if (TImports.GetModuleInformation(process.Handle, module.BaseAddress,
+        out modInfo, Marshal.SizeOf(typeof(TImports.MODULEINFO))))
+            return modInfo.SizeOfImage;
+
+        return 0;
+    }
+
+    internal static int GetImageSize(Process process, string moduleName = null)
+    {
+        ProcessModule module = GetModule(process, moduleName);
+        return GetImageSize(process, module);
+    }
+
     internal static bool WaitTillSecondsOld(Process process, int seconds)
     {
         ulong currentTime = TUtils.GetTimeMiliseconds();

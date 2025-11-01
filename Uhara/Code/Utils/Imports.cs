@@ -7,6 +7,23 @@ using System.Threading.Tasks;
 
 class TImports
 {
+    [DllImport("kernel32.dll")]
+    public static extern bool CloseHandle(IntPtr hObject);
+
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr OpenProcess(uint processAccess, bool bInheritHandle, int processId);
+
+    [DllImport("psapi.dll", SetLastError = true)]
+    public static extern bool GetModuleInformation(IntPtr hProcess, IntPtr hModule, out MODULEINFO lpmodinfo, int cb);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MODULEINFO
+    {
+        public IntPtr lpBaseOfDll;
+        public int SizeOfImage;
+        public IntPtr EntryPoint;
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct MBI
     {

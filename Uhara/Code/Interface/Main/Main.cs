@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
 using System.Threading;
@@ -46,6 +47,118 @@ public partial class Main : MainShared
         }
         catch { }
         DebugMode = false;
+    }
+
+    public bool Is64Bit()
+    {
+        try
+        {
+            return TProcess.Is64Bit(ProcessInstance);
+        }
+        catch { }
+        return false;
+    }
+
+    public bool Reject(params int[] moduleMemorySizes)
+    {
+        try
+        {
+            return Reject(ProcessInstance.MainModule, moduleMemorySizes);
+        }
+        catch { }
+        return false;
+    }
+
+    public bool Reject(string module, params int[] moduleMemorySizes)
+    {
+        try
+        {
+            return Reject(TProcess.GetModule(ProcessInstance, module), moduleMemorySizes);
+        }
+        catch { }
+        return false;
+    }
+
+    public bool Reject(ProcessModule module, params int[] moduleMemorySizes)
+    {
+        try
+        {
+            if (ProcessInstance == null)
+            {
+                TUtils.Print("Process not loaded yet");
+                return false;
+            }
+
+            if (module is null)
+            {
+                TUtils.Print("Module could not be found");
+                return false;
+            }
+
+            if (moduleMemorySizes is null || moduleMemorySizes.Length == 0)
+            {
+                ProcessInstance = null;
+                return true;
+            }
+
+            int exeModuleSize = TProcess.GetImageSize(ProcessInstance, module);
+            if (moduleMemorySizes.Any(mms => mms == exeModuleSize))
+            {
+                ProcessInstance = null;
+                return true;
+            }
+        }
+        catch { }
+        return false;
+    }
+
+    public int GetImageSize(ProcessModule module)
+    {
+        try
+        {
+            return TProcess.GetImageSize(ProcessInstance, module);
+        }
+        catch { }
+        return 0;
+    }
+
+    public int GetImageSize(string moduleName = null)
+    {
+        try
+        {
+            return TProcess.GetImageSize(ProcessInstance, moduleName);
+        }
+        catch { }
+        return 0;
+    }
+
+    public string GetMD5Hash(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) path = Path.Combine(Path.GetDirectoryName(ProcessInstance.MainModule.FileName), path);
+            return GetHash(path);
+        }
+        catch { }
+        return null;
+    }
+
+    public string GetHash(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath)) return null;
+
+            byte[] bytes = new byte[0];
+            using (var md5 = MD5.Create())
+            {
+                using (var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    bytes = md5.ComputeHash(file);
+            }
+            return bytes.Select(x => x.ToString("X2")).Aggregate((a, b) => a + b);
+        }
+        catch { }
+        return null;
     }
 
     public void Log(string message)

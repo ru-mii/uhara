@@ -1,4 +1,5 @@
 ﻿using LiveSplit.ASL;
+using LiveSplit.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,26 @@ public partial class Main : MainShared
 {
 	public class ScriptSettings
 	{
+        public void Create(Dictionary<string, string> settings, bool defaultValue = true, string defaultParent = null, params int[] order)
+        {
+            try
+            {
+                int count = settings.Count;
+                dynamic[,] result = new dynamic[count, 2];
+
+                int index = 0;
+                foreach (var pair in settings)
+                {
+                    result[index, 0] = pair.Key;
+                    result[index, 1] = pair.Value;
+                    index++;
+                }
+
+                Create(result, defaultValue, defaultParent, order);
+            }
+            catch { }
+        }
+
         public void CreateFromXml(string path)
         {
             try
