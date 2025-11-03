@@ -10,13 +10,13 @@ using LiveSplit.ComponentUtil;
 
 public partial class Main : MainShared
 {
-    public IntPtr CodeHKFlag(string signature)
+    public IntPtr CodeHKFlag(string signature, string moduleName = null)
     {
         try
         {
             do
             {
-                ulong address = TMemory.ScanSingle(ProcessInstance, signature);
+                ulong address = TMemory.ScanSingle(ProcessInstance, signature, moduleName);
                 if (address == 0) break;
 
                 int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, address, 14);

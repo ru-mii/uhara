@@ -50,6 +50,31 @@ public partial class Main : MainShared
         DebugMode = false;
     }
 
+    public void ForceCleanMemory()
+    {
+        try
+        {
+            ReloadProcess();
+            MemoryManager.ClearMemory();
+        }
+        catch { }
+    }
+
+    public bool IsModuleLoaded(string moduleName)
+    {
+        try
+        {
+            ReloadProcess();
+            ProcessModule processModule = TProcess.GetModule(ProcessInstance, moduleName);
+            if (processModule == null) return false;
+
+            ulong modBase = TProcess.GetModuleBase(ProcessInstance, moduleName);
+            return modBase != 0;
+        }
+        catch { }
+        return false;
+    }
+
     public bool Is64Bit()
     {
         try

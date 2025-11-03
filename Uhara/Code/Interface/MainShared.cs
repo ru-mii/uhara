@@ -48,6 +48,7 @@ public class MainShared
                 FieldInfo gameField = script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
                 var gameInstance = gameField?.GetValue(script);
                 _ProcessInstance = (Process)gameInstance;
+
             }
             return _ProcessInstance;
         }
