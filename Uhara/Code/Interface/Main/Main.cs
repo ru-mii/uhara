@@ -368,6 +368,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<IntPtr>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(bool))
@@ -379,6 +380,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<bool>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(byte))
@@ -390,6 +392,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<byte>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(sbyte))
@@ -401,6 +404,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<sbyte>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(char))
@@ -412,6 +416,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<char>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(short))
@@ -423,6 +428,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<short>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(ushort))
@@ -434,6 +440,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<ushort>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(int))
@@ -445,6 +452,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<int>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(uint))
@@ -456,6 +464,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<uint>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(long))
@@ -467,6 +476,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<long>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(ulong))
@@ -478,6 +488,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<ulong>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(float))
@@ -489,6 +500,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<float>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(double))
@@ -500,6 +512,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<double>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(decimal))
@@ -511,6 +524,7 @@ public partial class Main : MainShared
                             {
                                 list.Add(TMemory.ReadMemory<decimal>(ProcessInstance, address + (ulong)i));
                             }
+                            current[watcher.memoryWatcher.Name] = list;
                         }
                     }
                 }
