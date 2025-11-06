@@ -1,11 +1,16 @@
 ﻿using LiveSplit.ComponentUtil;
 using LiveSplit.Model;
+using Microsoft.CSharp;
+using Microsoft.VisualBasic;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Policy;
@@ -43,11 +48,69 @@ public partial class Main : MainShared
             _RefCreateThread = extensionMethodsType.GetMethod("CreateThread", new Type[] { typeof(Process), typeof(IntPtr) });
 
             // ---
-            if (!File.Exists("SharpDisasm.dll"))
-                File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
+            //if (!File.Exists("SharpDisasm.dll"))
+                //File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
         }
         catch { }
         DebugMode = false;
+    }
+
+    public TypeDefinition Define(string source, params string[] references)
+    {
+        CSharpCodeProvider _codeProvider = new CSharpCodeProvider();
+        CompilerParameters parameters = new()
+        {
+            GenerateInMemory = false,
+            GenerateExecutable = false,
+            CompilerOptions = "/optimize"
+        };
+
+        string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".dll");
+        parameters.OutputAssembly = tempPath;
+
+        parameters.ReferencedAssemblies.Add("mscorlib.dll");
+        parameters.ReferencedAssemblies.Add("System.dll");
+        parameters.ReferencedAssemblies.AddRange(references);
+
+        CompilerResults results = _codeProvider.CompileAssemblyFromSource(parameters, source);
+
+        if (results.Errors.HasErrors)
+        {
+            string errorMsg = string.Join("\n", results.Errors.Cast<CompilerError>().Select(e => $"{e.Line}: {e.ErrorText}"));
+            throw new Exception("Compilation failed:\n" + errorMsg);
+        }
+
+        byte[] bytes;
+        try { bytes = File.ReadAllBytes(tempPath); }
+        finally { File.Delete(tempPath); }
+
+        using var ms = new MemoryStream(bytes);
+        using var peReader = new PEReader(ms);
+        var reader = peReader.GetMetadataReader();
+
+        TypeDefinition? found = null;
+        int count = 0;
+        foreach (var handle in reader.TypeDefinitions)
+        {
+            var td = reader.GetTypeDefinition(handle);
+            string name = reader.GetString(td.Name);
+            if (name != "<Module>")
+            {
+                found = td;
+                count++;
+            }
+        }
+
+        if (count == 0)
+        {
+            throw new Exception("The provided source code did not contain a type");
+        }
+        else if (count > 1)
+        {
+            throw new Exception("Multiple types found; expected only one");
+        }
+
+        return found.Value;
     }
 
     public void ForceCleanMemory()

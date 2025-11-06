@@ -121,8 +121,12 @@ internal class MemoryManager : MainShared
 
                             if (address == 0 || recover == null) continue;
 
-                            TSaves2.DeleteValue(RegistryName, key, Overwrite, valueName);
                             RefWriteBytes(ProcessInstance, address, recover);
+                            if (!TMemory.ConfirmBytes(ProcessInstance, address, recover))
+                                throw new Exception("Memory recovery exception");
+
+                            TSaves2.DeleteValue(RegistryName, key, Overwrite, valueName);
+
                             //TUtils.Print(recover.Length + " bytes recovered at 0x" + address.ToString("X"));
                         }
                     }
