@@ -1,13 +1,160 @@
 ﻿using LiveSplit.ComponentUtil;
+using Microsoft.CSharp;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
 public class PtrResolver : MainShared
 {
+    #region DEFINE
+    public TypeDefinition Define(string source, params string[] references)
+    {
+        CSharpCodeProvider _codeProvider = new CSharpCodeProvider();
+        CompilerParameters parameters = new()
+        {
+            GenerateInMemory = false,
+            GenerateExecutable = false,
+            CompilerOptions = "/optimize"
+        };
+
+        string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".dll");
+        parameters.OutputAssembly = tempPath;
+
+        parameters.ReferencedAssemblies.Add("mscorlib.dll");
+        parameters.ReferencedAssemblies.Add("System.dll");
+        parameters.ReferencedAssemblies.AddRange(references);
+
+        CompilerResults results = _codeProvider.CompileAssemblyFromSource(parameters, source);
+
+        if (results.Errors.HasErrors)
+        {
+            string errorMsg = string.Join("\n", results.Errors.Cast<CompilerError>().Select(e => $"{e.Line}: {e.ErrorText}"));
+            throw new Exception("Compilation failed:\n" + errorMsg);
+        }
+
+        byte[] bytes;
+        try { bytes = File.ReadAllBytes(tempPath); }
+        finally { File.Delete(tempPath); }
+
+        using var ms = new MemoryStream(bytes);
+        using var peReader = new PEReader(ms);
+        var reader = peReader.GetMetadataReader();
+
+        TypeDefinition? found = null;
+        int count = 0;
+        foreach (var handle in reader.TypeDefinitions)
+        {
+            var td = reader.GetTypeDefinition(handle);
+            string name = reader.GetString(td.Name);
+            if (name != "<Module>")
+            {
+                found = td;
+                count++;
+            }
+        }
+
+        if (count == 0)
+        {
+            throw new Exception("The provided source code did not contain a type");
+        }
+        else if (count > 1)
+        {
+            throw new Exception("Multiple types found; expected only one");
+        }
+
+        return found.Value;
+    }
+    #endregion
+
+    #region DEREF
+    public IntPtr Deref((IntPtr _base, int[] offsets) offsets)
+    {
+        return _Deref(offsets._base, offsets: offsets.offsets);
+    }
+
+    public IntPtr Deref(object _base, params int[] offsets)
+    {
+        return _Deref(_base, offsets: offsets);
+    }
+
+    public IntPtr Deref(string moduleName, object _base, params int[] offsets)
+    {
+        return _Deref(_base, moduleName, offsets);
+    }
+
+    public IntPtr Deref(Module module, object _base, params int[] offsets)
+    {
+        return _Deref(_base, module.Name, offsets);
+    }
+
+    public IntPtr Deref(object _base, string moduleName = null, params int[] offsets)
+    {
+        return _Deref(_base, moduleName, offsets);
+    }
+
+    private IntPtr _Deref(object _base, string moduleName = null, params int[] offsets)
+    {
+        try
+        {
+            DeepPointer deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            return deepPointer.Deref<IntPtr>(ProcessInstance);
+        }
+        catch { }
+        return IntPtr.Zero;
+    }
+    #endregion
+    #region READ
+    public T Read<T>((IntPtr _base, int[] offsets) offsets) where T : unmanaged
+    {
+        return _Read<T>(offsets._base, offsets: offsets.offsets);
+    }
+
+    public T Read<T>(object _base, params int[] offsets) where T : unmanaged
+    {
+        return _Read<T>(_base, offsets: offsets);
+    }
+
+    public T Read<T>(string moduleName, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _Read<T>(_base, moduleName, offsets);
+    }
+
+    public T Read<T>(Module module, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _Read<T>(_base, module.Name, offsets);
+    }
+
+    public T Read<T>(object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        return _Read<T>(_base, moduleName, offsets);
+    }
+
+    private T _Read<T>(object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            DeepPointer deepPointer;
+            if (_base is int)
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+
+            return deepPointer.Deref<T>(ProcessInstance);
+        }
+        catch { }
+        return default(T);
+    }
+    #endregion
+
     #region WATCH
     public void Watch<T>(string name, (IntPtr _base, int[] offsets) offsets) where T : unmanaged
     {
