@@ -112,6 +112,8 @@ public partial class Tools : MainShared
                 internal static InstanceDestroy instanceDestroy = null;
                 internal static OffsetResolver offsetResolver = null;
 
+                internal static bool LegacyVersion = false;
+
                 enum Result
                 {
                     None = 0,
@@ -141,13 +143,22 @@ public partial class Tools : MainShared
                                 if (!ReloadProcess()) throw new Exception();
                                 if (ProcessInstance == null) break;
 
-                                if (TProcess.GetModuleBase(ProcessInstance, "mono-2.0-bdwgc.dll") == 0) break;
-                                if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                if (TProcess.GetModuleBase(ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
+                                {
+                                    if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                }
+                                else if (TProcess.GetModuleBase(ProcessInstance, "mono.dll") == 0) break;
+                                else
+                                {
+                                    TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                    " | Warning: " + "Legacy version of Unity detected, instance garbage collection won't be supported");
+                                }
+
                                 if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;
                                 success = true;
                             }
                             while (false);
-                            Thread.Sleep(100);
+                            Thread.Sleep(300);
                         }
                     }
                     catch { return; }

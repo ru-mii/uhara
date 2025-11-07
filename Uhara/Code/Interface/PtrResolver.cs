@@ -195,9 +195,8 @@ public class PtrResolver : MainShared
 
             MemoryWatcher memoryWatcher = new MemoryWatcher<T>(deepPointer);
             memoryWatcher.Name = name;
+            memoryWatcher.Current = default(T);
             MemoryWatchers.Add(memoryWatcher);
-
-            current[name] = default(T);
         }
         catch { }
     }
@@ -242,9 +241,9 @@ public class PtrResolver : MainShared
 
             MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
             memoryWatcher.Name = name;
-            ListWatchers.Add((typeof(T), memoryWatcher));
+            memoryWatcher.Current = new List<T>();
 
-            current[name] = default(T);
+            ListWatchers.Add((typeof(T), memoryWatcher));
         }
         catch { }
     }
@@ -336,6 +335,7 @@ public class PtrResolver : MainShared
 
             StringWatcher stringWatcher = new StringWatcher(deepPointer, 128);
             stringWatcher.Name = name;
+            stringWatcher.Current = null;
             StringWatchers.Add(stringWatcher);
 
             current[name] = null;
@@ -434,6 +434,7 @@ public class PtrResolver : MainShared
 
             StringWatcher stringWatcher = new StringWatcher(deepPointer, 128);
             stringWatcher.Name = name;
+            stringWatcher.Current = null;
             StringWatchers.Add(stringWatcher);
 
             current[name] = null;
