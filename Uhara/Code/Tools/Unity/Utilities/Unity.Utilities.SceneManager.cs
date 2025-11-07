@@ -66,10 +66,11 @@ public partial class Tools : MainShared
 				ulong SceneManagerPtr = 0;
 				string LastCurrentSceneName = null;
 				string LastLoadingSceneName = null;
-				#endregion
+                int ConfirmedNameOffset = -1;
+                #endregion
 
-				#region INTERNAL_API
-				internal string GetCurrentSceneName()
+                #region INTERNAL_API
+                internal string GetCurrentSceneName()
 				{
 					try
 					{
@@ -134,35 +135,61 @@ public partial class Tools : MainShared
 				{
 					do
 					{
-						if (scene == 0) break;
+						string name = null;
 
-						// Assets/
-						byte[] assetsBytes = new byte[] { 0x41, 0x73, 0x73, 0x65, 0x74, 0x73, 0x2F };
-                        ulong namePtr = scene + (ulong)(LegacyVersion ? 0x18 : 0x10);
-
-                        byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, namePtr, assetsBytes.Length);
-						if (readBytes == null || readBytes.Length != assetsBytes.Length) break;
-
-						if (!assetsBytes.SequenceEqual(readBytes))
+						if (ConfirmedNameOffset == -1)
 						{
-                            namePtr = TMemory.ReadMemory<ulong>(ProcessInstance, namePtr);
-                            readBytes = TMemory.ReadMemoryBytes(ProcessInstance, namePtr, assetsBytes.Length);
-                            if (readBytes == null || readBytes.Length != assetsBytes.Length) break;
-                            if (!assetsBytes.SequenceEqual(readBytes)) break;
+							name = ReadSceneName(scene, 0x10);
+							if (name != null) ConfirmedNameOffset = 0x10;
+							else
+							{
+                                name = ReadSceneName(scene, 0x18);
+                                if (name != null) ConfirmedNameOffset = 0x18;
+                            }
                         }
-
-						// ---
-						string name = ConvertToShortName(TMemory.ReadMemoryString(ProcessInstance, namePtr, 128));
-						if (string.IsNullOrEmpty(name)) break;
+						else name = ReadSceneName(scene, (uint)ConfirmedNameOffset);
 
 						// ---
 						return name;
 					}
 					while (false);
-					return null;
 				}
 
-				private string ConvertToShortName(string name)
+                private string ReadSceneName(ulong scene, uint nameOffset)
+                {
+                    do
+                    {
+                        if (scene == 0) break;
+
+                        // Assets/
+                        byte[] assetsBytes = new byte[] { 0x41, 0x73, 0x73, 0x65, 0x74, 0x73, 0x2F };
+						ulong namePtr = scene + nameOffset;
+
+                        byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, namePtr, assetsBytes.Length);
+                        if (readBytes == null || readBytes.Length != assetsBytes.Length) break;
+
+                        if (!assetsBytes.SequenceEqual(readBytes))
+                        {
+                            namePtr = TMemory.ReadMemory<ulong>(ProcessInstance, namePtr);
+							if (namePtr < 0x1000) break;
+
+                            readBytes = TMemory.ReadMemoryBytes(ProcessInstance, namePtr, assetsBytes.Length);
+                            if (readBytes == null || readBytes.Length != assetsBytes.Length) break;
+                            if (!assetsBytes.SequenceEqual(readBytes)) break;
+                        }
+
+                        // ---
+                        string name = ConvertToShortName(TMemory.ReadMemoryString(ProcessInstance, namePtr, 128));
+                        if (string.IsNullOrEmpty(name)) break;
+
+                        // ---
+                        return name;
+                    }
+                    while (false);
+                    return null;
+                }
+
+                private string ConvertToShortName(string name)
 				{
 					try
 					{
