@@ -36,11 +36,15 @@ public partial class Tools : MainShared
                         do
                         {
                             if (!ReloadProcess()) throw new Exception();
-                            if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                            if (TProcess.GetModuleBase(ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
+                            {
+                                if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                            }
+                            else if (TProcess.GetModuleBase(ProcessInstance, "mono.dll") == 0) break;
                             success = true;
                         }
                         while (false);
-                        Thread.Sleep(100);
+                        Thread.Sleep(300);
                     }
 
                     if (!ReloadProcess()) throw new Exception();

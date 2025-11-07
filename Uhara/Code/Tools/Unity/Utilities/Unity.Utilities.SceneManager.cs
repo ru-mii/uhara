@@ -219,7 +219,10 @@ public partial class Tools : MainShared
 									ulong result = TMemory.ScanSingle(ProcessInstance,
 										"48 C7 43 ?? 00 00 80 3F 48 8B 5C 24 30 48 83 C4 20 5F C3", "UnityPlayer.dll", 0x20);
 
-									if (result == 0) break;
+                                    if (result == 0) result = TMemory.ScanSingle(ProcessInstance,
+                                        "48 C7 43 ?? 00 00 80 3F 48 8B 5C 24 30 48 83 C4 20 5F C3", null, 0x20);
+
+                                    if (result == 0) break;
 									result = TMemory.GetFunctionStart(ProcessInstance, result);
 
 									// ---
