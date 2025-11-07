@@ -16,7 +16,9 @@ public partial class Tools : MainShared
         {
             private static string ToolUniqueID = "LMYpsRecShieLHhD";
 
-            SceneManager sceneManager;
+            SceneManager sceneManager = null;
+
+            internal static bool LegacyVersion = false;
 
             #region CONSTRUCTOR
             public Utilities()
@@ -41,6 +43,8 @@ public partial class Tools : MainShared
                                 if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
                             }
                             else if (TProcess.GetModuleBase(ProcessInstance, "mono.dll") == 0) break;
+                            else LegacyVersion = true;
+
                             success = true;
                         }
                         while (false);

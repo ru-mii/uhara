@@ -138,8 +138,7 @@ public partial class Tools : MainShared
 
 						// Assets/
 						byte[] assetsBytes = new byte[] { 0x41, 0x73, 0x73, 0x65, 0x74, 0x73, 0x2F };
-
-						ulong namePtr = scene + 0x10;
+                        ulong namePtr = scene + (ulong)(LegacyVersion ? 0x18 : 0x10);
 
                         byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, namePtr, assetsBytes.Length);
 						if (readBytes == null || readBytes.Length != assetsBytes.Length) break;
