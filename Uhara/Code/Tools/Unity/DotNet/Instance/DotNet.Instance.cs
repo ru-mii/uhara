@@ -148,11 +148,6 @@ public partial class Tools : MainShared
                                     if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
                                 }
                                 else if (TProcess.GetModuleBase(ProcessInstance, "mono.dll") == 0) break;
-                                else
-                                {
-                                    TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                    " | Warning: " + "Legacy version of Unity detected, instance garbage collection won't be supported");
-                                }
 
                                 if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;
                                 success = true;
