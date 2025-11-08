@@ -9,8 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Policy;
@@ -48,13 +46,14 @@ public partial class Main : MainShared
             _RefCreateThread = extensionMethodsType.GetMethod("CreateThread", new Type[] { typeof(Process), typeof(IntPtr) });
 
             // ---
-            //if (!File.Exists("SharpDisasm.dll"))
-                //File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
+            if (!File.Exists("SharpDisasm.dll"))
+                File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
         }
         catch { }
         DebugMode = false;
     }
 
+    /*
     public TypeDefinition Define(string source, params string[] references)
     {
         CSharpCodeProvider _codeProvider = new CSharpCodeProvider();
@@ -111,7 +110,7 @@ public partial class Main : MainShared
         }
 
         return found.Value;
-    }
+    }*/
 
     public void ForceCleanMemory()
     {

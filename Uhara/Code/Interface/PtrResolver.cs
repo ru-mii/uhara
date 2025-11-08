@@ -6,14 +6,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
 public class PtrResolver : MainShared
 {
     #region DEFINE
+    /*
     public TypeDefinition Define(string source, params string[] references)
     {
         CSharpCodeProvider _codeProvider = new CSharpCodeProvider();
@@ -71,6 +70,7 @@ public class PtrResolver : MainShared
 
         return found.Value;
     }
+    */
     #endregion
 
     #region DEREF
