@@ -71,7 +71,7 @@ internal class TSignature
                     mask += "!";
                     i += 1;
                 }
-                else if (signature[i] == '?' || signature[i+1] == '?') mask += "?";
+                else if (signature[i] == '?' && signature[i+1] == '?') mask += "?";
                 else if (signature[i] == '?') mask += "<";
                 else if (signature[i+1] == '?') mask += ">";
                 else mask += "x";

@@ -625,8 +625,8 @@ internal class TMemory : MainShared
             {
                 if ((mask[found] == 'x' && chunkData[position] == byteSignature[found]) ||
                 (mask[found] == '?') ||
-                (mask[found] == '<' && BitConverter.ToString(new byte[] { chunkData[found] })[1] == BitConverter.ToString(new byte[] { byteSignature[found] })[1]) || 
-                (mask[found] == '>' && BitConverter.ToString(new byte[] { chunkData[found] })[0] == BitConverter.ToString(new byte[] { byteSignature[found] })[0]) || 
+                (mask[found] == '<' && BitConverter.ToString(new byte[] { chunkData[position] })[1] == BitConverter.ToString(new byte[] { byteSignature[found] })[1]) || 
+                (mask[found] == '>' && BitConverter.ToString(new byte[] { chunkData[position] })[0] == BitConverter.ToString(new byte[] { byteSignature[found] })[0]) || 
                 (mask[found] == '!' && chunkData[position] != byteSignature[found]))
                 {
                     flag = true;
