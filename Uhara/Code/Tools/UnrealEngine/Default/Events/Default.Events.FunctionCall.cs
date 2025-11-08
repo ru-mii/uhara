@@ -416,13 +416,14 @@ public partial class Tools : MainShared
                                     if (minimumOverwrite == 0) break;
 
                                     byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
+                                    if (stolenCode == null) break;
+                                    MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
 
                                     AddressInterfaceCode += TMemory.CreateAbsoluteCall(ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
                                     RefWriteBytes(ProcessInstance, AddressInterfaceCode, stolenCode);
                                     AddressInterfaceCode += (ulong)stolenCode.Length;
                                     AddressInterfaceCode += TMemory.CreateAbsoluteJump(ProcessInstance, AddressInterfaceCode, hookAddress + (ulong)minimumOverwrite);
 
-                                    MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
                                     TMemory.CreateAbsoluteJump(ProcessInstance, hookAddress, jumpHook);
 
                                     //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
