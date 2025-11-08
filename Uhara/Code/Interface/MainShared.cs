@@ -200,7 +200,7 @@ public class MainShared
     internal static void SetProcessCache(string id, string name, string data)
     {
         string token = TProcess.GetToken(ProcessInstance);
-        if (token == null) return;
+        if (string.IsNullOrEmpty(token)) return;
 
         TSaves2.Set(data, "ProcessCache", id, name);
         TSaves2.Set(token, "ProcessCache", id, name, "Token");
@@ -209,7 +209,7 @@ public class MainShared
     internal static string GetProcessCache(string id, string name)
     {
         string token = TProcess.GetToken(ProcessInstance);
-        if (token == null) return null;
+        if (string.IsNullOrEmpty(token)) return null;
 
         string data = TSaves2.Get("ProcessCache", id, name);
         if (string.IsNullOrEmpty(data)) return null;
