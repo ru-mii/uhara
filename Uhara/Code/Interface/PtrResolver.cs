@@ -93,6 +93,97 @@ public class PtrResolver : MainShared
     }
     #endregion
 
+    #region WATCH_STRING
+    public string ReadString(string name, (IntPtr _base, int[] offsets) offsets)
+    {
+        return _ReadString(name, offsets._base, offsets: offsets.offsets);
+    }
+
+    public string ReadString(string name, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, offsets: offsets);
+    }
+
+    public string ReadString(string name, int length, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, length: length, offsets: offsets);
+    }
+
+    public string ReadString(string name, ReadStringType readStringType, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, offsets: offsets);
+    }
+
+    public string ReadString(string name, int length, ReadStringType readStringType, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, length, offsets: offsets);
+    }
+
+    public string ReadString(string name, string moduleName, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, moduleName: moduleName, offsets: offsets);
+    }
+
+    public string ReadString(string name, int length, string moduleName, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, length, moduleName: moduleName, offsets: offsets);
+    }
+
+    public string ReadString(string name, ReadStringType readStringType, string moduleName, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, readStringType: readStringType, moduleName: moduleName, offsets: offsets);
+    }
+
+    public string ReadString(string name, int length, ReadStringType readStringType, string moduleName, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, length, readStringType, moduleName, offsets);
+    }
+
+    public string ReadString(string name, Module module, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, moduleName: module.Name, offsets: offsets);
+    }
+
+    public string ReadString(string name, int length, Module module, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, length, moduleName: module.Name, offsets: offsets);
+    }
+    string ReadString(string name, ReadStringType readStringType, Module module, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, readStringType: readStringType, moduleName: module.Name, offsets: offsets);
+    }
+
+    public string ReadString(string name, int length, ReadStringType readStringType, Module module, object _base, params int[] offsets)
+    {
+        return _ReadString(name, _base, length, readStringType, module.Name, offsets);
+    }
+
+    public string ReadString(string name, object _base, int length = 128, ReadStringType readStringType = ReadStringType.AutoDetect,
+        string moduleName = null, params int[] offsets)
+    {
+        return _ReadString(name, _base, length, readStringType, moduleName, offsets);
+    }
+
+    private string _ReadString(string name, object _base, int length = 128, ReadStringType readStringType = ReadStringType.AutoDetect,
+        string moduleName = null, params int[] offsets)
+    {
+        try
+        {
+            DeepPointer deepPointer;
+            if (_base.GetType() == typeof(int))
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+
+            return deepPointer.DerefString(ProcessInstance, readStringType, length, null);
+        }
+        catch { }
+        return null;
+    }
+    #endregion
+
     #region WATCH
     public void Watch<T>(string name, (IntPtr _base, int[] offsets) offsets) where T : unmanaged
     {
