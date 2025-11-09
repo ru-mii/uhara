@@ -92,8 +92,7 @@ public class PtrResolver : MainShared
         return default(T);
     }
     #endregion
-
-    #region WATCH_STRING
+    #region READ_STRING
     public string ReadString(object _base, params int[] offsets)
     {
         return _ReadString(_base, offsets: offsets);
