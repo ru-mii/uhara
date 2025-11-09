@@ -60,6 +60,11 @@ class TArray
         return arrays.SelectMany(array => array).ToArray();
     }
 
+    internal static byte[] Merge(List<byte[]> arrays)
+    {
+        return Merge(arrays.ToArray());
+    }
+
     internal static byte[] Merge(params byte[][] arrays)
     {
         byte[] byteArray = new byte[0];
@@ -69,12 +74,17 @@ class TArray
         return byteArray;
     }
 
-    internal static byte[] Merge(List<byte[]> arrays)
+    internal static int[] Merge(List<int[]> arrays)
     {
-        byte[] byteArray = new byte[0];
-        foreach (byte[] array in arrays)
-            byteArray = byteArray.Concat(array).ToArray();
+        return Merge(arrays.ToArray());
+    }
 
-        return byteArray;
+    internal static int[] Merge(params int[][] arrays)
+    {
+        int[] intArray = new int[0];
+        foreach (int[] array in arrays)
+            intArray = intArray.Concat(array).ToArray();
+
+        return intArray;
     }
 }

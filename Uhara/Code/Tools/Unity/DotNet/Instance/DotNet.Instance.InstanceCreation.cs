@@ -161,6 +161,16 @@ public partial class Tools : MainShared
                             if (BaseCache.ContainsKey(baseFullName))
                                 basePointer = BaseCache[baseFullName];
 
+                            // parse numerical offsets
+                            List<int> manualOffsets = new List<int>();
+                            List<string> parsedFieldsNames = new List<string>();
+                            foreach (string fieldName in fieldsNames)
+                            {
+                                if (fieldName.StartsWith("0x")) manualOffsets.Add(TConvert.Parse<int>(fieldName));
+                                else parsedFieldsNames.Add(fieldName);
+                            }
+                            fieldsNames = parsedFieldsNames.ToArray();
+
                             // get path
                             OffsetResolver.PathInfo pathInfo = offsetResolver.GetPath(imageName, namespaceName, className, fieldsNames);
 
@@ -177,6 +187,7 @@ public partial class Tools : MainShared
                             catch { }
 
                             // return early because of static access
+                            pathInfo.Offsets = TArray.Merge(pathInfo.Offsets, manualOffsets.ToArray());
                             if (basePointer != 0) return new InstanceWatcherBuild((IntPtr)basePointer, pathInfo.Offsets);
 
                             if (pathInfo.DirectAddress != 0)
