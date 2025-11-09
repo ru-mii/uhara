@@ -140,11 +140,6 @@ public class PtrResolver : MainShared
     }
     #endregion
     #region WATCH_LIST
-    public void WatchList<T>(string name, (IntPtr _base, int[] offsets) offsets) where T : unmanaged
-    {
-        _WatchList<T>(name, offsets._base, offsets: offsets.offsets);
-    }
-
     public void WatchList<T>(string name, object _base, params int[] offsets) where T : unmanaged
     {
         _WatchList<T>(name, _base, offsets: offsets);
