@@ -165,12 +165,16 @@ public partial class Tools : MainShared
                             OffsetResolver.PathInfo pathInfo = offsetResolver.GetPath(imageName, namespaceName, className, fieldsNames);
 
                             // debug help
-                            if (pathInfo.Offsets != null && pathInfo.Offsets.Length < fieldsNames.Length)
+                            try
                             {
-                                TUtils.Print(DebugClass + "." + GetType().Name + "." +
-                                    MethodBase.GetCurrentMethod().Name + " | " + "Path is incorrect, this field might not exist: " +
-                                    fieldsNames[pathInfo.Offsets.Length]);
+                                if (pathInfo.Offsets != null && pathInfo.Offsets.Length < fieldsNames.Length)
+                                {
+                                    TUtils.Print(DebugClass + "." + GetType().Name + "." +
+                                        MethodBase.GetCurrentMethod().Name + " | " + "Path is incorrect, this field might not exist: " +
+                                        fieldsNames[pathInfo.Offsets.Length]);
+                                }
                             }
+                            catch { }
 
                             // return early because of static access
                             if (basePointer != 0) return new InstanceWatcherBuild((IntPtr)basePointer, pathInfo.Offsets);
