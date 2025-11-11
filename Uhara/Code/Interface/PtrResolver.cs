@@ -220,6 +220,7 @@ public class PtrResolver : MainShared
             memoryWatcher.Name = name;
             memoryWatcher.Current = default(T);
             MemoryWatchers.Add(memoryWatcher);
+            current[name] = default(T);
         }
         catch { }
     }
@@ -260,8 +261,8 @@ public class PtrResolver : MainShared
             MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
             memoryWatcher.Name = name;
             memoryWatcher.Current = new List<T>();
-
             ListWatchers.Add((typeof(T), memoryWatcher));
+            current[name] = new List<T>();
         }
         catch { }
     }
@@ -355,7 +356,6 @@ public class PtrResolver : MainShared
             stringWatcher.Name = name;
             stringWatcher.Current = null;
             StringWatchers.Add(stringWatcher);
-
             current[name] = null;
         }
         catch { }
