@@ -147,6 +147,22 @@ public partial class Main : MainShared
         return false;
     }
 
+    public bool RejectOnFound(string signature)
+    {
+        try
+        {
+            if (DeveloperMode) TUtils.Print("Rejection check");
+            if (TMemory.ScanSingle(ProcessInstance, signature) != 0)
+            {
+                if (DeveloperMode) TUtils.Print("REJECTED");
+                Reject();
+            }
+            if (DeveloperMode) TUtils.Print("NOT REJECTED");
+        }
+        catch { }
+        return true;
+    }
+
     public bool Reject(bool condition = true)
     {
         try
