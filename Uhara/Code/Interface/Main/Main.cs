@@ -147,6 +147,19 @@ public partial class Main : MainShared
         return false;
     }
 
+    public bool Reject(bool condition = true)
+    {
+        try
+        {
+            if (condition)
+            {
+                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
+            }
+        }
+        catch { }
+        return true;
+    }
+
     public bool Reject(params int[] moduleMemorySizes)
     {
         try
@@ -185,14 +198,14 @@ public partial class Main : MainShared
 
             if (moduleMemorySizes is null || moduleMemorySizes.Length == 0)
             {
-                ProcessInstance = null;
+                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
                 return true;
             }
 
             int exeModuleSize = TProcess.GetImageSize(ProcessInstance, module);
             if (moduleMemorySizes.Any(mms => mms == exeModuleSize))
             {
-                ProcessInstance = null;
+                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
                 return true;
             }
         }

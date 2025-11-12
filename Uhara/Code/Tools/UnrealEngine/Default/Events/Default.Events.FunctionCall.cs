@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 public partial class Tools : MainShared
@@ -271,6 +272,12 @@ public partial class Tools : MainShared
                                 return true;
                             }
                             while (false);
+                            if (InitResult != InitResults.Loaded)
+                            {
+                                Thread.Sleep(1000);
+                                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
+                                throw new Exception();
+                            }
                         }
                         catch { }
                         InitResult = InitResults.Failed;
