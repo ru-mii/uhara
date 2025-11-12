@@ -138,7 +138,9 @@ internal class ScanUtility : MainShared
 
                                 foreach (Instruction ins in instrs)
                                 {
-                                    if (ins.ToString().StartsWith("lea r8, ["))
+                                    string insTxt = ins.ToString();
+                                    if (!string.IsNullOrEmpty(insTxt) && ins.Bytes.Length == 7 && (insTxt.StartsWith("lea r8, [") ||
+                                    (insTxt.StartsWith("lea r") && insTxt.Contains(", ["))))
                                     {
                                         int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 3);
                                         ulong resolved = (ulong)((long)ins.Offset + value + ins.Bytes.Length);
