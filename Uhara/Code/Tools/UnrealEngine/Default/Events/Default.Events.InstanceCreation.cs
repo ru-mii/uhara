@@ -7,7 +7,6 @@ using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -244,23 +243,15 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                if (!ReloadProcess()) break;
-
                                 if (!Allocate()) break;
                                 if (!ScanData()) break;
                                 if (!WriteArgs()) break;
                                 if (!HookCode()) break;
 
                                 InitResult = InitResults.Loaded;
+                                return true;
                             }
                             while (false);
-                            if (InitResult != InitResults.Loaded)
-                            {
-                                Thread.Sleep(1000);
-                                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
-                                throw new Exception();
-                            }
-                            else return true;
                         }
                         catch { }
                         InitResult = InitResults.Failed;
