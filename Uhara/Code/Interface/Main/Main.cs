@@ -320,6 +320,15 @@ public partial class Main : MainShared
         catch { }
     }
 
+    public void EnableDeveloperMode()
+    {
+        try
+        {
+            DeveloperMode = true;
+        }
+        catch { }
+    }
+
     public void EnableDebug()
     {
         try
