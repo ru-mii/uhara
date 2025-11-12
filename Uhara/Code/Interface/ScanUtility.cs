@@ -170,10 +170,12 @@ internal class ScanUtility : MainShared
 
                 else if (function == Function.UObjectProcessEvent)
                 {
+                    if (DeveloperMode) TUtils.Print("Scan start on module size: " + TProcess.GetImageSize(ProcessInstance).ToString());
                     ulong address = 0;
 
                     if (address == 0)
                     {
+                        if (DeveloperMode) TUtils.Print("INNER SCAN STEP 1");
                         ScanData scanData = new ScanData();
                         scanData.Signature = "40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? 00 00 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
 
@@ -184,6 +186,8 @@ internal class ScanUtility : MainShared
 
                         address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
+
+                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -197,6 +201,8 @@ internal class ScanUtility : MainShared
 
                         address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
+
+                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -212,6 +218,8 @@ internal class ScanUtility : MainShared
                         if (address != 0) address += 2;
                     }
 
+                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
@@ -226,6 +234,8 @@ internal class ScanUtility : MainShared
                         if (address != 0) address += 2;
                     }
 
+                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
@@ -239,6 +249,8 @@ internal class ScanUtility : MainShared
                         address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
 
+                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
@@ -251,6 +263,8 @@ internal class ScanUtility : MainShared
 
                         address = TMemory.ScanAdvanced(ProcessInstance, scanData);
                     }
+
+                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     // ugh, need to make it better one day
                     if (address == 0)
@@ -267,6 +281,8 @@ internal class ScanUtility : MainShared
                         if (address != 0) address += 2;
                     }
 
+                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+
                     if (address == 0)
                     {
                         ScanData scanData = new ScanData();
@@ -278,7 +294,9 @@ internal class ScanUtility : MainShared
                         };
 
                         address = TMemory.ScanAdvanced(ProcessInstance, scanData);
-                        if (address != 0) address += 2;
+
+
+                        if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X")); if (address != 0) address += 2;
                     }
 
                     return address;
