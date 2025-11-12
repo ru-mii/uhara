@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 public class PtrResolver : MainShared
 {
@@ -175,6 +176,24 @@ public class PtrResolver : MainShared
         }
         catch { }
         return null;
+    }
+    #endregion
+    #region CHECK_FLAG
+    public bool CheckFlag(string watcherName)
+    {
+        try
+        {
+            do
+            {
+                MemoryWatcher watcher = MemoryWatchers.FirstOrDefault(m => m.Name == watcherName);
+                if (watcher == null) break;
+
+                return watcher.Changed && (ulong)watcher.Current != 0;
+            }
+            while (false);
+        }
+        catch { }
+        return false;
     }
     #endregion
 
@@ -454,7 +473,6 @@ public class PtrResolver : MainShared
             stringWatcher.Name = name;
             stringWatcher.Current = null;
             StringWatchers.Add(stringWatcher);
-
             current[name] = null;
         }
         catch { }
