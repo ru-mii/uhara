@@ -287,52 +287,73 @@ public partial class Tools : MainShared
                             do
                             {
                                 {
+                                    TUtils.Print("STEP 1");
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
                                     ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent =
                                         TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectProcessEvent"));
 
+                                    TUtils.Print("STEP 2");
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
                                     ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent =
                                     ScanUtility.UnrealEngine.SearchAddress(
                                     ScanUtility.UnrealEngine.Function.UObjectProcessEvent);
 
+                                    TUtils.Print("STEP 3");
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
-                                        break;
+                                    {
+                                        TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                            " | " + "Couldn't find ProcessEvent: " + success.ToString()); break;
+                                    }
 
+                                    TUtils.Print("STEP 4");
                                     SetProcessCache(SubToolID, "F_UObjectProcessEvent", "0x" +
                                         ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent.ToString("X"));
                                 }
 
                                 {
+                                    TUtils.Print("STEP 5");
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                     ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
                                         TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectBeginDestroy"));
 
+                                    TUtils.Print("STEP 6");
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                      ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
                                     ScanUtility.UnrealEngine.SearchAddress(
                                     ScanUtility.UnrealEngine.Function.UObject_BeginDestroy);
 
+                                    TUtils.Print("STEP 7");
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
-                                        break;
+                                    {
+                                        TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                            " | " + "Couldn't find BeginDeestroy: " + success.ToString()); break;
+                                    }
 
+                                    TUtils.Print("STEP 8");
                                     SetProcessCache(SubToolID, "F_UObjectBeginDestroy", "0x" +
                                         ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy.ToString("X"));
                                 }
 
                                 {
+                                    TUtils.Print("STEP 9");
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                     ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
                                         TConvert.Parse<ulong>(GetProcessCache(SubToolID, "D_FNamePoolAddress"));
 
+                                    TUtils.Print("STEP 10");
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                     ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
                                     ScanUtility.UnrealEngine.SearchAddress(
                                     ScanUtility.UnrealEngine.Data.FNamePool);
 
+                                    TUtils.Print("STEP 11");
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
-                                        break;
+                                    {
+                                        TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                            " | " + "Couldn't find FNamePool: " + success.ToString()); break;
+                                    }
 
+                                    TUtils.Print("STEP 12");
                                     SetProcessCache(SubToolID, "D_FNamePoolAddress", "0x" +
                                         ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress.ToString("X"));
                                 }
@@ -341,7 +362,7 @@ public partial class Tools : MainShared
                             }
                             while (false);
                         }
-                        catch { }
+                        catch (Exception ex) { TUtils.Print(ex.Message); }
                         TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             " | " + "Result: " + success.ToString()); return success;
                     }
