@@ -263,13 +263,14 @@ public partial class Tools : MainShared
                         {
                             do
                             {
+                                if (!ReloadProcess()) break;
+
                                 if (!ScanData()) break;
                                 if (!Allocate()) break;
                                 if (!WriteArgs()) break;
                                 if (!HookCode()) break;
 
                                 InitResult = InitResults.Loaded;
-                                return true;
                             }
                             while (false);
                             if (InitResult != InitResults.Loaded)
@@ -278,6 +279,7 @@ public partial class Tools : MainShared
                                 script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
                                 throw new Exception();
                             }
+                            else return true;
                         }
                         catch { }
                         InitResult = InitResults.Failed;
