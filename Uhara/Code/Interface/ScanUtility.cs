@@ -165,6 +165,51 @@ internal class ScanUtility : MainShared
                         }
                     }
 
+                    // ---
+                    if (address == 0)
+                    {
+                        byte[] logMessage = GetBytes("54 00 72 00 79 00 69 00 6E 00 67 00 20 00 74 00 " +
+                            "6F 00 20 00 63 00 61 00 6C 00 6C 00 20 00 55 00 4F 00 62 00 6A 00 65 00 63 " +
+                            "00 74 00 3A 00 3A 00 42 00 65 00 67 00 69 00 6E 00 44 00 65 00 73 00 74 00 " +
+                            "72 00 6F 00 79");
+
+                        ulong[] scanResults = TMemory.ScanMultiple(ProcessInstance, "48 89 ?? ?? ?? E8 ?? ?? ?? ?? 83 7C 24 ?? 00", null, 0x20);
+                        foreach (ulong scanResult in scanResults)
+                        {
+                            try
+                            {
+                                byte[] scanBytes = TMemory.ReadMemoryBytes(ProcessInstance, scanResult, 0x150);
+                                Instruction[] instrs = TInstruction.GetInstructions2(scanBytes, scanResult);
+
+                                foreach (Instruction ins in instrs)
+                                {
+                                    string insTxt = ins.ToString();
+                                    if (!string.IsNullOrEmpty(insTxt) && ins.Bytes.Length == 7 && (insTxt.StartsWith("lea r8, [") ||
+                                    (insTxt.StartsWith("lea r") && insTxt.Contains(", ["))))
+                                    {
+                                        int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 3);
+                                        ulong resolved = (ulong)((long)ins.Offset + value + ins.Bytes.Length);
+
+                                        byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, resolved, logMessage.Length);
+                                        if (readBytes == null) continue;
+
+                                        if (logMessage.SequenceEqual(readBytes))
+                                        {
+                                            ulong funcStart = TMemory.GetFunctionStart(ProcessInstance, scanResult);
+                                            if (funcStart == 0) continue;
+
+                                            address = funcStart;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+
+                            if (address != 0) break;
+                        }
+                    }
+
                     return address;
                 }
 

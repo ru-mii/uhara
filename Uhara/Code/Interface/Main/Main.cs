@@ -147,6 +147,38 @@ public partial class Main : MainShared
         return false;
     }
 
+    public void AcceptOnFound(string signature)
+    {
+        try
+        {
+            do
+            {
+                string processName = ProcessInstance.ProcessName;
+                if (string.IsNullOrEmpty(processName)) break;
+
+                Process[] processes = Process.GetProcessesByName(processName);
+                if (processes == null || processes.Length == 0) break;
+
+                foreach (Process process in processes)
+                {
+                    try
+                    {
+                        ulong result = TMemory.ScanSingle(ProcessInstance, signature);
+                        if (result != 0)
+                        {
+                            script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(ProcessInstance, process);
+                            return;
+                        }
+                    }
+                    catch { }
+                }
+            }
+            while (false);
+        }
+        catch { }
+        script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
+    }
+
     public bool RejectOnFound(string signature)
     {
         try
