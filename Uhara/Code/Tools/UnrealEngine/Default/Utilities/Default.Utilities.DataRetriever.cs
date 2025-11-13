@@ -91,7 +91,7 @@ public partial class Tools : MainShared
 
 							else if (dataNameLower == "gsync" || dataNameLower == "gsyncload" || dataNameLower == "gsyncloadcount")
 							{
-								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 5, "89 43 60 8B 05");
+								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 5, "89 43 60 8B 05 ?? ?? ?? ?? 89");
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, -23, "0F 2F F9 72 0E 0F 57 C0 0F 2F C8 76");
 							}
 
