@@ -8,6 +8,26 @@ using System.Threading.Tasks;
 
 internal class TInstruction
 {
+    internal static Instruction[] GetInstructionsBackwards(Process process, ulong address, int numBytes)
+    {
+        do
+        {
+            List<Instruction> instrs = new List<Instruction>();
+
+            ulong behind = address - (ulong)numBytes;
+            byte[] bytes = TMemory.ReadMemoryBytes(process, behind, numBytes);
+            if (bytes == null) break;
+
+            instrs = GetInstructions2(bytes, behind).ToList();
+            if (instrs == null) break;
+
+            instrs.Reverse();
+            return instrs.ToArray();
+        }
+        while (false);
+        return new List<Instruction>().ToArray();
+    }
+
     internal static ulong GetAlignedAddress(Process process, ulong address)
     {
         byte[] plank = TMemory.ReadMemoryBytes(process, address - 60, 100);

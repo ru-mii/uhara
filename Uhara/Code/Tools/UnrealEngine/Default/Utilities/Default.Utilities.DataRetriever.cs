@@ -92,7 +92,29 @@ public partial class Tools : MainShared
 							else if (dataNameLower == "gsync" || dataNameLower == "gsyncload" || dataNameLower == "gsyncloadcount")
 							{
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 5, "89 43 60 8B 05 ?? ?? ?? ?? 89");
-								if (address == 0) address = TMemory.ScanRel(ProcessInstance, -23, "0F 2F F9 72 0E 0F 57 C0 0F 2F C8 76");
+								if (address == 0)
+								{
+									do
+									{
+                                        ulong result = TMemory.ScanSingle(ProcessInstance, "0F 2F F9 72 ?? 0F 57 C0 0F 2F C8 76");
+										if (result == 0) break;
+
+										Instruction[] instrs = TInstruction.GetInstructionsBackwards(ProcessInstance, result, 200);
+										foreach (Instruction ins in instrs)
+										{
+											string insTxt = ins.ToString();
+											if (!insTxt.StartsWith("mov eax, [")) continue;
+
+											result = ins.Offset;
+											int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + (ulong)ins.Bytes.Length - 4);
+											if (value == 0) break;
+
+											address = (ulong)((long)result + value + ins.Bytes.LongLength);
+											break;
+										}
+                                    }
+									while (false);
+                                }
 							}
 
 							else
