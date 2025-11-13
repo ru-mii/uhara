@@ -51,6 +51,18 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LiveSplit.AutoSplittingRuntime">
+      <HintPath>..\Livesplit\LiveSplit.AutoSplittingRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveSplit.Core">
+      <HintPath>..\Livesplit\LiveSplit.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveSplit.ScriptableAutoSplit">
+      <HintPath>..\Livesplit\LiveSplit.ScriptableAutoSplit.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveSplit.View">
+      <HintPath>..\Livesplit\LiveSplit.View.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDisasm, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDisasm.1.1.11\lib\net45\SharpDisasm.dll</HintPath>
     </Reference>
@@ -129,24 +141,6 @@
     <Compile Include="Code\Interface\Main\Main.Settings.cs" />
     <None Include="app.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Livesplit\Livesplit.AutoSplittingRuntime\src\LiveSplit.AutoSplittingRuntime\LiveSplit.AutoSplittingRuntime.csproj">
-      <Project>{c79c19c2-b27b-64fd-0a83-394234e1f41e}</Project>
-      <Name>LiveSplit.AutoSplittingRuntime</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Livesplit\Livesplit.ScriptableAutoSplit\src\LiveSplit.ScriptableAutoSplit\LiveSplit.ScriptableAutoSplit.csproj">
-      <Project>{b22d6d86-a5a0-1c7a-0afb-298cd0b9fff4}</Project>
-      <Name>LiveSplit.ScriptableAutoSplit</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Livesplit\Livesplit\src\LiveSplit.Core\LiveSplit.Core.csproj">
-      <Project>{daf11b9c-f7e8-b0be-7daf-1f9b1fe286ba}</Project>
-      <Name>LiveSplit.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Livesplit\Livesplit\src\LiveSplit.View\LiveSplit.View.csproj">
-      <Project>{24becffb-931d-c158-6307-c658f8a68830}</Project>
-      <Name>LiveSplit.View</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
