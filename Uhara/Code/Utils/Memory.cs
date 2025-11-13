@@ -488,7 +488,7 @@ internal class TMemory : MainShared
                 if (searchOffset != -1)
                 {
                     ulong searchAddress = section[0] + (ulong)searchOffset;
-                    ulong relativeAddress = searchAddress + (ulong)offset;
+                    ulong relativeAddress = (ulong)((long)searchAddress + offset);
                     long relativeValue = ReadMemory<int>(ProcessInstance, relativeAddress);
                     ulong destinationAddress = (ulong)((long)searchAddress + relativeValue + offset + 4);
                     return destinationAddress;

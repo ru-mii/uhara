@@ -28,7 +28,7 @@ public partial class Tools : MainShared
 							else if (dataNameLower == "gengine" || dataNameLower == "engine" || dataNameLower == "gameengine")
 							{
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 3, "48 89 05 ???????? 48 85 C9 74 ?? E8 ???????? 48 8D 4D");
-								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 8, "E8 ???????? 48 8B 0D ???????? 49 8B ?? 48 8B 01 FF 90 ???????? 48 8D");
+								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 8, "E8 ???????? 48 8B 0D ???????? 49 8B ?? 48 8B 01 FF 90 ???????? 48 8?");
 							}
 
 							else if (dataNameLower == "gworld" || dataNameLower == "world")
@@ -92,6 +92,7 @@ public partial class Tools : MainShared
 							else if (dataNameLower == "gsync" || dataNameLower == "gsyncload" || dataNameLower == "gsyncloadcount")
 							{
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 5, "89 43 60 8B 05");
+								if (address == 0) address = TMemory.ScanRel(ProcessInstance, -23, "0F 2F F9 72 0E 0F 57 C0 0F 2F C8 76");
 							}
 
 							else

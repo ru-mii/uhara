@@ -120,7 +120,7 @@ public class MainShared
     {
         do
         {
-            if (ProcessInstance == null) break;
+            if (ProcessInstance == null || ProcessInstance.HasExited) break;
 
             string lastName = ProcessInstance.ProcessName;
             string lastToken = TProcess.GetToken(ProcessInstance);

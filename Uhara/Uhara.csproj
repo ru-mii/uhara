@@ -145,9 +145,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <Nullable>disable</Nullable>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\ghost\Desktop\Programs\LiveSplit\Components\uhara9"
-copy "$(TargetPath)" "$(TargetDir)uhara9"
-copy "$(TargetPath)" "$(SolutionDir)bin\uhara9"
-del "$(TargetPath)"</PostBuildEvent>
+    <PostBuildEvent>call "$(TargetDir)post_build.bat"</PostBuildEvent>
   </PropertyGroup>
 </Project>

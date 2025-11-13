@@ -613,13 +613,15 @@ public partial class Main : MainShared
         return null;
     }
 
-    public dynamic CreateTool(string engine, string type, string tool)
+    public object CreateTool(string engine, string type, string tool)
     {
+        TProcess.WaitTillSecondsOld(ProcessInstance, 1);
+        if (!ReloadProcess()) throw new Exception();
+        TProcess.WaitTillSecondsOld(ProcessInstance, 1);
+        if (!ReloadProcess()) throw new Exception();
+
         try
         {
-            TProcess.WaitTillSecondsOld(ProcessInstance, 3);
-            if (!ReloadProcess()) throw new Exception();
-
             engine = engine.ToLower();
             type = type.ToLower();
             tool = tool.ToLower();

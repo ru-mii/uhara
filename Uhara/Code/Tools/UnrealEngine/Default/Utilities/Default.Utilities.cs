@@ -107,7 +107,20 @@ public partial class Tools : MainShared
 					}
 				}
 
-				IntPtr _FNames = IntPtr.Zero;
+                IntPtr _FNamePool = IntPtr.Zero;
+                public IntPtr FNamePool
+                {
+                    get
+                    {
+                        if (_FNamePool != IntPtr.Zero) return _FNamePool;
+                        else
+                        {
+                            _FNamePool = dataRetriever.FindData("FNames");
+                            return _FNamePool;
+                        }
+                    }
+                }
+                IntPtr _FNames = IntPtr.Zero;
 				public IntPtr FNames
 				{
 					get
