@@ -398,6 +398,7 @@ public partial class Main : MainShared
                 {
                     foreach (var watcher in MemoryWatchers)
                     {
+                        old[watcher.Name] = watcher.Current;
                         watcher.Update(ProcessInstance);
                         //if (watcher.Current != null)
                         current[watcher.Name] = watcher.Current;
@@ -405,6 +406,7 @@ public partial class Main : MainShared
 
                     foreach (var watcher in StringWatchers)
                     {
+                        old[watcher.Name] = watcher.Current;
                         watcher.Update(ProcessInstance);
                         //if (!string.IsNullOrEmpty(watcher.Current))
                             current[watcher.Name] = watcher.Current;

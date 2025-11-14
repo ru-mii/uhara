@@ -64,12 +64,18 @@ public class MainShared
     {
         get
         {
-            if (_current == null) _current = script.State.Data;
+            if (_current == null) _current = script.State?.Data;
             return _current;
         }
-        set
-        {
+    }
 
+    private static IDictionary<string, object> _old;
+    internal static IDictionary<string, object> old
+    {
+        get
+        {
+            if (_old == null) _old = script.OldState?.Data;
+            return _old;
         }
     }
     #endregion

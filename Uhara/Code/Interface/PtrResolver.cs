@@ -185,10 +185,9 @@ public class PtrResolver : MainShared
         {
             do
             {
-                MemoryWatcher watcher = MemoryWatchers.FirstOrDefault(m => m.Name == watcherName);
-                if (watcher == null) break;
-
-                return watcher.Changed && (ulong)watcher.Current != 0;
+                ulong curr = Convert.ToUInt64(current[watcherName]);
+                ulong ol = Convert.ToUInt64(old[watcherName]);
+                return curr != ol && curr != 0;
             }
             while (false);
         }
@@ -233,7 +232,8 @@ public class PtrResolver : MainShared
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
 
             MemoryWatcher memoryWatcher = new MemoryWatcher<T>(deepPointer);
             memoryWatcher.Name = name;
