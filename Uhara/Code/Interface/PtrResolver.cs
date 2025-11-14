@@ -458,7 +458,7 @@ public class PtrResolver : MainShared
         try
         {
             List<int> _offsets = offsets.ToList();
-            _offsets.Add(0x18);
+            _offsets.Add(0x14);
             offsets = _offsets.ToArray();
 
             DeepPointer deepPointer;
