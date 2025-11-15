@@ -28,26 +28,31 @@ public partial class Tools : MainShared
 
 							else if (dataNameLower == "gengine" || dataNameLower == "engine" || dataNameLower == "gameengine")
 							{
-
+								address = TConvert.Parse<ulong>(ProcessCache.Get(dataNameLower));
 
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 3, "48 89 05 ???????? 48 85 C9 74 ?? E8 ???????? 48 8D 4D");
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 8, "E8 ???????? 48 8B 0D ???????? 49 8B ?? 48 8B 01 FF 90 ???????? 48 8?");
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 3, "48 8B 0D ???????? 48 85 C9 74 ?? E8");
 
-								//if (address != 0)
-								{
-                                    //TSaves2.Set(token + "," + "0x" + address.ToString("X"), "Cache", "GEngine");
-                                }
+								if (address != 0)
+                                    ProcessCache.Set(dataNameLower, "0x" + address.ToString("X"));
 							}
 
 							else if (dataNameLower == "gworld" || dataNameLower == "world")
 							{
+                                address = TConvert.Parse<ulong>(ProcessCache.Get(dataNameLower));
+
                                 if (address == 0) address = TMemory.ScanRel(ProcessInstance, 3, "48 8B 1D ?? ?? ?? ?? 48 85 DB 74 ?? 41 B0 01");
                                 if (address == 0) address = TMemory.ScanRel(ProcessInstance, 3, "48 8B 05 ???????? 48 3B C? 48 0F 44 C? 48 89 05 ???????? E8");
-							}
+
+                                if (address != 0)
+                                    ProcessCache.Set(dataNameLower, "0x" + address.ToString("X"));
+                            }
 
 							else if (dataNameLower == "fnamepool" || dataNameLower == "fnames")
 							{
+                                address = TConvert.Parse<ulong>(ProcessCache.Get(dataNameLower));
+
                                 if (address == 0)
                                 {
                                     try
@@ -96,11 +101,16 @@ public partial class Tools : MainShared
                                     }
                                     while (false);
                                 }
+
+                                if (address != 0)
+                                    ProcessCache.Set(dataNameLower, "0x" + address.ToString("X"));
                             }
 
 							else if (dataNameLower == "gsync" || dataNameLower == "gsyncload" || dataNameLower == "gsyncloadcount")
 							{
-								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 5, "89 43 60 8B 05 ?? ?? ?? ?? 89");
+                                address = TConvert.Parse<ulong>(ProcessCache.Get(dataNameLower));
+
+                                if (address == 0) address = TMemory.ScanRel(ProcessInstance, 5, "89 43 60 8B 05 ?? ?? ?? ?? 89");
 								if (address == 0)
 								{
 									do
@@ -124,7 +134,10 @@ public partial class Tools : MainShared
                                     }
 									while (false);
                                 }
-							}
+
+                                if (address != 0)
+                                    ProcessCache.Set(dataNameLower, "0x" + address.ToString("X"));
+                            }
 
 							else
 							{
