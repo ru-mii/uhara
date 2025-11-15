@@ -22,7 +22,7 @@ public partial class Tools : MainShared
 					bool Loaded = false;
 					ulong FNamePool = 0;
 
-                    internal string FNameToStringLegacy(uint fName)
+                    internal string FNameToStringLegacy(object fName)
                     {
                         try
                         {
@@ -30,8 +30,10 @@ public partial class Tools : MainShared
                             {
                                 if (!Loaded) break;
 
-								uint AEWJCWUH = fName;
-                                uint JNJXDZWC = fName;
+                                uint fNameNum = Convert.ToUInt32(fName);
+
+								uint AEWJCWUH = fNameNum;
+                                uint JNJXDZWC = fNameNum;
 
                                 AEWJCWUH = AEWJCWUH & 0x3FFF;
                                 JNJXDZWC = (uint)((int)JNJXDZWC >> 14);
@@ -58,7 +60,7 @@ public partial class Tools : MainShared
                         return null;
                     }
 
-                    internal string FNameToShortStringLegacy(uint fName)
+                    internal string FNameToShortStringLegacy(object fName)
                     {
                         try
                         {
@@ -80,7 +82,7 @@ public partial class Tools : MainShared
                         return null;
                     }
 
-                    internal string FNameToShortStringLegacy2(uint fName)
+                    internal string FNameToShortStringLegacy2(object fName)
                     {
                         try
                         {
@@ -100,7 +102,7 @@ public partial class Tools : MainShared
                         return null;
                     }
 
-                    internal string FNameToString(uint fName)
+                    internal string FNameToString(object fName)
 					{
 						try
 						{
@@ -108,9 +110,11 @@ public partial class Tools : MainShared
 							{
                                 if (!Loaded) break;
 
-                                var nameIdx = (fName & 0x000000000000FFFF) >> 0x00;
-								var chunkIdx = (fName & 0x00000000FFFF0000) >> 0x10;
-								var number = (fName & 0xFFFFFFFF00000000) >> 0x20;
+                                uint fNameNum = Convert.ToUInt32(fName);
+
+                                var nameIdx = (fNameNum & 0x000000000000FFFF) >> 0x00;
+								var chunkIdx = (fNameNum & 0x00000000FFFF0000) >> 0x10;
+								var number = (fNameNum & 0xFFFFFFFF00000000) >> 0x20;
 
 								IntPtr chunk = (IntPtr)TMemory.ReadMemory<ulong>(ProcessInstance,
 									FNamePool + (ulong)(0x10 + (int)chunkIdx * 0x8));
@@ -135,7 +139,7 @@ public partial class Tools : MainShared
 						return null;
 					}
 
-					internal string FNameToShortString(uint fName)
+					internal string FNameToShortString(object fName)
 					{
 						try
 						{
@@ -157,7 +161,7 @@ public partial class Tools : MainShared
 						return null;
 					}
 
-					internal string FNameToShortString2(uint fName)
+					internal string FNameToShortString2(object fName)
 					{
 						try
 						{

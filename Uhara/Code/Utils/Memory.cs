@@ -13,6 +13,28 @@ using static TImports;
 
 internal class TMemory : MainShared
 {
+    internal static IntPtr ScanSimple(Process process, string signature, string moduleName = null)
+    {
+        do
+        {
+            ProcessModule processModule = moduleName == null ? process.MainModule : TProcess.GetModule(process, moduleName);
+            if (processModule == null) break;
+
+            ulong modStart = (ulong)processModule.BaseAddress;
+            int modSize = processModule.ModuleMemorySize;
+
+            byte[] modBytes = ReadMemoryBytes(process, modStart, modSize);
+            if (modBytes == null || modBytes.Length == 0) break;
+
+            int offset = FindInArray(modBytes, signature);
+            if (offset == -1) break;
+
+            return (IntPtr)(modStart + (ulong)offset);
+        }
+        while (false);
+        return IntPtr.Zero;
+    }
+
     internal static ulong DerefPointer(Process process, ulong address, params int[] offsets)
     {
         do

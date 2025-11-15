@@ -12,6 +12,23 @@ using System.Xml.Linq;
 
 public class PtrResolver : MainShared
 {
+    #region WATCHERS_ACCESS
+    public object this[string key]
+    {
+        get
+        {
+            try
+            {
+                MemoryWatcher watcher = MemoryWatchers.FirstOrDefault(m => m.Name == key);
+                if (watcher == null) watcher = StringWatchers.FirstOrDefault(m => m.Name == key);
+                return watcher;
+            }
+            catch { }
+            return null;
+        }
+    }
+    #endregion
+
     #region DEREF
     public IntPtr Deref((IntPtr _base, int[] offsets) offsets)
     {

@@ -21,14 +21,23 @@ public partial class Tools : MainShared
 						try
 						{
 							string dataNameLower = dataName.ToLower();
-							ulong address = 0;
+							//string token = TProcess.GetToken(ProcessInstance);
+                            ulong address = 0;
 
-							if (false) { }
+                            if (false) { }
 
 							else if (dataNameLower == "gengine" || dataNameLower == "engine" || dataNameLower == "gameengine")
 							{
+
+
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 3, "48 89 05 ???????? 48 85 C9 74 ?? E8 ???????? 48 8D 4D");
 								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 8, "E8 ???????? 48 8B 0D ???????? 49 8B ?? 48 8B 01 FF 90 ???????? 48 8?");
+								if (address == 0) address = TMemory.ScanRel(ProcessInstance, 3, "48 8B 0D ???????? 48 85 C9 74 ?? E8");
+
+								//if (address != 0)
+								{
+                                    //TSaves2.Set(token + "," + "0x" + address.ToString("X"), "Cache", "GEngine");
+                                }
 							}
 
 							else if (dataNameLower == "gworld" || dataNameLower == "world")

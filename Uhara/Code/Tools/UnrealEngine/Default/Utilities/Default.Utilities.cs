@@ -19,7 +19,7 @@ public partial class Tools : MainShared
 				private TextReader textReader = new TextReader();
 
                 #region PUBLIC_API
-                public string FNameToStringLegacy(uint fName)
+                public string FNameToStringLegacy(object fName)
                 {
                     try
                     {
@@ -29,7 +29,7 @@ public partial class Tools : MainShared
                     return null;
                 }
 
-                public string FNameToShortStringLegacy(uint fName)
+                public string FNameToShortStringLegacy(object fName)
                 {
                     try
                     {
@@ -39,7 +39,7 @@ public partial class Tools : MainShared
                     return null;
                 }
 
-                public string FNameToShortStringLegacy2(uint fName)
+                public string FNameToShortStringLegacy2(object fName)
                 {
                     try
                     {
@@ -49,7 +49,7 @@ public partial class Tools : MainShared
                     return null;
                 }
 
-                public string FNameToString(uint fName)
+                public string FNameToString(object fName)
 				{
 					try
 					{
@@ -59,7 +59,7 @@ public partial class Tools : MainShared
 					return null;
 				}
 
-                public string FNameToShortString(uint fName)
+                public string FNameToShortString(object fName)
                 {
                     try
                     {
@@ -69,7 +69,7 @@ public partial class Tools : MainShared
                     return null;
                 }
 
-                public string FNameToShortString2(uint fName)
+                public string FNameToShortString2(object fName)
                 {
                     try
                     {
