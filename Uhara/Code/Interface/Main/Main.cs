@@ -314,8 +314,8 @@ public partial class Main : MainShared
     {
         try
         {
-            if (!string.IsNullOrEmpty(message))
-                TImports.OutputDebugString("[UHARA] " + message);
+            if (!string.IsNullOrEmpty(message)) TImports.OutputDebugString("[UHARA] " + message);
+            else TImports.OutputDebugString("[UHARA] " + "Trying to print null");
         }
         catch { }
     }
@@ -400,7 +400,6 @@ public partial class Main : MainShared
                     {
                         old[watcher.Name] = watcher.Current;
                         watcher.Update(ProcessInstance);
-                        //if (watcher.Current != null)
                         current[watcher.Name] = watcher.Current;
                     }
 
@@ -408,7 +407,6 @@ public partial class Main : MainShared
                     {
                         old[watcher.Name] = watcher.Current;
                         watcher.Update(ProcessInstance);
-                        //if (!string.IsNullOrEmpty(watcher.Current))
                             current[watcher.Name] = watcher.Current;
                     }
 
