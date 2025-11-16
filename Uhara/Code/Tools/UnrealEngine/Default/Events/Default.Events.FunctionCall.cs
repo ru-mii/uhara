@@ -302,7 +302,6 @@ public partial class Tools : MainShared
                                             " | " + "Couldn't find ProcessEvent: " + success.ToString()); break;
                                     }
 
-                                    if (DeveloperMode) TUtils.Print("STEP 4");
                                     SetProcessCache(SubToolID, "F_UObjectProcessEvent", "0x" +
                                         ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent.ToString("X"));
                                 }
