@@ -128,7 +128,7 @@ internal class ScanUtility : MainShared
                             "00 74 00 3A 00 3A 00 42 00 65 00 67 00 69 00 6E 00 44 00 65 00 73 00 74 00 " +
                             "72 00 6F 00 79");
 
-                        ulong[] scanResults = TMemory.ScanMultiple(ProcessInstance, "C1 E8 0F A8 01 75", null, 0x20);
+                        ulong[] scanResults = TMemory.ScanMultiple(ProcessInstance, "C1 E8 0F A8 01", null, 0x20);
                         foreach (ulong scanResult in scanResults)
                         {
                             try
