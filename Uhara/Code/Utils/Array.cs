@@ -15,7 +15,7 @@ class TArray
         return decoded.ToArray();
     }
 
-    internal static byte[] ExtractArray(byte[] source, int position, int length)
+    internal static byte[] Extract(byte[] source, int position, int length)
     {
         byte[] newCopy = source.ToList().ToArray();
         newCopy = GutArray(newCopy, 0, position);

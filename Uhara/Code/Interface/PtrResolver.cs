@@ -304,11 +304,12 @@ public class PtrResolver : MainShared
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
 
             MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
             memoryWatcher.Name = name;
-            memoryWatcher.Current = new List<T>();
+            memoryWatcher.Current = IntPtr.Zero;
             ListWatchers.Add((typeof(T), memoryWatcher));
             current[name] = new List<T>();
         }

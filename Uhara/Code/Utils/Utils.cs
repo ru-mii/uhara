@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 class TUtils : MainShared
 {
-    internal static decimal ToDecimal(byte[] bytes)
+    internal static decimal ToDecimal(byte[] bytes, int start = 0)
     {
-        if (bytes == null || bytes.Length != 16) return 0;
+        if (bytes == null || bytes.Length < 16 || start + 16 > bytes.Length) return 0;
 
+        byte[] extracted = TArray.Extract(bytes, start, 16);
         int[] bits = new int[4];
         for (int i = 0; i < 4; i++)
-            bits[i] = BitConverter.ToInt32(bytes, i * 4);
+            bits[i] = BitConverter.ToInt32(extracted, i * 4);
 
         return new decimal(bits);
     }
