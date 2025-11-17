@@ -243,6 +243,12 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             DeepPointer deepPointer;
             if (_base.GetType() == typeof(int))
             {
@@ -286,6 +292,12 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             DeepPointer deepPointer;
             if (_base.GetType() == typeof(int))
             {
@@ -380,6 +392,12 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             DeepPointer deepPointer;
             if (_base.GetType() == typeof(int))
             {
@@ -474,6 +492,12 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             List<int> _offsets = offsets.ToList();
             _offsets.Add(0x14);
             offsets = _offsets.ToArray();
