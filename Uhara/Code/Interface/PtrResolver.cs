@@ -59,6 +59,15 @@ public class PtrResolver : MainShared
     {
         try
         {
+            int addition = 0;
+            if (offsets.Length > 0)
+            {
+                addition = offsets[offsets.Length - 1];
+                List<int> modified = offsets.ToList();
+                modified.RemoveAt(modified.Count - 1);
+                offsets = modified.ToArray();
+            }
+
             DeepPointer deepPointer;
             if (_base.GetType() == typeof(int))
             {
@@ -68,7 +77,8 @@ public class PtrResolver : MainShared
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
             else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
 
-            return deepPointer.Deref<IntPtr>(ProcessInstance);
+            IntPtr result = deepPointer.Deref<IntPtr>(ProcessInstance);
+            if (result != IntPtr.Zero) return result + addition;
         }
         catch { }
         return IntPtr.Zero;
