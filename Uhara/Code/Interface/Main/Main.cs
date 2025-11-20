@@ -642,6 +642,7 @@ public partial class Main : MainShared
 
     public object CreateTool(string engine, string type, string tool)
     {
+        ProcessInstance = null;
         TProcess.WaitTillSecondsOld(ProcessInstance, 1);
         if (!ReloadProcess()) throw new Exception();
         TProcess.WaitTillSecondsOld(ProcessInstance, 1);

@@ -287,7 +287,7 @@ public partial class Tools : MainShared
                             do
                             {
                                 {
-                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
+                                    //if (ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent == 0)
                                     ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent =
                                         TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectProcessEvent"));
 
@@ -307,7 +307,7 @@ public partial class Tools : MainShared
                                 }
 
                                 {
-                                    if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
+                                    //if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                     ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
                                         TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectBeginDestroy"));
 
@@ -327,7 +327,7 @@ public partial class Tools : MainShared
                                 }
 
                                 {
-                                    if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
+                                    //if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                     ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
                                         TConvert.Parse<ulong>(GetProcessCache(SubToolID, "D_FNamePoolAddress"));
 
