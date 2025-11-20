@@ -59,7 +59,15 @@ public class PtrResolver : MainShared
     {
         try
         {
-            DeepPointer deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            DeepPointer deepPointer;
+            if (_base.GetType() == typeof(int))
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+
             return deepPointer.Deref<IntPtr>(ProcessInstance);
         }
         catch { }
