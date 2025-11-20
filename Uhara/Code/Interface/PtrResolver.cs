@@ -110,6 +110,57 @@ public class PtrResolver : MainShared
         return default(T);
     }
     #endregion
+    #region TRY_READ
+    public bool TryRead<T>(out T result, (IntPtr _base, int[] offsets) offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, offsets._base, offsets: offsets.offsets);
+    }
+
+    public bool TryRead<T>(out T result, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, offsets: offsets);
+    }
+
+    public bool TryRead<T>(out T result, string moduleName, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, moduleName, offsets);
+    }
+
+    public bool TryRead<T>(out T result, Module module, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, module.Name, offsets);
+    }
+
+    public bool TryRead<T>(out T result, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, moduleName, offsets);
+    }
+
+    private bool _TryRead<T>(out T result, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            DeepPointer deepPointer;
+            if (_base is int)
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+
+
+            T value;
+            if (deepPointer.Deref<T>(ProcessInstance, out value))
+            {
+                result = value;
+                return true;
+            }
+        }
+        catch { }
+        result = default;
+        return false;
+    }
+    #endregion
     #region READ_STRING
     public string ReadString(object _base, params int[] offsets)
     {
