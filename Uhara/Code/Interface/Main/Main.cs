@@ -4,6 +4,7 @@ using Microsoft.CSharp;
 using Microsoft.VisualBasic;
 using System;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -314,8 +315,8 @@ public partial class Main : MainShared
     {
         try
         {
-            if (!string.IsNullOrEmpty(message))
-                TImports.OutputDebugString("[UHARA] " + message);
+            if (!string.IsNullOrEmpty(message)) TImports.OutputDebugString("[UHARA] " + message);
+            else TImports.OutputDebugString("[UHARA] " + "Trying to print null");
         }
         catch { }
     }
@@ -400,7 +401,6 @@ public partial class Main : MainShared
                     {
                         old[watcher.Name] = watcher.Current;
                         watcher.Update(ProcessInstance);
-                        //if (watcher.Current != null)
                         current[watcher.Name] = watcher.Current;
                     }
 
@@ -408,193 +408,218 @@ public partial class Main : MainShared
                     {
                         old[watcher.Name] = watcher.Current;
                         watcher.Update(ProcessInstance);
-                        //if (!string.IsNullOrEmpty(watcher.Current))
                             current[watcher.Name] = watcher.Current;
                     }
 
                     foreach (var watcher in ListWatchers)
                     {
-                        watcher.memoryWatcher.Update(ProcessInstance);
-                        if (watcher.memoryWatcher.Current == null) continue;
-                        if ((IntPtr)watcher.memoryWatcher.Current == IntPtr.Zero) continue;
+                        MemoryWatcher memWatcher = watcher.memoryWatcher;
+                        memWatcher.Update(ProcessInstance);
+                        if (memWatcher.Current == null) continue;
+                        if ((IntPtr)memWatcher.Current == IntPtr.Zero) continue;
 
-                        ulong address = (ulong)watcher.memoryWatcher.Current;
+                        ulong address = (ulong)(IntPtr)(memWatcher.Current);
                         Type type = watcher.type;
 
-                        int size = TMemory.ReadMemory<ushort>(ProcessInstance, address + 0x18);
-
-                        address = TMemory.ReadMemory<ulong>(ProcessInstance, address + 0x10);
-                        if (address == 0) continue;
+                        int itemSize = Marshal.SizeOf(type);
 
                         int count = TMemory.ReadMemory<ushort>(ProcessInstance, address + 0x18);
-                        if (count > size) continue;
+                        int size = count * itemSize;
 
                         // ---
                         if (type == typeof(IntPtr))
                         {
                             List<IntPtr> list = new List<IntPtr>();
-                            int itemSize = Marshal.SizeOf(typeof(IntPtr));
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<IntPtr>(ProcessInstance, address + (ulong)i));
+                                IntPtr value = (IntPtr)BitConverter.ToUInt64(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(bool))
                         {
                             List<bool> list = new List<bool>();
-                            int itemSize = sizeof(bool);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<bool>(ProcessInstance, address + (ulong)i));
+                                bool value = BitConverter.ToBoolean(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(byte))
                         {
                             List<byte> list = new List<byte>();
-                            int itemSize = sizeof(byte);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<byte>(ProcessInstance, address + (ulong)i));
+                                byte value = bytes[i];
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(sbyte))
                         {
                             List<sbyte> list = new List<sbyte>();
-                            int itemSize = sizeof(sbyte);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<sbyte>(ProcessInstance, address + (ulong)i));
+                                sbyte value = (sbyte)bytes[i];
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(char))
                         {
                             List<char> list = new List<char>();
-                            int itemSize = sizeof(char);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<char>(ProcessInstance, address + (ulong)i));
+                                char value = (char)bytes[i];
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(short))
                         {
                             List<short> list = new List<short>();
-                            int itemSize = sizeof(short);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<short>(ProcessInstance, address + (ulong)i));
+                                short value = BitConverter.ToInt16(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(ushort))
                         {
                             List<ushort> list = new List<ushort>();
-                            int itemSize = sizeof(ushort);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<ushort>(ProcessInstance, address + (ulong)i));
+                                ushort value = BitConverter.ToUInt16(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(int))
                         {
                             List<int> list = new List<int>();
-                            int itemSize = sizeof(int);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<int>(ProcessInstance, address + (ulong)i));
+                                int value = BitConverter.ToInt32(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(uint))
                         {
                             List<uint> list = new List<uint>();
-                            int itemSize = sizeof(uint);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<uint>(ProcessInstance, address + (ulong)i));
+                                uint value = BitConverter.ToUInt32(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(long))
                         {
                             List<long> list = new List<long>();
-                            int itemSize = sizeof(long);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<long>(ProcessInstance, address + (ulong)i));
+                                long value = BitConverter.ToInt64(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(ulong))
                         {
                             List<ulong> list = new List<ulong>();
-                            int itemSize = sizeof(ulong);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<ulong>(ProcessInstance, address + (ulong)i));
+                                ulong value = BitConverter.ToUInt64(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(float))
                         {
                             List<float> list = new List<float>();
-                            int itemSize = sizeof(float);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<float>(ProcessInstance, address + (ulong)i));
+                                float value = BitConverter.ToSingle(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(double))
                         {
                             List<double> list = new List<double>();
-                            int itemSize = sizeof(double);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<double>(ProcessInstance, address + (ulong)i));
+                                double value = BitConverter.ToDouble(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
 
                         else if (type == typeof(decimal))
                         {
                             List<decimal> list = new List<decimal>();
-                            int itemSize = sizeof(decimal);
+                            byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, address + 0x20, size);
 
-                            for (int i = 0x20; i < count; i += itemSize)
+                            for (int i = 0; i < size; i += itemSize)
                             {
-                                list.Add(TMemory.ReadMemory<decimal>(ProcessInstance, address + (ulong)i));
+                                decimal value = TUtils.ToDecimal(bytes, i);
+                                list.Add(value);
                             }
+
                             current[watcher.memoryWatcher.Name] = list;
                         }
                     }
@@ -617,6 +642,7 @@ public partial class Main : MainShared
 
     public object CreateTool(string engine, string type, string tool)
     {
+        ProcessInstance = null;
         TProcess.WaitTillSecondsOld(ProcessInstance, 1);
         if (!ReloadProcess()) throw new Exception();
         TProcess.WaitTillSecondsOld(ProcessInstance, 1);

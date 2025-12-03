@@ -1,4 +1,5 @@
 ﻿using SharpDisasm;
+using SharpDisasm.Udis86;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Tools.Unity.IL2CPP.Instance.OffsetResolver;
 
 public partial class Tools : MainShared
 {
@@ -171,6 +173,26 @@ public partial class Tools : MainShared
                             }
                             fieldsNames = parsedFieldsNames.ToArray();
 
+                            // parse offset additions
+                            int[] numericOffsetAddition = new int[fieldsNames.Length];
+                            for (int i = 0; i < fieldsNames.Length; i++)
+                            {
+                                string numAddTxt = null;
+                                if (fieldsNames[i].Contains(" + 0x"))
+                                {
+                                    numAddTxt = fieldsNames[i].Substring(fieldsNames[i].LastIndexOf(" + 0x") + 3);
+                                    fieldsNames[i] = fieldsNames[i].Remove(fieldsNames[i].LastIndexOf(" + 0x"));
+                                }
+                                else if (fieldsNames[i].Contains("+0x"))
+                                {
+                                    numAddTxt = fieldsNames[i].Substring(fieldsNames[i].LastIndexOf("+0x") + 1);
+                                    fieldsNames[i] = fieldsNames[i].Remove(fieldsNames[i].LastIndexOf("+0x"));
+                                }
+
+                                if (numAddTxt != null)
+                                    numericOffsetAddition[i] += TConvert.Parse<int>(numAddTxt);
+                            }
+
                             // get path
                             OffsetResolver.PathInfo pathInfo = offsetResolver.GetPath(imageName, namespaceName, className, fieldsNames);
 
@@ -185,6 +207,10 @@ public partial class Tools : MainShared
                                 }
                             }
                             catch { }
+
+                            // add offset additions
+                            for (int i = 0; i < pathInfo.Offsets.Length && i < numericOffsetAddition.Length; i++)
+                                pathInfo.Offsets[i] += numericOffsetAddition[i];
 
                             // return early because of static access
                             pathInfo.Offsets = TArray.Merge(pathInfo.Offsets, manualOffsets.ToArray());

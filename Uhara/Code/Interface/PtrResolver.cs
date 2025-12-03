@@ -59,8 +59,26 @@ public class PtrResolver : MainShared
     {
         try
         {
-            DeepPointer deepPointer = new DeepPointer((IntPtr)_base, offsets);
-            return deepPointer.Deref<IntPtr>(ProcessInstance);
+            int addition = 0;
+            if (offsets.Length > 0)
+            {
+                addition = offsets[offsets.Length - 1];
+                List<int> modified = offsets.ToList();
+                modified.RemoveAt(modified.Count - 1);
+                offsets = modified.ToArray();
+            }
+
+            DeepPointer deepPointer;
+            if (_base.GetType() == typeof(int))
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+
+            IntPtr result = deepPointer.Deref<IntPtr>(ProcessInstance);
+            if (result != IntPtr.Zero) return result + addition;
         }
         catch { }
         return IntPtr.Zero;
@@ -108,6 +126,57 @@ public class PtrResolver : MainShared
         }
         catch { }
         return default(T);
+    }
+    #endregion
+    #region TRY_READ
+    public bool TryRead<T>(out T result, (IntPtr _base, int[] offsets) offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, offsets._base, offsets: offsets.offsets);
+    }
+
+    public bool TryRead<T>(out T result, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, offsets: offsets);
+    }
+
+    public bool TryRead<T>(out T result, string moduleName, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, moduleName, offsets);
+    }
+
+    public bool TryRead<T>(out T result, Module module, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, module.Name, offsets);
+    }
+
+    public bool TryRead<T>(out T result, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        return _TryRead<T>(out result, _base, moduleName, offsets);
+    }
+
+    private bool _TryRead<T>(out T result, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            DeepPointer deepPointer;
+            if (_base is int)
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+
+
+            T value;
+            if (deepPointer.Deref<T>(ProcessInstance, out value))
+            {
+                result = value;
+                return true;
+            }
+        }
+        catch { }
+        result = default;
+        return false;
     }
     #endregion
     #region READ_STRING
@@ -243,6 +312,12 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             DeepPointer deepPointer;
             if (_base.GetType() == typeof(int))
             {
@@ -286,17 +361,24 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             DeepPointer deepPointer;
             if (_base.GetType() == typeof(int))
             {
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
 
             MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
             memoryWatcher.Name = name;
-            memoryWatcher.Current = new List<T>();
+            memoryWatcher.Current = IntPtr.Zero;
             ListWatchers.Add((typeof(T), memoryWatcher));
             current[name] = new List<T>();
         }
@@ -380,6 +462,12 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             DeepPointer deepPointer;
             if (_base.GetType() == typeof(int))
             {
@@ -474,6 +562,12 @@ public class PtrResolver : MainShared
     {
         try
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+            }
+
             List<int> _offsets = offsets.ToList();
             _offsets.Add(0x14);
             offsets = _offsets.ToArray();

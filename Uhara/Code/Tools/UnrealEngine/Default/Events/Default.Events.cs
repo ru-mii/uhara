@@ -91,8 +91,7 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        var memWatcher = new MemoryWatcher<ulong>(functionCall.AddArgument(FunctionCall.ArgTypes.Flag, className, objectName, functionName, 1));
-                        current[watcherName] = (ulong)0; memWatcher.Name = watcherName; AddWatcher(memWatcher);
+                        new PtrResolver().Watch<ulong>(watcherName, functionCall.AddArgument(FunctionCall.ArgTypes.Flag, className, objectName, functionName, 1));
                     }
                     catch { }
                 }
@@ -111,8 +110,7 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        var memWatcher = new MemoryWatcher<T>(functionCall.AddArgument(FunctionCall.ArgTypes.Instance, className, objectName, functionName, 1));
-                        current[watcherName] = (IntPtr)0; memWatcher.Name = watcherName; AddWatcher(memWatcher);
+                        new PtrResolver().Watch<T>(watcherName, functionCall.AddArgument(FunctionCall.ArgTypes.Instance, className, objectName, functionName, 1));
                     }
                     catch { }
                 }

@@ -1,6 +1,7 @@
 ﻿using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -74,7 +75,10 @@ public class FileLogger : MainShared
                 ts.Milliseconds);
             }
 
-            message = gameName + " | " + stamp + " | " + message;
+            int liveSplitPid = Process.GetCurrentProcess().Id;
+            int gamePid = ProcessInstance != null ? ProcessInstance.Id : 0;
+
+            message = $"LS[{liveSplitPid}]" + $"GM[{gamePid}] | " + gameName + " | " + stamp + " | " + message;
 
             // ---
             File.AppendAllLines(FilePath, new string[] { message });
