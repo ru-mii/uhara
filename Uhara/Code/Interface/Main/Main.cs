@@ -54,65 +54,6 @@ public partial class Main : MainShared
         DebugMode = false;
     }
 
-    /*
-    public TypeDefinition Define(string source, params string[] references)
-    {
-        CSharpCodeProvider _codeProvider = new CSharpCodeProvider();
-        CompilerParameters parameters = new()
-        {
-            GenerateInMemory = false,
-            GenerateExecutable = false,
-            CompilerOptions = "/optimize"
-        };
-
-        string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".dll");
-        parameters.OutputAssembly = tempPath;
-
-        parameters.ReferencedAssemblies.Add("mscorlib.dll");
-        parameters.ReferencedAssemblies.Add("System.dll");
-        parameters.ReferencedAssemblies.AddRange(references);
-
-        CompilerResults results = _codeProvider.CompileAssemblyFromSource(parameters, source);
-
-        if (results.Errors.HasErrors)
-        {
-            string errorMsg = string.Join("\n", results.Errors.Cast<CompilerError>().Select(e => $"{e.Line}: {e.ErrorText}"));
-            throw new Exception("Compilation failed:\n" + errorMsg);
-        }
-
-        byte[] bytes;
-        try { bytes = File.ReadAllBytes(tempPath); }
-        finally { File.Delete(tempPath); }
-
-        using var ms = new MemoryStream(bytes);
-        using var peReader = new PEReader(ms);
-        var reader = peReader.GetMetadataReader();
-
-        TypeDefinition? found = null;
-        int count = 0;
-        foreach (var handle in reader.TypeDefinitions)
-        {
-            var td = reader.GetTypeDefinition(handle);
-            string name = reader.GetString(td.Name);
-            if (name != "<Module>")
-            {
-                found = td;
-                count++;
-            }
-        }
-
-        if (count == 0)
-        {
-            throw new Exception("The provided source code did not contain a type");
-        }
-        else if (count > 1)
-        {
-            throw new Exception("Multiple types found; expected only one");
-        }
-
-        return found.Value;
-    }*/
-
     public void ForceCleanMemory()
     {
         try

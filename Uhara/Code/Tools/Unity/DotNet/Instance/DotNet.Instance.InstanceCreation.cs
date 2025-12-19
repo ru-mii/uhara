@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Tools.Unity.IL2CPP.Instance.OffsetResolver;
 
 public partial class Tools : MainShared
 {

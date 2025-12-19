@@ -454,7 +454,7 @@ public class PtrResolver : MainShared
     public void WatchString(string name, object _base, int length = 128, ReadStringType readStringType = ReadStringType.AutoDetect,
         string moduleName = null, params int[] offsets)
     {
-        _WatchString(name, _base, length, readStringType , moduleName, offsets);
+        _WatchString(name, _base, length, readStringType, moduleName, offsets);
     }
 
     private void _WatchString(string name, object _base, int length = 128, ReadStringType readStringType = ReadStringType.AutoDetect,
@@ -474,9 +474,10 @@ public class PtrResolver : MainShared
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
 
-            StringWatcher stringWatcher = new StringWatcher(deepPointer, 128);
+            StringWatcher stringWatcher = new StringWatcher(deepPointer, readStringType, length);
             stringWatcher.Name = name;
             stringWatcher.Current = null;
             StringWatchers.Add(stringWatcher);
