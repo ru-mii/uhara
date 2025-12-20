@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
 	public partial class Unity
 	{
@@ -92,30 +92,30 @@ public partial class Tools : MainShared
                                 AddressGlobalOutput = AllocateStart + GeneratedOffsets.AddressGlobalOutput;
 
                                 int cleanSize = (int)((AllocateStart + AllocateSize) - AddressArguments);
-                                RefWriteBytes(ProcessInstance, AddressArguments, new byte[cleanSize]);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, new byte[cleanSize]);
                             }
 
                             // standard names
                             {
                                 // image
-                                RefWriteBytes(ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
                                 AddressArguments += 0x8;
                                 byte[] imageNameBytes = TUtils.StringToMultibyte(imageName);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, imageNameBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, imageNameBytes);
                                 AddressArgumentsData += (ulong)imageNameBytes.Length;
 
                                 // namespace
-                                RefWriteBytes(ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
                                 AddressArguments += 0x8;
                                 byte[] namespaceNameBytes = TUtils.StringToMultibyte(namespaceName);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, namespaceNameBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, namespaceNameBytes);
                                 AddressArgumentsData += (ulong)namespaceNameBytes.Length;
 
                                 // class
-                                RefWriteBytes(ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
                                 AddressArguments += 0x8;
                                 byte[] classNameBytes = TUtils.StringToMultibyte(className);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, classNameBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, classNameBytes);
                                 AddressArgumentsData += (ulong)classNameBytes.Length;
                             }
 
@@ -123,24 +123,24 @@ public partial class Tools : MainShared
                             {
                                 foreach (string fieldName in fieldsNames)
                                 {
-                                    RefWriteBytes(ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, BitConverter.GetBytes(AddressArgumentsData));
                                     AddressArguments += 0x8;
                                     byte[] nameBytes = TUtils.StringToMultibyte(fieldName);
-                                    RefWriteBytes(ProcessInstance, AddressArgumentsData, nameBytes);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, nameBytes);
                                     AddressArgumentsData += (ulong)nameBytes.Length;
                                 }
                             }
 
                             // ---
                             {
-                                TProcess.WaitForThread(TProcess.CreateRemoteThread(ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint), 15000);
+                                TProcess.WaitForThread(TProcess.CreateRemoteThread(Main.ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint), 15000);
 
-                                ulong directAddress = TMemory.ReadMemory<ulong>(ProcessInstance, (AddressGlobalOutput + (ulong)OutStruct.DirectAddress.Offset));
+                                ulong directAddress = TMemory.ReadMemory<ulong>(Main.ProcessInstance, (AddressGlobalOutput + (ulong)OutStruct.DirectAddress.Offset));
                                 List<int> offsets = new List<int>();
 
                                 for (int i = 0; i < fieldsNames.Length; i++)
                                 {
-                                    int offset = TMemory.ReadMemory<int>(ProcessInstance,
+                                    int offset = TMemory.ReadMemory<int>(Main.ProcessInstance,
                                         (AddressGlobalOutput + (ulong)OutStruct.DirectAddress.Size) +
                                         (ulong)(i * OutStruct.Offset.Size));
 
@@ -181,7 +181,7 @@ public partial class Tools : MainShared
                             if (AllocateStart == 0) break;
 
                             byte[] decoded = TArray.DecodeBlock(AsmCode);
-                            RefWriteBytes(ProcessInstance, AllocateStart, decoded);
+                            Main.RefWriteBytes(Main.ProcessInstance, AllocateStart, decoded);
 
                             AddressArguments = AllocateStart + GeneratedOffsets.AddressArguments;
                             AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
@@ -207,21 +207,21 @@ public partial class Tools : MainShared
                             {
                                 do
                                 {
-                                    if (!ReloadProcess()) throw new Exception();
+                                    if (!Main.ReloadProcess()) throw new Exception();
 
-                                    ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
+                                    ulong moduleBase = TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll");
                                     if (moduleBase == 0) break;
 
-                                    ulong _Sleep = TProcess.GetProcAddress(ProcessInstance, moduleBase, "Sleep");
-                                    ulong _GetModuleHandleA = TProcess.GetProcAddress(ProcessInstance, moduleBase, "GetModuleHandleA");
-                                    ulong _GetProcAddress = TProcess.GetProcAddress(ProcessInstance, moduleBase, "GetProcAddress");
+                                    ulong _Sleep = TProcess.GetProcAddress(Main.ProcessInstance, moduleBase, "Sleep");
+                                    ulong _GetModuleHandleA = TProcess.GetProcAddress(Main.ProcessInstance, moduleBase, "GetModuleHandleA");
+                                    ulong _GetProcAddress = TProcess.GetProcAddress(Main.ProcessInstance, moduleBase, "GetProcAddress");
 
                                     if (_Sleep == 0 || _GetModuleHandleA == 0 || _GetProcAddress == 0)
                                         break;
 
-                                    RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.Sleep, BitConverter.GetBytes(_Sleep));
-                                    RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
-                                    RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
+                                    Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.Sleep, BitConverter.GetBytes(_Sleep));
+                                    Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
+                                    Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
 
                                     result = Result.Success;
                                 }

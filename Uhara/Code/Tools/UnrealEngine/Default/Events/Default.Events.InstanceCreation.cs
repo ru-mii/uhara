@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
     public partial class UnrealEngine
     {
@@ -169,12 +169,12 @@ public partial class Tools : MainShared
                             {
                                 byte[] classNameBytes = TUtils.StringToMultibyte(className);
                                 _classNamePtr = AddressInterfaceData;
-                                RefWriteBytes(ProcessInstance, AddressInterfaceData, classNameBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressInterfaceData, classNameBytes);
                                 AddressInterfaceData += (ulong)classNameBytes.Length;
 
                                 byte[] objectNameBytes = TUtils.StringToMultibyte(objectName);
                                 _objectNamePtr = AddressInterfaceData;
-                                RefWriteBytes(ProcessInstance, AddressInterfaceData, objectNameBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressInterfaceData, objectNameBytes);
                                 AddressInterfaceData += (ulong)objectNameBytes.Length;
                             }
 
@@ -195,7 +195,7 @@ public partial class Tools : MainShared
                                         BitConverter.GetBytes((ulong)0x1337),
                                         BitConverter.GetBytes((ulong)0x0));
 
-                                    RefWriteBytes(ProcessInstance, AddressBeginDestroyCheckPool, destroyArg);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressBeginDestroyCheckPool, destroyArg);
                                     AddressBeginDestroyCheckPool += (ulong)destroyArg.Length;
                                 }
                                 while (false);
@@ -223,7 +223,7 @@ public partial class Tools : MainShared
                                 BitConverter.GetBytes(instances)
                             );
 
-                            RefWriteBytes(ProcessInstance, AddressInterfaceArguments, argument);
+                            Main.RefWriteBytes(Main.ProcessInstance, AddressInterfaceArguments, argument);
                             AddressInterfaceArguments += (ulong)argument.Length;
 
                             if (ArgTypes.Instance == argType) return (IntPtr)(_outputAddress + (ulong)OutputInstanceStruct.FirstInstanceSlot.Offset);
@@ -236,7 +236,7 @@ public partial class Tools : MainShared
                     #region INITIATE
                     private bool Initiate()
                     {
-                        if (!ReloadProcess()) throw new Exception();
+                        if (!Main.ReloadProcess()) throw new Exception();
                         if (InitResult == InitResults.Failed) return false;
                         else if (InitResult == InitResults.Loaded) return true;
                         try
@@ -297,7 +297,7 @@ public partial class Tools : MainShared
                                 {
                                     //if (ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal == 0)
                                         ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal =
-                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_StaticConstructObject_Internal"));
+                                        TConvert.Parse<ulong>(Main.GetProcessCache(SubToolID, "F_StaticConstructObject_Internal"));
 
                                     if (ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal == 0)
                                         ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal =
@@ -307,14 +307,14 @@ public partial class Tools : MainShared
                                     if (ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal == 0)
                                         break;
 
-                                    SetProcessCache(SubToolID, "F_StaticConstructObject_Internal", "0x" +
+                                    Main.SetProcessCache(SubToolID, "F_StaticConstructObject_Internal", "0x" +
                                         ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal.ToString("X"));
                                 }
 
                                 {
                                     //if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                     ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
-                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "F_UObjectBeginDestroy"));
+                                        TConvert.Parse<ulong>(Main.GetProcessCache(SubToolID, "F_UObjectBeginDestroy"));
 
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                         ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy =
@@ -323,18 +323,18 @@ public partial class Tools : MainShared
 
                                     if (ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy == 0)
                                     {
-                                        if (DeveloperMode) TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                        if (false) TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                                             " | " + "Couldn't find BeginDeestroy: " + success.ToString()); break;
                                     }
 
-                                    SetProcessCache(SubToolID, "F_UObjectBeginDestroy", "0x" +
+                                    Main.SetProcessCache(SubToolID, "F_UObjectBeginDestroy", "0x" +
                                         ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy.ToString("X"));
                                 }
 
                                 {
                                     //if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                     ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
-                                        TConvert.Parse<ulong>(GetProcessCache(SubToolID, "D_FNamePoolAddress"));
+                                        TConvert.Parse<ulong>(Main.GetProcessCache(SubToolID, "D_FNamePoolAddress"));
 
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                         ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress =
@@ -343,11 +343,11 @@ public partial class Tools : MainShared
 
                                     if (ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress == 0)
                                     {
-                                        if (DeveloperMode) TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
+                                        if (false) TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                                             " | " + "Couldn't find FNamePool: " + success.ToString()); break;
                                     }
 
-                                    SetProcessCache(SubToolID, "D_FNamePoolAddress", "0x" +
+                                    Main.SetProcessCache(SubToolID, "D_FNamePoolAddress", "0x" +
                                         ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress.ToString("X"));
                                 }
 
@@ -369,7 +369,7 @@ public partial class Tools : MainShared
                             do
                             {
                                 // FNamePoolAddress
-                                RefWriteBytes(ProcessInstance, AddressAllocateStart + GeneratedOffsets.ND_FNamePoolAddress,
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressAllocateStart + GeneratedOffsets.ND_FNamePoolAddress,
                                     BitConverter.GetBytes(ToolsShared.ToolData.UnrealEngine.D_FNamePoolAddress));
 
                                 success = true;
@@ -391,22 +391,22 @@ public partial class Tools : MainShared
                             {
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
-                                RefWriteBytes(ProcessInstance, AddressNativeCode, decoded);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressNativeCode, decoded);
                                 AddressNativeCode += (ulong)decoded.Length;
 
                                 {
                                     ulong jumpNative = AddressAllocateStart + GeneratedOffsets.HK_StaticConstructObject_Internal;
                                     ulong jumpHook = AddressInterfaceCode;
 
-                                    ulong retAddress = TMemory.GetFunctionReturn(ProcessInstance,
+                                    ulong retAddress = TMemory.GetFunctionReturn(Main.ProcessInstance,
                                         ToolsShared.ToolData.UnrealEngine.F_StaticConstructObject_Internal);
                                     if (retAddress == 0) break;
 
-                                    int minimumOverwrite = TMemory.GetMinimumOverwriteBackwards(ProcessInstance, retAddress, 14);
+                                    int minimumOverwrite = TMemory.GetMinimumOverwriteBackwards(Main.ProcessInstance, retAddress, 14);
                                     if (minimumOverwrite == 0) break;
 
                                     ulong hookAddress = retAddress - (ulong)minimumOverwrite;
-                                    byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
+                                    byte[] stolenCode = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, minimumOverwrite);
                                     MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
 
                                     // fix relative call
@@ -418,7 +418,7 @@ public partial class Tools : MainShared
                                         {
                                             if (ins.Bytes.Length == 5 && ins.ToString().StartsWith("call"))
                                             {
-                                                int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 1);
+                                                int value = TMemory.ReadMemory<int>(Main.ProcessInstance, ins.Offset + 1);
                                                 ulong resolved = (ulong)((long)ins.Offset + value + 5);
                                                 converted.Add(TMemory.GetAbsoluteCallBytes(resolved));
                                                 relativeFound = true;
@@ -428,12 +428,12 @@ public partial class Tools : MainShared
                                         if (relativeFound) stolenCode = TArray.Merge(converted);
                                     }
 
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteCall(ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
-                                    RefWriteBytes(ProcessInstance, AddressInterfaceCode, stolenCode);
+                                    AddressInterfaceCode += TMemory.CreateAbsoluteCall(Main.ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressInterfaceCode, stolenCode);
                                     AddressInterfaceCode += (ulong)stolenCode.Length;
 
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteJump(ProcessInstance, AddressInterfaceCode, retAddress);
-                                    TMemory.CreateAbsoluteJump(ProcessInstance, hookAddress, jumpHook);
+                                    AddressInterfaceCode += TMemory.CreateAbsoluteJump(Main.ProcessInstance, AddressInterfaceCode, retAddress);
+                                    TMemory.CreateAbsoluteJump(Main.ProcessInstance, hookAddress, jumpHook);
 
                                     //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                                         //" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
@@ -444,19 +444,19 @@ public partial class Tools : MainShared
                                     ulong hookAddress = ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy;
                                     ulong jumpHook = AddressInterfaceCode;
 
-                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, hookAddress, 14);
+                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, hookAddress, 14);
                                     if (minimumOverwrite == 0) break;
 
-                                    byte[] stolenCode = TMemory.ReadMemoryBytes(ProcessInstance, hookAddress, minimumOverwrite);
+                                    byte[] stolenCode = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, minimumOverwrite);
                                     if (stolenCode == null) break;
                                     MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
 
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteCall(ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
-                                    RefWriteBytes(ProcessInstance, AddressInterfaceCode, stolenCode);
+                                    AddressInterfaceCode += TMemory.CreateAbsoluteCall(Main.ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressInterfaceCode, stolenCode);
                                     AddressInterfaceCode += (ulong)stolenCode.Length;
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteJump(ProcessInstance, AddressInterfaceCode, hookAddress + (ulong)minimumOverwrite);
+                                    AddressInterfaceCode += TMemory.CreateAbsoluteJump(Main.ProcessInstance, AddressInterfaceCode, hookAddress + (ulong)minimumOverwrite);
 
-                                    TMemory.CreateAbsoluteJump(ProcessInstance, hookAddress, jumpHook);
+                                    TMemory.CreateAbsoluteJump(Main.ProcessInstance, hookAddress, jumpHook);
 
                                     //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                                         //" | " + "Hook: " + "0x" + hookAddress.ToString("X"));

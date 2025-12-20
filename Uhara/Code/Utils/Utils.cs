@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class TUtils : MainShared
+class TUtils
 {
     internal static decimal ToDecimal(byte[] bytes, int start = 0)
     {
@@ -107,7 +107,7 @@ class TUtils : MainShared
 
     internal static bool Print(string message)
     {
-        if (DebugMode) TImports.OutputDebugString("[UHARA] " + message);
+        if (Main.DebugMode) TImports.OutputDebugString("[UHARA] " + message);
         return false;
     }
 }

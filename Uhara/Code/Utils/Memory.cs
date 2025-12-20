@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static TImports;
 
-internal class TMemory : MainShared
+internal class TMemory
 {
     internal static IntPtr ScanSimple(Process process, string signature, string moduleName = null)
     {
@@ -286,7 +286,7 @@ internal class TMemory : MainShared
 
                 byte[] newRipValueBytes = BitConverter.GetBytes(ripValue - (uint)(current - original));
 
-                RefWriteBytes(process, current + (ulong)(byteOffset + total), newRipValueBytes);
+                Main.RefWriteBytes(process, current + (ulong)(byteOffset + total), newRipValueBytes);
             }
             else if (orgTxt.StartsWith("call"))
             {
@@ -295,7 +295,7 @@ internal class TMemory : MainShared
 
                 uint ripValue = BitConverter.ToUInt32(orgFullBytes, 1);
                 byte[] newRipValueBytes = BitConverter.GetBytes(ripValue - (uint)(current - original));
-                RefWriteBytes(process, current + 1 + (ulong)total, newRipValueBytes);
+                Main.RefWriteBytes(process, current + 1 + (ulong)total, newRipValueBytes);
             }
         }
     }
@@ -311,7 +311,7 @@ internal class TMemory : MainShared
     {
         byte[] stub = new byte[] { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00 };
         byte[] full = TArray.Merge(stub, BitConverter.GetBytes(destination));
-        RefWriteBytes(process, source, full);
+        Main.RefWriteBytes(process, source, full);
         return (ulong)full.Length;
     }
 
@@ -327,7 +327,7 @@ internal class TMemory : MainShared
         if (rspArguments == 0) full = TArray.Merge(start, address, end);
         else full = TArray.Merge(subRsp, start, address, end, addRsp);
 
-        RefWriteBytes(process, source, full);
+        Main.RefWriteBytes(process, source, full);
         return (ulong)full.Length;
     }
 
@@ -503,7 +503,7 @@ internal class TMemory : MainShared
 
         foreach (ulong[] section in sections)
         {
-            byte[] sectionBytes = ReadMemoryBytes(ProcessInstance, section[0], (int)section[1]);
+            byte[] sectionBytes = ReadMemoryBytes(Main.ProcessInstance, section[0], (int)section[1]);
             if (sectionBytes != null && sectionBytes.Length > 0)
             {
                 int searchOffset = FindInArray(sectionBytes, searchBytes, searchMask);
@@ -511,7 +511,7 @@ internal class TMemory : MainShared
                 {
                     ulong searchAddress = section[0] + (ulong)searchOffset;
                     ulong relativeAddress = (ulong)((long)searchAddress + offset);
-                    long relativeValue = ReadMemory<int>(ProcessInstance, relativeAddress);
+                    long relativeValue = ReadMemory<int>(Main.ProcessInstance, relativeAddress);
                     ulong destinationAddress = (ulong)((long)searchAddress + relativeValue + offset + 4);
                     return destinationAddress;
                 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
     public partial class Unity
     {
@@ -59,7 +59,7 @@ public partial class Tools : MainShared
                             if (!Loaded) break;
                             for (int i = 0; i < instances; i++)
                             {
-                                RefWriteBytes(ProcessInstance, AddressArguments, BitConverter.GetBytes(instancePtr + (ulong)(i * 0x8)));
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, BitConverter.GetBytes(instancePtr + (ulong)(i * 0x8)));
                                 AddressArguments += 0x8;
                             }
                         }
@@ -95,15 +95,15 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                if (!ReloadProcess()) throw new Exception();
+                                if (!Main.ReloadProcess()) throw new Exception();
 
-                                ulong il2cpp_gc_wbarrier_set_field = TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field");
+                                ulong il2cpp_gc_wbarrier_set_field = TProcess.GetProcAddress(Main.ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field");
                                 if (il2cpp_gc_wbarrier_set_field == 0) break;
 
-                                ulong moduleBase = TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll");
+                                ulong moduleBase = TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll");
                                 if (moduleBase == 0) break;
 
-                                List<ulong> results = TMemory.ScanMultiple(ProcessInstance, "48 83 C4 ?? 5B C3 48", "UnityPlayer.dll", 0x20).ToList();
+                                List<ulong> results = TMemory.ScanMultiple(Main.ProcessInstance, "48 83 C4 ?? 5B C3 48", "UnityPlayer.dll", 0x20).ToList();
 
                                 // ---
                                 if (results.Count > 1)
@@ -116,10 +116,10 @@ public partial class Tools : MainShared
 
                                             ulong pastFirstReturn = results[i] + 6;
 
-                                            ulong functionEnd = TMemory.GetFunctionReturn(ProcessInstance, pastFirstReturn);
+                                            ulong functionEnd = TMemory.GetFunctionReturn(Main.ProcessInstance, pastFirstReturn);
                                             if (functionEnd != 0)
                                             {
-                                                byte[] functionBytes = TMemory.ReadMemoryBytes(ProcessInstance, pastFirstReturn, (int)(functionEnd - pastFirstReturn));
+                                                byte[] functionBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, pastFirstReturn, (int)(functionEnd - pastFirstReturn));
                                                 Instruction[] functionOps = TInstruction.GetInstructions2(functionBytes, pastFirstReturn);
 
                                                 int counter = 0;
@@ -130,9 +130,9 @@ public partial class Tools : MainShared
                                                     if (op.Bytes[0] != 0xFF || op.Bytes[1] != 0x15) continue;
 
                                                     // relative check
-                                                    uint value = TMemory.ReadMemory<uint>(ProcessInstance, op.Offset + 0x2);
+                                                    uint value = TMemory.ReadMemory<uint>(Main.ProcessInstance, op.Offset + 0x2);
                                                     ulong relativePtr = op.Offset + value + 0x6;
-                                                    ulong relative = 0; try { relative = TMemory.ReadMemory<ulong>(ProcessInstance, relativePtr); } catch { }
+                                                    ulong relative = 0; try { relative = TMemory.ReadMemory<ulong>(Main.ProcessInstance, relativePtr); } catch { }
                                                     if (relative != il2cpp_gc_wbarrier_set_field) continue;
 
                                                     GCCallsAll[results[i]].Add(op.Offset);
@@ -159,7 +159,7 @@ public partial class Tools : MainShared
                                     {
                                         try
                                         {
-                                            byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i], 200);
+                                            byte[] byteBlock = TMemory.ReadMemoryBytes(Main.ProcessInstance, results[i], 200);
                                             byte[] signatureBytes = TSignature.GetBytes("48 83 C4 ?? 5B C3 CC CC");
                                             string signatureMask = TSignature.GetMask("48 83 C4 ?? 5B C3 CC CC");
 
@@ -181,7 +181,7 @@ public partial class Tools : MainShared
                                     {
                                         try
                                         {
-                                            byte[] byteBlock = TMemory.ReadMemoryBytes(ProcessInstance, results[i] - 0x40, 0x40);
+                                            byte[] byteBlock = TMemory.ReadMemoryBytes(Main.ProcessInstance, results[i] - 0x40, 0x40);
                                             byte[] signatureBytes = TSignature.GetBytes("CC 40 53 48 83 EC ??");
                                             string signatureMask = TSignature.GetMask("CC 40 53 48 83 EC ??");
 
@@ -233,7 +233,7 @@ public partial class Tools : MainShared
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
-                                RefWriteBytes(ProcessInstance, AllocateStart, decoded);
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart, decoded);
 
                                 AddressArguments = AllocateStart + GeneratedOffsets.AddressArguments;
                                 AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
@@ -254,8 +254,8 @@ public partial class Tools : MainShared
                         Result result = Result.None;
                         do
                         {
-                            RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.ReturnAddress, BitConverter.GetBytes(CallFinalSetField + 0x6));
-                            RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.il2cpp_gc_wbarrier_set_field, BitConverter.GetBytes(TProcess.GetProcAddress(ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field")));
+                            Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.ReturnAddress, BitConverter.GetBytes(CallFinalSetField + 0x6));
+                            Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.il2cpp_gc_wbarrier_set_field, BitConverter.GetBytes(TProcess.GetProcAddress(Main.ProcessInstance, "GameAssembly.dll", "il2cpp_gc_wbarrier_set_field")));
                             result = Result.Success;
                         }
                         while (false);
@@ -269,13 +269,13 @@ public partial class Tools : MainShared
                         Result result = Result.None;
                         do
                         {
-                            ulong setFieldPtr = CallFinalSetField + TMemory.ReadMemory<uint>(ProcessInstance, CallFinalSetField + 0x2) + 0x6;
+                            ulong setFieldPtr = CallFinalSetField + TMemory.ReadMemory<uint>(Main.ProcessInstance, CallFinalSetField + 0x2) + 0x6;
 
-                            byte[] saveBytes = TMemory.ReadMemoryBytes(ProcessInstance, setFieldPtr, 0x8);
+                            byte[] saveBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, setFieldPtr, 0x8);
                             if (saveBytes == null || saveBytes.Length == 0) break;
 
                             MemoryManager.AddOverwrite(setFieldPtr, saveBytes, ToolUniqueID);
-                            RefWriteBytes(ProcessInstance, setFieldPtr, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
+                            Main.RefWriteBytes(Main.ProcessInstance, setFieldPtr, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.HK_HookPoint));
 
                             //TUtils.Print(DebugClass + "." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                             //" | " + "Hook: " + "0x" + CallFinalSetField.ToString("X"));

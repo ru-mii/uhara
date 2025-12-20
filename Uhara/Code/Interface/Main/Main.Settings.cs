@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
-public partial class Main : MainShared
+public partial class Main
 {
 	public class ScriptSettings
 	{
@@ -63,9 +63,9 @@ public partial class Main : MainShared
                                 group = parent.GetAttribute("Id");
                             }
 
-                            _ScriptSettings.AddSetting(id, state, label, group);
+                            _settings.AddSetting(id, state, label, group);
                             if (!string.IsNullOrEmpty(tooltip))
-                                _ScriptSettings.Settings[id].ToolTip = tooltip;
+                                _settings.Settings[id].ToolTip = tooltip;
                         }
                     }
                 }
@@ -112,39 +112,39 @@ public partial class Main : MainShared
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[0] - 1], defaultParent);
+                        _settings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[0] - 1], defaultParent);
                     }
                 }
                 else if (cols == 2)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[1] - 1], defaultParent);
+                        _settings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[1] - 1], defaultParent);
                     }
                 }
                 else if (cols == 3)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[0] - 1], defaultParent);
+                        _settings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[0] - 1], defaultParent);
                     }
                 }
                 else if (cols == 4)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
+                        _settings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
                     }
                 }
                 else if (cols == 5)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
+                        _settings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
 
                         string newTooltip = settings[i, _order[4] - 1];
                         if (!string.IsNullOrEmpty(newTooltip))
-                            _ScriptSettings.Settings[settings[i, _order[0] - 1]].ToolTip = newTooltip;
+                            _settings.Settings[settings[i, _order[0] - 1]].ToolTip = newTooltip;
                     }
                 }
             }
@@ -183,39 +183,39 @@ public partial class Main : MainShared
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[0] - 1], defaultParent);
+                        _settings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[0] - 1], defaultParent);
                     }
                 }
                 else if (cols == 2)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[1] - 1], defaultParent);
+                        _settings.AddSetting(settings[i, _order[0] - 1], defaultValue, settings[i, _order[1] - 1], defaultParent);
                     }
                 }
                 else if (cols == 3)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[0] - 1], defaultParent);
+                        _settings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[0] - 1], defaultParent);
                     }
                 }
                 else if (cols == 4)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
+                        _settings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
                     }
                 }
                 else if (cols == 5)
                 {
                     for (int i = 0; i < rows; i++)
                     {
-                        _ScriptSettings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
+                        _settings.AddSetting(settings[i, _order[0] - 1], settings[i, _order[1] - 1], settings[i, _order[2] - 1], settings[i, _order[3] - 1]);
 
                         string newTooltip = settings[i, _order[4] - 1];
                         if (!string.IsNullOrEmpty(newTooltip))
-                            _ScriptSettings.Settings[settings[i, _order[0] - 1]].ToolTip = newTooltip;
+                            _settings.Settings[settings[i, _order[0] - 1]].ToolTip = newTooltip;
                     }
                 }
             }

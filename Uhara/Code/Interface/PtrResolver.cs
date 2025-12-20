@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-public class PtrResolver : MainShared
+public class PtrResolver
 {
     #region WATCHERS_ACCESS
     public object this[string key]
@@ -19,8 +19,8 @@ public class PtrResolver : MainShared
         {
             try
             {
-                MemoryWatcher watcher = MemoryWatchers.FirstOrDefault(m => m.Name == key);
-                if (watcher == null) watcher = StringWatchers.FirstOrDefault(m => m.Name == key);
+                MemoryWatcher watcher = Main.MemoryWatchers.FirstOrDefault(m => m.Name == key);
+                if (watcher == null) watcher = Main.StringWatchers.FirstOrDefault(m => m.Name == key);
                 return watcher;
             }
             catch { }
@@ -77,7 +77,7 @@ public class PtrResolver : MainShared
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
             else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
 
-            IntPtr result = deepPointer.Deref<IntPtr>(ProcessInstance);
+            IntPtr result = deepPointer.Deref<IntPtr>(Main.ProcessInstance);
             if (result != IntPtr.Zero) return result + addition;
         }
         catch { }
@@ -122,7 +122,7 @@ public class PtrResolver : MainShared
             }
             else deepPointer = new DeepPointer((IntPtr)_base, offsets);
 
-            return deepPointer.Deref<T>(ProcessInstance);
+            return deepPointer.Deref<T>(Main.ProcessInstance);
         }
         catch { }
         return default(T);
@@ -168,7 +168,7 @@ public class PtrResolver : MainShared
 
 
             T value;
-            if (deepPointer.Deref<T>(ProcessInstance, out value))
+            if (deepPointer.Deref<T>(Main.ProcessInstance, out value))
             {
                 result = value;
                 return true;
@@ -258,7 +258,7 @@ public class PtrResolver : MainShared
             }
             else deepPointer = new DeepPointer((IntPtr)_base, offsets);
 
-            return deepPointer.DerefString(ProcessInstance, readStringType, length, null);
+            return deepPointer.DerefString(Main.ProcessInstance, readStringType, length, null);
         }
         catch { }
         return null;
@@ -271,8 +271,8 @@ public class PtrResolver : MainShared
         {
             do
             {
-                ulong curr = Convert.ToUInt64(current[watcherName]);
-                ulong ol = Convert.ToUInt64(old[watcherName]);
+                ulong curr = Convert.ToUInt64(Main.current[watcherName]);
+                ulong ol = Convert.ToUInt64(Main.old[watcherName]);
                 return curr != ol && curr != 0;
             }
             while (false);
@@ -314,8 +314,8 @@ public class PtrResolver : MainShared
         {
             if (!string.IsNullOrEmpty(name))
             {
-                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
-                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+                var oldWatcher = Main.MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) Main.MemoryWatchers.Remove(oldWatcher);
             }
 
             DeepPointer deepPointer;
@@ -330,8 +330,8 @@ public class PtrResolver : MainShared
             MemoryWatcher memoryWatcher = new MemoryWatcher<T>(deepPointer);
             memoryWatcher.Name = name;
             memoryWatcher.Current = default(T);
-            MemoryWatchers.Add(memoryWatcher);
-            current[name] = default(T);
+            Main.MemoryWatchers.Add(memoryWatcher);
+            Main.current[name] = default(T);
         }
         catch { }
     }
@@ -363,8 +363,8 @@ public class PtrResolver : MainShared
         {
             if (!string.IsNullOrEmpty(name))
             {
-                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
-                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+                var oldWatcher = Main.MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) Main.MemoryWatchers.Remove(oldWatcher);
             }
 
             DeepPointer deepPointer;
@@ -379,8 +379,8 @@ public class PtrResolver : MainShared
             MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
             memoryWatcher.Name = name;
             memoryWatcher.Current = IntPtr.Zero;
-            ListWatchers.Add((typeof(T), memoryWatcher));
-            current[name] = new List<T>();
+            Main.ListWatchers.Add((typeof(T), memoryWatcher));
+            Main.current[name] = new List<T>();
         }
         catch { }
     }
@@ -464,8 +464,8 @@ public class PtrResolver : MainShared
         {
             if (!string.IsNullOrEmpty(name))
             {
-                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
-                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+                var oldWatcher = Main.MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) Main.MemoryWatchers.Remove(oldWatcher);
             }
 
             DeepPointer deepPointer;
@@ -480,8 +480,8 @@ public class PtrResolver : MainShared
             StringWatcher stringWatcher = new StringWatcher(deepPointer, readStringType, length);
             stringWatcher.Name = name;
             stringWatcher.Current = null;
-            StringWatchers.Add(stringWatcher);
-            current[name] = null;
+            Main.StringWatchers.Add(stringWatcher);
+            Main.current[name] = null;
         }
         catch { }
     }
@@ -565,8 +565,8 @@ public class PtrResolver : MainShared
         {
             if (!string.IsNullOrEmpty(name))
             {
-                var oldWatcher = MemoryWatchers.FirstOrDefault(m => m.Name == name);
-                if (oldWatcher != null) MemoryWatchers.Remove(oldWatcher);
+                var oldWatcher = Main.MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) Main.MemoryWatchers.Remove(oldWatcher);
             }
 
             List<int> _offsets = offsets.ToList();
@@ -584,8 +584,8 @@ public class PtrResolver : MainShared
             StringWatcher stringWatcher = new StringWatcher(deepPointer, 128);
             stringWatcher.Name = name;
             stringWatcher.Current = null;
-            StringWatchers.Add(stringWatcher);
-            current[name] = null;
+            Main.StringWatchers.Add(stringWatcher);
+            Main.current[name] = null;
         }
         catch { }
     }

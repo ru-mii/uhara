@@ -97,7 +97,6 @@
     <Compile Include="Code\Interface\Main\Main.Helper.cs" />
     <Compile Include="Code\Interface\Main\Main.cs" />
     <Compile Include="Code\Interface\MemoryManager.cs" />
-    <Compile Include="Code\Interface\MainShared.cs" />
     <Compile Include="Code\Interface\ProcessCache.cs" />
     <Compile Include="Code\Interface\PtrResolver.cs" />
     <Compile Include="Code\Interface\ScanUtility.cs" />

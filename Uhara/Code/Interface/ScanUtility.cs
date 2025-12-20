@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static TSignature;
 
-internal class ScanUtility : MainShared
+internal class ScanUtility
 {
     public enum GameEngine
     {
@@ -38,10 +38,10 @@ internal class ScanUtility : MainShared
                         };
                         scanData.QueenCheckpointIndex = 2;
 
-                        ulong address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        ulong address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                         if (address == 0) break;
 
-                        byte[] instrBytes = TMemory.ReadMemoryBytes(ProcessInstance, address, 50);
+                        byte[] instrBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, address, 50);
                         if (instrBytes == null) break;
 
                         Instruction[] instrs = TInstruction.GetInstructions2(instrBytes);
@@ -79,7 +79,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("83 7C 24 ?? 00", 100),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -94,7 +94,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("83 7C 24 ?? 00", 70),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -103,7 +103,7 @@ internal class ScanUtility : MainShared
                         scanData.Signature = "48 83 EC ?? 8B 41 08 48 8D 71 08 C1 E8 0F 33 ED 48 8B F9 A8 01 0F 85";
                         scanData.FindStartFunction = true;
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -117,7 +117,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("A8 01 0F 85", 50),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
                     // ---
@@ -128,12 +128,12 @@ internal class ScanUtility : MainShared
                             "00 74 00 3A 00 3A 00 42 00 65 00 67 00 69 00 6E 00 44 00 65 00 73 00 74 00 " +
                             "72 00 6F 00 79");
 
-                        ulong[] scanResults = TMemory.ScanMultiple(ProcessInstance, "C1 E8 0F A8 01", null, 0x20);
+                        ulong[] scanResults = TMemory.ScanMultiple(Main.ProcessInstance, "C1 E8 0F A8 01", null, 0x20);
                         foreach (ulong scanResult in scanResults)
                         {
                             try
                             {
-                                byte[] scanBytes = TMemory.ReadMemoryBytes(ProcessInstance, scanResult, 0x150);
+                                byte[] scanBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, scanResult, 0x150);
                                 Instruction[] instrs = TInstruction.GetInstructions2(scanBytes, scanResult);
 
                                 foreach (Instruction ins in instrs)
@@ -142,15 +142,15 @@ internal class ScanUtility : MainShared
                                     if (!string.IsNullOrEmpty(insTxt) && ins.Bytes.Length == 7 && (insTxt.StartsWith("lea r8, [") ||
                                     (insTxt.StartsWith("lea r") && insTxt.Contains(", ["))))
                                     {
-                                        int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 3);
+                                        int value = TMemory.ReadMemory<int>(Main.ProcessInstance, ins.Offset + 3);
                                         ulong resolved = (ulong)((long)ins.Offset + value + ins.Bytes.Length);
 
-                                        byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, resolved, logMessage.Length);
+                                        byte[] readBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, resolved, logMessage.Length);
                                         if (readBytes == null) continue;
 
                                         if (logMessage.SequenceEqual(readBytes))
                                         {
-                                            ulong funcStart = TMemory.GetFunctionStart(ProcessInstance, scanResult);
+                                            ulong funcStart = TMemory.GetFunctionStart(Main.ProcessInstance, scanResult);
                                             if (funcStart == 0) continue;
 
                                             address = funcStart;
@@ -173,12 +173,12 @@ internal class ScanUtility : MainShared
                             "00 74 00 3A 00 3A 00 42 00 65 00 67 00 69 00 6E 00 44 00 65 00 73 00 74 00 " +
                             "72 00 6F 00 79");
 
-                        ulong[] scanResults = TMemory.ScanMultiple(ProcessInstance, "48 89 ?? ?? ?? E8 ?? ?? ?? ?? 83 7C 24 ?? 00", null, 0x20);
+                        ulong[] scanResults = TMemory.ScanMultiple(Main.ProcessInstance, "48 89 ?? ?? ?? E8 ?? ?? ?? ?? 83 7C 24 ?? 00", null, 0x20);
                         foreach (ulong scanResult in scanResults)
                         {
                             try
                             {
-                                byte[] scanBytes = TMemory.ReadMemoryBytes(ProcessInstance, scanResult, 0x150);
+                                byte[] scanBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, scanResult, 0x150);
                                 Instruction[] instrs = TInstruction.GetInstructions2(scanBytes, scanResult);
 
                                 foreach (Instruction ins in instrs)
@@ -187,15 +187,15 @@ internal class ScanUtility : MainShared
                                     if (!string.IsNullOrEmpty(insTxt) && ins.Bytes.Length == 7 && (insTxt.StartsWith("lea r8, [") ||
                                     (insTxt.StartsWith("lea r") && insTxt.Contains(", ["))))
                                     {
-                                        int value = TMemory.ReadMemory<int>(ProcessInstance, ins.Offset + 3);
+                                        int value = TMemory.ReadMemory<int>(Main.ProcessInstance, ins.Offset + 3);
                                         ulong resolved = (ulong)((long)ins.Offset + value + ins.Bytes.Length);
 
-                                        byte[] readBytes = TMemory.ReadMemoryBytes(ProcessInstance, resolved, logMessage.Length);
+                                        byte[] readBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, resolved, logMessage.Length);
                                         if (readBytes == null) continue;
 
                                         if (logMessage.SequenceEqual(readBytes))
                                         {
-                                            ulong funcStart = TMemory.GetFunctionStart(ProcessInstance, scanResult);
+                                            ulong funcStart = TMemory.GetFunctionStart(Main.ProcessInstance, scanResult);
                                             if (funcStart == 0) continue;
 
                                             address = funcStart;
@@ -215,12 +215,12 @@ internal class ScanUtility : MainShared
 
                 else if (function == Function.UObjectProcessEvent)
                 {
-                    if (DeveloperMode) TUtils.Print("Scan start on module size: " + TProcess.GetImageSize(ProcessInstance).ToString());
+                    if (false) TUtils.Print("Scan start on module size: " + TProcess.GetImageSize(Main.ProcessInstance).ToString());
                     ulong address = 0;
 
                     if (address == 0)
                     {
-                        if (DeveloperMode) TUtils.Print("INNER SCAN STEP 1");
+                        if (false) TUtils.Print("INNER SCAN STEP 1");
                         ScanData scanData = new ScanData();
                         scanData.Signature = "40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? 00 00 48 8D 6C 24 ?? 48 89 9D ?? ?? 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C5 48 89 85 ?? 00 00 00";
 
@@ -229,10 +229,10 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
-                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+                    if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -244,10 +244,10 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
-                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+                    if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -259,11 +259,11 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                         if (address != 0) address += 2;
                     }
 
-                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+                    if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -275,11 +275,11 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                         if (address != 0) address += 2;
                     }
 
-                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+                    if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -291,10 +291,10 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
-                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+                    if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -306,10 +306,10 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
-                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+                    if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     // ugh, need to make it better one day
                     if (address == 0)
@@ -322,11 +322,11 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 82 ?? 00 00 00 00 ?? 00 00", 150),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                         if (address != 0) address += 2;
                     }
 
-                    if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
+                    if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X"));
 
                     if (address == 0)
                     {
@@ -338,10 +338,10 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F7 86 ?? 00 00 00 ?? ?? 00 00", 185),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
 
 
-                        if (DeveloperMode) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X")); if (address != 0) address += 2;
+                        if (false) TUtils.Print("INNER SCAN STEP ADDRESS: " + address.ToString("X")); if (address != 0) address += 2;
                     }
 
                     return address;
@@ -362,7 +362,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("F3 0F 11 3B C6 43 04 01", 0x140),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
                     if (address == 0)
@@ -377,7 +377,7 @@ internal class ScanUtility : MainShared
                             new KeyValuePair<string, int>("?? ?? 48 83 EC ?? 48 8B 41 28 , FF 25 00 00 00 00", 165),
                         };
 
-                        address = TMemory.ScanAdvanced(ProcessInstance, scanData);
+                        address = TMemory.ScanAdvanced(Main.ProcessInstance, scanData);
                     }
 
                     return address;
@@ -394,7 +394,7 @@ internal class ScanUtility : MainShared
                     {
                         try
                         {
-                            address = TMemory.ScanRel2(ProcessInstance, "48 8D 05 ???????? EB ?? 48 8D 0D ???????? E8 ???????? C6 05");
+                            address = TMemory.ScanRel2(Main.ProcessInstance, "48 8D 05 ???????? EB ?? 48 8D 0D ???????? E8 ???????? C6 05");
                         }
                         catch { }
                     }
@@ -403,7 +403,7 @@ internal class ScanUtility : MainShared
                     {
                         try
                         {
-                            address = TMemory.ScanRel2(ProcessInstance, "8B D9 74 ?? 48 8D 15 ???????? EB", offset: 4);
+                            address = TMemory.ScanRel2(Main.ProcessInstance, "8B D9 74 ?? 48 8D 15 ???????? EB", offset: 4);
                         }
                         catch { }
                     }
@@ -412,14 +412,14 @@ internal class ScanUtility : MainShared
                     {
                         do
                         {
-                            ulong result = TMemory.ScanSingle(ProcessInstance, "E8 ???????? 4C 8B C8 41 8B ?? 99 81 E2 FF 3F 00 00");
+                            ulong result = TMemory.ScanSingle(Main.ProcessInstance, "E8 ???????? 4C 8B C8 41 8B ?? 99 81 E2 FF 3F 00 00");
                             if (result == 0) break;
 
                             {
-                                int value = TMemory.ReadMemory<int>(ProcessInstance, result + 1);
+                                int value = TMemory.ReadMemory<int>(Main.ProcessInstance, result + 1);
                                 result = (ulong)((long)result + value + 5);
 
-                                byte[] bytes = TMemory.ReadMemoryBytes(ProcessInstance, result, 50);
+                                byte[] bytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, result, 50);
                                 if (bytes == null) break;
 
                                 Instruction[] instrs = TInstruction.GetInstructions2(bytes, result);
@@ -430,7 +430,7 @@ internal class ScanUtility : MainShared
 
                                 result = instrs[1].Offset;
 
-                                value = TMemory.ReadMemory<int>(ProcessInstance, result + 3);
+                                value = TMemory.ReadMemory<int>(Main.ProcessInstance, result + 3);
                                 if (value == 0) break;
 
                                 address = (ulong)((long)result + value + 7);

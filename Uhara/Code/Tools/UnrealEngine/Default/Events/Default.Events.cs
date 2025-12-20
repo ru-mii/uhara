@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
     public partial class UnrealEngine
     {
@@ -118,7 +118,7 @@ public partial class Tools : MainShared
 
                 public Events()
                 {
-                    if (!ReloadProcess()) throw new Exception();
+                    if (!Main.ReloadProcess()) throw new Exception();
                     MemoryManager.ClearMemory(ToolUniqueID);
                 }
             }

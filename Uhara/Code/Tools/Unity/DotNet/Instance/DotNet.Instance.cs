@@ -11,7 +11,7 @@ using System.Web;
 using System.Windows.Forms;
 using static Tools.Unity.DotNet.Instance.InstanceCreation;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
     public partial class Unity
     {
@@ -127,9 +127,9 @@ public partial class Tools : MainShared
                     {
                         while (true)
                         {
-                            if (!ReloadProcess()) throw new Exception();
+                            if (!Main.ReloadProcess()) throw new Exception();
 
-                            if (ProcessInstance.MainWindowHandle != IntPtr.Zero)
+                            if (Main.ProcessInstance.MainWindowHandle != IntPtr.Zero)
                                 break;
 
                             Thread.Sleep(100);
@@ -140,16 +140,16 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                if (!ReloadProcess()) throw new Exception();
-                                if (ProcessInstance == null) break;
+                                if (!Main.ReloadProcess()) throw new Exception();
+                                if (Main.ProcessInstance == null) break;
 
-                                if (TProcess.GetModuleBase(ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
+                                if (TProcess.GetModuleBase(Main.ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
                                 {
-                                    if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
                                 }
-                                else if (TProcess.GetModuleBase(ProcessInstance, "mono.dll") == 0) break;
+                                else if (TProcess.GetModuleBase(Main.ProcessInstance, "mono.dll") == 0) break;
 
-                                if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;
+                                if (TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll") == 0) break;
                                 success = true;
                             }
                             while (false);

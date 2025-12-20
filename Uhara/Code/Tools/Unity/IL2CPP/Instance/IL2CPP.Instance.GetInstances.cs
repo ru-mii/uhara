@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
 	public partial class Unity
 	{
@@ -87,21 +87,21 @@ public partial class Tools : MainShared
                             {
                                 _imageNamePtr = AddressArgumentsData;
                                 byte[] textBytes = TUtils.StringToMultibyte(imageName + ".dll");
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, textBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, textBytes);
                                 AddressArgumentsData += (ulong)textBytes.Length;
                             }
 
                             {
                                 _namespaceNamePtr = AddressArgumentsData;
                                 byte[] textBytes = TUtils.StringToMultibyte(namespaceName);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, textBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, textBytes);
                                 AddressArgumentsData += (ulong)textBytes.Length;
                             }
 
                             {
                                 _classNamePtr = AddressArgumentsData;
                                 byte[] textBytes = TUtils.StringToMultibyte(className);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, textBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, textBytes);
                                 AddressArgumentsData += (ulong)textBytes.Length;
                             }
                         }
@@ -117,7 +117,7 @@ public partial class Tools : MainShared
                         );
 
                         // write argument bytes
-                        RefWriteBytes(ProcessInstance, AddressArguments, argument);
+                        Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, argument);
                         AddressArguments += (ulong)ArgStruct.End.Offset;
                     }
                     #endregion
@@ -151,7 +151,7 @@ public partial class Tools : MainShared
                                 if (AllocateStart == 0) break;
 
                                 byte[] decoded = TArray.DecodeBlock(AsmCode);
-                                RefWriteBytes(ProcessInstance, AllocateStart, decoded);
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart, decoded);
 
                                 AddressArguments = AllocateStart + GeneratedOffsets.AddressArguments;
                                 AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
@@ -172,14 +172,14 @@ public partial class Tools : MainShared
                         Result result = Result.None;
                         do
                         {
-                            if (!ReloadProcess()) throw new Exception();
+                            if (!Main.ReloadProcess()) throw new Exception();
 
                             // ---
                             {
                                 ulong _IL2CPPCompile = 0;
                                 {
-                                    ulong gameAssemblyBase = TProcess.GetModuleBase(ProcessInstance, "GameAssembly.dll");
-                                    ulong gameAssemblyEnd = TProcess.GetModuleEnd(ProcessInstance, "GameAssembly.dll");
+                                    ulong gameAssemblyBase = TProcess.GetModuleBase(Main.ProcessInstance, "GameAssembly.dll");
+                                    ulong gameAssemblyEnd = TProcess.GetModuleEnd(Main.ProcessInstance, "GameAssembly.dll");
                                     if (gameAssemblyBase == 0 || gameAssemblyEnd == 0) break;
 
                                     if (_IL2CPPCompile == 0)
@@ -188,10 +188,10 @@ public partial class Tools : MainShared
                                         {
                                             do
                                             {
-                                                ulong address = TMemory.ScanSingle(ProcessInstance, "40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 85 C0 74 06 48 83 C4 20 5B C3 48 8B CB E8 ?? ?? ?? ?? 48 8B C8 33 D2 E8", "GameAssembly.dll", 0x20);
+                                                ulong address = TMemory.ScanSingle(Main.ProcessInstance, "40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 85 C0 74 06 48 83 C4 20 5B C3 48 8B CB E8 ?? ?? ?? ?? 48 8B C8 33 D2 E8", "GameAssembly.dll", 0x20);
                                                 if (address == 0) break;
 
-                                                _IL2CPPCompile = (ulong)(((long)address + 9) + TMemory.ReadMemory<int>(ProcessInstance, address + 10) + 5);
+                                                _IL2CPPCompile = (ulong)(((long)address + 9) + TMemory.ReadMemory<int>(Main.ProcessInstance, address + 10) + 5);
                                                 if (_IL2CPPCompile < gameAssemblyBase || _IL2CPPCompile >= gameAssemblyEnd)
                                                     break;
                                             }
@@ -206,14 +206,14 @@ public partial class Tools : MainShared
                                         {
                                             do
                                             {
-                                                ulong address = TMemory.ScanSingle(ProcessInstance, "48 8B 05 ?? ?? ?? ?? 48 85 C0 75 ?? 48 8D 0D ?? ?? ?? ?? E8", "GameAssembly.dll", 0x20);
+                                                ulong address = TMemory.ScanSingle(Main.ProcessInstance, "48 8B 05 ?? ?? ?? ?? 48 85 C0 75 ?? 48 8D 0D ?? ?? ?? ?? E8", "GameAssembly.dll", 0x20);
                                                 if (address == 0) break;
 
                                                 {
-                                                    int value = TMemory.ReadMemory<int>(ProcessInstance, address + 15);
+                                                    int value = TMemory.ReadMemory<int>(Main.ProcessInstance, address + 15);
                                                     ulong resolved = (ulong)((long)address + 12 + value + 7);
 
-                                                    byte[] nameBytes = TMemory.ReadMemoryBytes(ProcessInstance, resolved, 11);
+                                                    byte[] nameBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, resolved, 11);
                                                     if (nameBytes == null) break;
 
                                                     string name = TUtils.MultibyteToString(nameBytes);
@@ -221,7 +221,7 @@ public partial class Tools : MainShared
                                                 }
 
                                                 {
-                                                    int value = TMemory.ReadMemory<int>(ProcessInstance, address + 20);
+                                                    int value = TMemory.ReadMemory<int>(Main.ProcessInstance, address + 20);
                                                     _IL2CPPCompile = (ulong)((long)address + 19 + value + 5);
                                                 }
                                             }
@@ -231,55 +231,55 @@ public partial class Tools : MainShared
                                     }
 
                                     if (_IL2CPPCompile == 0) break;
-                                    else RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.IL2CPPCompile,
+                                    else Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.IL2CPPCompile,
                                             BitConverter.GetBytes(_IL2CPPCompile));
                                 }
                             }
 
                             // ---
                             {
-                                ulong kernel32Base = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
+                                ulong kernel32Base = TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll");
                                 if (kernel32Base == 0) break;
 
-                                ulong _Sleep = TProcess.GetProcAddress(ProcessInstance, kernel32Base, "Sleep");
-                                ulong _GetModuleHandleA = TProcess.GetProcAddress(ProcessInstance, kernel32Base, "GetModuleHandleA");
-                                ulong _GetProcAddress = TProcess.GetProcAddress(ProcessInstance, kernel32Base, "GetProcAddress");
+                                ulong _Sleep = TProcess.GetProcAddress(Main.ProcessInstance, kernel32Base, "Sleep");
+                                ulong _GetModuleHandleA = TProcess.GetProcAddress(Main.ProcessInstance, kernel32Base, "GetModuleHandleA");
+                                ulong _GetProcAddress = TProcess.GetProcAddress(Main.ProcessInstance, kernel32Base, "GetProcAddress");
                                 if (_Sleep == 0 || _GetModuleHandleA == 0 || _GetProcAddress == 0)
                                     break;
 
-                                RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.Sleep, BitConverter.GetBytes(_Sleep));
-                                RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
-                                RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.Sleep, BitConverter.GetBytes(_Sleep));
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
                             }
 
                             // ---
                             {
                                 do
                                 {
-                                    ulong function = TMemory.ScanSingle(ProcessInstance, "8B ?? ?? 03 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
-                                    if (function == 0) TMemory.ScanSingle(ProcessInstance, "8B ?? ?? 04 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
-                                    if (function == 0) TMemory.ScanSingle(ProcessInstance, "8B ?? ?? 03 00 00 FF ?? A9 FB FF FF FF 74 ?? 48", "UnityPlayer.dll", 0x20);
+                                    ulong function = TMemory.ScanSingle(Main.ProcessInstance, "8B ?? ?? 03 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
+                                    if (function == 0) TMemory.ScanSingle(Main.ProcessInstance, "8B ?? ?? 04 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
+                                    if (function == 0) TMemory.ScanSingle(Main.ProcessInstance, "8B ?? ?? 03 00 00 FF ?? A9 FB FF FF FF 74 ?? 48", "UnityPlayer.dll", 0x20);
                                     if (function == 0) break;
 
                                     // ---
-                                    function = TMemory.GetFunctionStart(ProcessInstance, function);
+                                    function = TMemory.GetFunctionStart(Main.ProcessInstance, function);
                                     if (function == 0) break;
 
-                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, function, 14);
+                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, function, 14);
                                     if (minimumOverwrite == 0) break;
 
-                                    byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, function, minimumOverwrite);
+                                    byte[] stolen = TMemory.ReadMemoryBytes(Main.ProcessInstance, function, minimumOverwrite);
                                     MemoryManager.AddOverwrite(function, stolen, ToolUniqueID);
 
                                     // ---
                                     ulong preFun = AddressFreeUse;
 
-                                    RefWriteBytes(ProcessInstance, AddressFreeUse, stolen);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressFreeUse, stolen);
                                     AddressFreeUse += (ulong)stolen.Length;
-                                    AddressFreeUse += TMemory.CreateAbsoluteJump(ProcessInstance, AddressFreeUse, function + (ulong)minimumOverwrite);
+                                    AddressFreeUse += TMemory.CreateAbsoluteJump(Main.ProcessInstance, AddressFreeUse, function + (ulong)minimumOverwrite);
 
                                     ulong hookPoint = AddressFreeUse;
-                                    AddressFreeUse += TMemory.CreateAbsoluteCall(ProcessInstance, AddressFreeUse, preFun, 0x28);
+                                    AddressFreeUse += TMemory.CreateAbsoluteCall(Main.ProcessInstance, AddressFreeUse, preFun, 0x28);
                                     byte[] update = new byte[]
                                     {
                                         0x48, 0xB9, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // mov rcx, value
@@ -288,10 +288,10 @@ public partial class Tools : MainShared
                                     };
                                     TArray.Insert(update, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.NewSceneLoaded_Current), 2);
 
-                                    RefWriteBytes(ProcessInstance, AddressFreeUse, update);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressFreeUse, update);
                                     AddressFreeUse += (ulong)update.Length;
 
-                                    TMemory.CreateAbsoluteJump(ProcessInstance, function, hookPoint);
+                                    TMemory.CreateAbsoluteJump(Main.ProcessInstance, function, hookPoint);
                                 }
                                 while (false);
                             }
@@ -299,7 +299,7 @@ public partial class Tools : MainShared
                             // ---
                             {
                                 MemoryManager.AddOverwrite(AllocateStart + GeneratedOffsets.StopThread, BitConverter.GetBytes((ulong)1), ToolUniqueID);
-                                TProcess.CreateRemoteThread(ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint);
+                                TProcess.CreateRemoteThread(Main.ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint);
                             }
 
                             result = Result.Success;

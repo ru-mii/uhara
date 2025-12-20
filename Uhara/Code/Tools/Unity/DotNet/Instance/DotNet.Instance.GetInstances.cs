@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
 	public partial class Unity
 	{
@@ -88,21 +88,21 @@ public partial class Tools : MainShared
                             {
                                 _imageNamePtr = AddressArgumentsData;
                                 byte[] textBytes = TUtils.StringToMultibyte(imageName);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, textBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, textBytes);
                                 AddressArgumentsData += (ulong)textBytes.Length;
                             }
 
                             {
                                 _namespaceNamePtr = AddressArgumentsData;
                                 byte[] textBytes = TUtils.StringToMultibyte(namespaceName);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, textBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, textBytes);
                                 AddressArgumentsData += (ulong)textBytes.Length;
                             }
 
                             {
                                 _classNamePtr = AddressArgumentsData;
                                 byte[] textBytes = TUtils.StringToMultibyte(className);
-                                RefWriteBytes(ProcessInstance, AddressArgumentsData, textBytes);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressArgumentsData, textBytes);
                                 AddressArgumentsData += (ulong)textBytes.Length;
                             }
                         }
@@ -118,7 +118,7 @@ public partial class Tools : MainShared
                         );
 
                         // write argument bytes
-                        RefWriteBytes(ProcessInstance, AddressArguments, argument);
+                        Main.RefWriteBytes(Main.ProcessInstance, AddressArguments, argument);
                         AddressArguments += (ulong)ArgStruct.End.Offset;
                     }
                     #endregion
@@ -147,7 +147,7 @@ public partial class Tools : MainShared
                             if (AllocateStart == 0) break;
 
                             byte[] decoded = TArray.DecodeBlock(AsmCode);
-                            RefWriteBytes(ProcessInstance, AllocateStart, decoded);
+                            Main.RefWriteBytes(Main.ProcessInstance, AllocateStart, decoded);
 
                             AddressArguments = AllocateStart + GeneratedOffsets.AddressArguments;
                             AddressArgumentsData = AllocateStart + GeneratedOffsets.AddressArgumentsData;
@@ -166,53 +166,53 @@ public partial class Tools : MainShared
                         Result result = Result.None;
                         do
                         {
-                            if (!ReloadProcess()) throw new Exception();
+                            if (!Main.ReloadProcess()) throw new Exception();
 
                             // ---
                             {
-                                ulong kernel32Base = TProcess.GetModuleBase(ProcessInstance, "kernel32.dll");
+                                ulong kernel32Base = TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll");
                                 if (kernel32Base == 0) break;
 
-                                ulong _Sleep = TProcess.GetProcAddress(ProcessInstance, kernel32Base, "Sleep");
-                                ulong _GetModuleHandleA = TProcess.GetProcAddress(ProcessInstance, kernel32Base, "GetModuleHandleA");
-                                ulong _GetProcAddress = TProcess.GetProcAddress(ProcessInstance, kernel32Base, "GetProcAddress");
+                                ulong _Sleep = TProcess.GetProcAddress(Main.ProcessInstance, kernel32Base, "Sleep");
+                                ulong _GetModuleHandleA = TProcess.GetProcAddress(Main.ProcessInstance, kernel32Base, "GetModuleHandleA");
+                                ulong _GetProcAddress = TProcess.GetProcAddress(Main.ProcessInstance, kernel32Base, "GetProcAddress");
                                 if (_Sleep == 0 || _GetModuleHandleA == 0 || _GetProcAddress == 0)
                                     break;
 
-                                RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.Sleep, BitConverter.GetBytes(_Sleep));
-                                RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
-                                RefWriteBytes(ProcessInstance, AllocateStart + GeneratedOffsets.GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.Sleep, BitConverter.GetBytes(_Sleep));
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.GetModuleHandleA, BitConverter.GetBytes(_GetModuleHandleA));
+                                Main.RefWriteBytes(Main.ProcessInstance, AllocateStart + GeneratedOffsets.GetProcAddress, BitConverter.GetBytes(_GetProcAddress));
                             }
 
                             // ---
                             {
                                 do
                                 {
-                                    if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
-                                    ulong function = TMemory.ScanSingle(ProcessInstance, "8B ?? ?? 03 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
-                                    if (function == 0) TMemory.ScanSingle(ProcessInstance, "8B ?? ?? 04 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
-                                    if (function == 0) TMemory.ScanSingle(ProcessInstance, "8B ?? ?? 03 00 00 FF ?? A9 FB FF FF FF 74 ?? 48", "UnityPlayer.dll", 0x20);
+                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                    ulong function = TMemory.ScanSingle(Main.ProcessInstance, "8B ?? ?? 03 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
+                                    if (function == 0) TMemory.ScanSingle(Main.ProcessInstance, "8B ?? ?? 04 00 00 8D ?? FF A9 FA FF FF FF 75 05", "UnityPlayer.dll", 0x20);
+                                    if (function == 0) TMemory.ScanSingle(Main.ProcessInstance, "8B ?? ?? 03 00 00 FF ?? A9 FB FF FF FF 74 ?? 48", "UnityPlayer.dll", 0x20);
                                     if (function == 0) break;
 
                                     // ---
-                                    function = TMemory.GetFunctionStart(ProcessInstance, function);
+                                    function = TMemory.GetFunctionStart(Main.ProcessInstance, function);
                                     if (function == 0) break;
 
-                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, function, 14);
+                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, function, 14);
                                     if (minimumOverwrite == 0) break;
 
-                                    byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, function, minimumOverwrite);
+                                    byte[] stolen = TMemory.ReadMemoryBytes(Main.ProcessInstance, function, minimumOverwrite);
                                     MemoryManager.AddOverwrite(function, stolen, ToolUniqueID);
 
                                     // ---
                                     ulong preFun = AddressFreeUse;
 
-                                    RefWriteBytes(ProcessInstance, AddressFreeUse, stolen);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressFreeUse, stolen);
                                     AddressFreeUse += (ulong)stolen.Length;
-                                    AddressFreeUse += TMemory.CreateAbsoluteJump(ProcessInstance, AddressFreeUse, function + (ulong)minimumOverwrite);
+                                    AddressFreeUse += TMemory.CreateAbsoluteJump(Main.ProcessInstance, AddressFreeUse, function + (ulong)minimumOverwrite);
 
                                     ulong hookPoint = AddressFreeUse;
-                                    AddressFreeUse += TMemory.CreateAbsoluteCall(ProcessInstance, AddressFreeUse, preFun, 0x28);
+                                    AddressFreeUse += TMemory.CreateAbsoluteCall(Main.ProcessInstance, AddressFreeUse, preFun, 0x28);
                                     byte[] update = new byte[]
                                     {
                                         0x48, 0xB9, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // mov rcx, value
@@ -221,10 +221,10 @@ public partial class Tools : MainShared
                                     };
                                     TArray.Insert(update, BitConverter.GetBytes(AllocateStart + GeneratedOffsets.NewSceneLoaded_Current), 2);
 
-                                    RefWriteBytes(ProcessInstance, AddressFreeUse, update);
+                                    Main.RefWriteBytes(Main.ProcessInstance, AddressFreeUse, update);
                                     AddressFreeUse += (ulong)update.Length;
 
-                                    TMemory.CreateAbsoluteJump(ProcessInstance, function, hookPoint);
+                                    TMemory.CreateAbsoluteJump(Main.ProcessInstance, function, hookPoint);
                                 }
                                 while (false);
                             }
@@ -232,7 +232,7 @@ public partial class Tools : MainShared
                             // ---
                             {
                                 MemoryManager.AddOverwrite(AllocateStart + GeneratedOffsets.StopThread, BitConverter.GetBytes((ulong)1), ToolUniqueID);
-                                TProcess.CreateRemoteThread(ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint);
+                                TProcess.CreateRemoteThread(Main.ProcessInstance, AllocateStart + GeneratedOffsets.HK_HookPoint);
                             }
 
                             result = Result.Success;

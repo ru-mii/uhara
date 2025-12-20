@@ -1,5 +1,6 @@
 ﻿using LiveSplit.ComponentUtil;
 using LiveSplit.Model;
+using LiveSplit.View;
 using Microsoft.CSharp;
 using Microsoft.VisualBasic;
 using System;
@@ -18,15 +19,85 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public partial class Main : MainShared
+public partial class Main
 {
     public ScriptSettings Settings = new ScriptSettings();
     public FileLogger FileLogger = new FileLogger();
+
+    // ---
+    internal static LiveSplitState CurrentState;
+
+    internal static ulong UpdateCounter = 0;
+    internal static string UniqueScriptLoadID;
+
+    internal static List<MemoryWatcher> MemoryWatchers = new List<MemoryWatcher>();
+    internal static List<(Type type, MemoryWatcher memoryWatcher)> ListWatchers = new List<(Type, MemoryWatcher)>();
+    internal static List<StringWatcher> StringWatchers = new List<StringWatcher>();
+
+    internal static dynamic Vars;
+    public static bool DebugMode = true;
+
+    // ---
+    internal static dynamic _settings;
+
+    internal static dynamic bf_script;
+    internal static dynamic _script
+    {
+        get
+        {
+            if (bf_script == null) CheckSetProcessAndValues();
+            return bf_script;
+        }
+        set
+        {
+            bf_script = value;
+        }
+    }
+
+    private static volatile Process bf_ProcessInstance = null;
+    internal static Process ProcessInstance
+    {
+        get
+        {
+            if (bf_ProcessInstance == null || bf_ProcessInstance.HasExited)
+            {
+                FieldInfo gameField = _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
+                var gameInstance = gameField?.GetValue(_script);
+                bf_ProcessInstance = (Process)gameInstance;
+            }
+            return bf_ProcessInstance;
+        }
+        set
+        {
+            bf_ProcessInstance = value;
+        }
+    }
+
+    private static IDictionary<string, object> _current;
+    internal static IDictionary<string, object> current
+    {
+        get
+        {
+            if (_current == null) _current = _script.State?.Data;
+            return _current;
+        }
+    }
+
+    private static IDictionary<string, object> _old;
+    internal static IDictionary<string, object> old
+    {
+        get
+        {
+            if (_old == null) _old = _script.OldState?.Data;
+            return _old;
+        }
+    }
 
     public Main()
     {
         try
         {
+            Thread.Sleep(50);
             TSaves2.Register("rumii", "uhara");
             UniqueScriptLoadID = TUtils.GenerateRandomString(32);
             TSaves2.Set(UniqueScriptLoadID, "IDs", "UniqueScriptLoadID");
@@ -52,6 +123,178 @@ public partial class Main : MainShared
         }
         catch { }
         DebugMode = false;
+    }
+
+    public static void AddWatcher(MemoryWatcher watcher)
+    {
+        try
+        {
+            Main.MemoryWatchers.Add(watcher);
+        }
+        catch { }
+    }
+
+    public static void AddWatcher<T>(DeepPointer deepPointer) where T : unmanaged
+    {
+        try
+        {
+            Main.MemoryWatchers.Add(new MemoryWatcher<T>(deepPointer));
+        }
+        catch { }
+    }
+
+    public static void AddWatcher<T>(IntPtr baseAddress, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            Main.MemoryWatchers.Add(new MemoryWatcher<T>(new DeepPointer(baseAddress, offsets)));
+        }
+        catch { }
+    }
+
+    internal static bool ReloadProcess()
+    {
+        do
+        {
+            if (ProcessInstance == null || ProcessInstance.HasExited) break;
+
+            string lastName = ProcessInstance.ProcessName;
+            string lastToken = TProcess.GetToken(ProcessInstance);
+            if (string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(lastToken)) break;
+
+            ProcessInstance = Process.GetProcessById(ProcessInstance.Id);
+            if (ProcessInstance == null || ProcessInstance.HasExited) break;
+
+            string currentName = ProcessInstance.ProcessName;
+            string currentToken = TProcess.GetToken(ProcessInstance);
+            if (string.IsNullOrEmpty(currentName) || string.IsNullOrEmpty(currentToken)) break;
+
+            if (currentName != lastName) break;
+            if (currentToken != lastToken) break;
+
+            return true;
+        }
+        while (false);
+        return false;
+    }
+
+    internal static void CheckSetProcessAndValues()
+    {
+        try
+        {
+            TimerForm timerForm = null;
+            foreach (Form form in Application.OpenForms)
+            {
+                if (form is TimerForm tf)
+                {
+                    timerForm = tf;
+                    break;
+                }
+            }
+            if (timerForm == null) return;
+
+            _script = null;
+            CurrentState = timerForm.CurrentState;
+
+            if (CurrentState?.Run?.AutoSplitter != null && CurrentState.Run.AutoSplitter.IsActivated)
+            {
+                dynamic dynComponent = CurrentState.Run.AutoSplitter.Component;
+                _script = dynComponent.Script;
+            }
+
+            if (_script == null)
+            {
+                foreach (var smth in CurrentState.Layout.LayoutComponents)
+                {
+                    dynamic component = smth.Component;
+                    if (component.GetType().Name.Contains("ASLComponent"))
+                    {
+                        _script = component.Script;
+                        if (_script != null) break;
+                    }
+                }
+            }
+
+            if (_script != null)
+            {
+                Vars = _script.Vars;
+
+                FieldInfo gameField = _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
+                var gameRaw = gameField?.GetValue(_script);
+                ProcessInstance = (Process)gameRaw;
+
+                FieldInfo settingsField = _script.GetType().GetField("_settings", BindingFlags.NonPublic | BindingFlags.Instance);
+                var settingsRaw = settingsField?.GetValue(_script);
+                _settings = settingsRaw;
+
+                // ---
+                if (ProcessInstance != null) MemoryManager.ClearMemory();
+            }
+        }
+        catch { }
+    }
+
+    internal static void SetProcessCache(string id, string name, string data)
+    {
+        string token = TProcess.GetToken(ProcessInstance);
+        if (string.IsNullOrEmpty(token)) return;
+
+        TSaves2.Set(data, "ProcessCache", id, name);
+        TSaves2.Set(token, "ProcessCache", id, name, "Token");
+    }
+
+    internal static string GetProcessCache(string id, string name)
+    {
+        string token = TProcess.GetToken(ProcessInstance);
+        if (string.IsNullOrEmpty(token)) return null;
+
+        string data = TSaves2.Get("ProcessCache", id, name);
+        if (string.IsNullOrEmpty(data)) return null;
+
+        string dataToken = TSaves2.Get("ProcessCache", id, name, "Token");
+        if (string.IsNullOrEmpty(dataToken)) return null;
+
+        if (token == dataToken) return data;
+        return null;
+    }
+
+    internal static MethodInfo _RefAllocateMemory;
+    internal static ulong RefAllocateMemory(Process process, int size)
+    {
+        return (ulong)(IntPtr)_RefAllocateMemory.Invoke(null, new object[] { process, size });
+    }
+
+    internal static MethodInfo _RefReadBytes;
+    internal static byte[] RefReadBytes(Process process, ulong address, int count)
+    {
+        return (byte[])_RefReadBytes.Invoke(null, new object[] { process, (IntPtr)address, count });
+    }
+
+    internal static MethodInfo _RefWriteBytes;
+    internal static void RefWriteBytes(Process process, ulong address, byte[] bytes)
+    {
+        _RefWriteBytes.Invoke(null, new object[] { process, (IntPtr)address, bytes });
+    }
+
+    internal static MethodInfo _RefCreateThread;
+    internal static void RefCreateThread(Process process, ulong address)
+    {
+        _RefCreateThread.Invoke(null, new object[] { process, (IntPtr)address });
+    }
+
+    public object this[string key]
+    {
+        get
+        {
+            try
+            {
+                MemoryWatcher watcher = MemoryWatchers.FirstOrDefault(m => m.Name == key);
+                if (watcher == null) watcher = StringWatchers.FirstOrDefault(m => m.Name == key);
+                return watcher;
+            }
+            catch { }
+            return null;
+        }
     }
 
     public void ForceCleanMemory()
@@ -108,7 +351,7 @@ public partial class Main : MainShared
                         ulong result = TMemory.ScanSingle(ProcessInstance, signature);
                         if (result != 0)
                         {
-                            script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(ProcessInstance, process);
+                            _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(ProcessInstance, process);
                             return;
                         }
                     }
@@ -118,23 +361,7 @@ public partial class Main : MainShared
             while (false);
         }
         catch { }
-        script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
-    }
-
-    public bool RejectOnFound(string signature)
-    {
-        try
-        {
-            if (DeveloperMode) TUtils.Print("Rejection check");
-            if (TMemory.ScanSingle(ProcessInstance, signature) != 0)
-            {
-                if (DeveloperMode) TUtils.Print("REJECTED");
-                Reject();
-            }
-            if (DeveloperMode) TUtils.Print("NOT REJECTED");
-        }
-        catch { }
-        return true;
+        _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_script, null);
     }
 
     public bool Reject(bool condition = true)
@@ -143,7 +370,7 @@ public partial class Main : MainShared
         {
             if (condition)
             {
-                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
+                _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_script, null);
             }
         }
         catch { }
@@ -188,14 +415,14 @@ public partial class Main : MainShared
 
             if (moduleMemorySizes is null || moduleMemorySizes.Length == 0)
             {
-                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
+                _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_script, null);
                 return true;
             }
 
             int exeModuleSize = TProcess.GetImageSize(ProcessInstance, module);
             if (moduleMemorySizes.Any(mms => mms == exeModuleSize))
             {
-                script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(script, null);
+                _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_script, null);
                 return true;
             }
         }
@@ -310,15 +537,6 @@ public partial class Main : MainShared
         catch { }
     }
 
-    public void EnableDeveloperMode()
-    {
-        try
-        {
-            DeveloperMode = true;
-        }
-        catch { }
-    }
-
     public void EnableDebug()
     {
         try
@@ -349,7 +567,7 @@ public partial class Main : MainShared
                     {
                         old[watcher.Name] = watcher.Current;
                         watcher.Update(ProcessInstance);
-                            current[watcher.Name] = watcher.Current;
+                        current[watcher.Name] = watcher.Current;
                     }
 
                     foreach (var watcher in ListWatchers)
@@ -641,17 +859,6 @@ public partial class Main : MainShared
                     if (ToolsShared.ToolNames.UnrealEngine.Default.Utilities.Data.Contains(tool))
                     {
                         return new Tools.UnrealEngine.Default.Utilities();
-                    }
-                }
-            }
-
-            if (ToolsShared.ToolNames.UnrealEngine.Data.Contains(engine))
-            {
-                if (ToolsShared.ToolNames.UnrealEngine.Default.Data.Contains(type))
-                {
-                    if (ToolsShared.ToolNames.UnrealEngine.Default.CutsceneManager.Data.Contains(tool))
-                    {
-                        //return new Tools.UnrealEngine.Default.CutsceneManager();
                     }
                 }
             }

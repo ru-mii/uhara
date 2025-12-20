@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
     public partial class UnrealEngine
     {
@@ -36,14 +36,14 @@ public partial class Tools : MainShared
                     var chunkIdx = (fName & 0x00000000FFFF0000) >> 0x10;
                     var number = (fName & 0xFFFFFFFF00000000) >> 0x20;
 
-                    IntPtr chunk = (IntPtr)TMemory.ReadMemory<ulong>(ProcessInstance,
+                    IntPtr chunk = (IntPtr)TMemory.ReadMemory<ulong>(Main.ProcessInstance,
                         FNamePoolAddress + (ulong)(0x10 + (int)chunkIdx * 0x8));
 
                     IntPtr entry = chunk + (int)nameIdx * sizeof(short);
-                    int length = TMemory.ReadMemory<short>(ProcessInstance, entry) >> 6;
+                    int length = TMemory.ReadMemory<short>(Main.ProcessInstance, entry) >> 6;
                     if (length > byte.MaxValue || length <= 0) break;
 
-                    return TUtils.MultibyteToString(TMemory.ReadMemoryBytes(ProcessInstance, entry + sizeof(short), length));
+                    return TUtils.MultibyteToString(TMemory.ReadMemoryBytes(Main.ProcessInstance, entry + sizeof(short), length));
                 }
                 while (false);
             }
@@ -65,24 +65,24 @@ public partial class Tools : MainShared
                 fps = (int)(fps);
 
                 // ---
-                if (!ReloadProcess()) throw new Exception();
-                if (ProcessInstance.ProcessName != "VanWheelGone-Win64-Shipping")
+                if (!Main.ReloadProcess()) throw new Exception();
+                if (Main.ProcessInstance.ProcessName != "VanWheelGone-Win64-Shipping")
                     break;
 
                 MemoryManager.ClearMemory(uniqueId);
 
                 // ---
-                ulong scanResult = TMemory.ScanSingle(ProcessInstance, "48 8B 0D ?? ?? ?? ?? 0F 57 C9 F3 0F 5F C1 48 8B 01 0F 28 C8 FF 90", null, 0x20);
+                ulong scanResult = TMemory.ScanSingle(Main.ProcessInstance, "48 8B 0D ?? ?? ?? ?? 0F 57 C9 F3 0F 5F C1 48 8B 01 0F 28 C8 FF 90", null, 0x20);
                 if (scanResult == 0) break;
 
-                Instruction[] instrs = TInstruction.GetInstructions2(TMemory.ReadMemoryBytes(ProcessInstance, scanResult, 0x100), scanResult);
+                Instruction[] instrs = TInstruction.GetInstructions2(TMemory.ReadMemoryBytes(Main.ProcessInstance, scanResult, 0x100), scanResult);
                 if (!instrs[0].ToString().StartsWith("mov rcx, [rip")) break;
                 if (instrs.Length < 10) break;
 
                 // ---
                 ulong gEnginePtr = 0;
                 {
-                    int value = TMemory.ReadMemory<int>(ProcessInstance, scanResult + 3);
+                    int value = TMemory.ReadMemory<int>(Main.ProcessInstance, scanResult + 3);
                     gEnginePtr = (ulong)((long)scanResult + value + 7);
                 }
                 if (gEnginePtr == 0) break;
@@ -103,8 +103,8 @@ public partial class Tools : MainShared
                 if (setFpsVtableOffset == 0) break;
 
                 // ---
-                if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;
-                ulong sleep = TProcess.GetProcAddress(ProcessInstance, "kernel32.dll", "Sleep");
+                if (TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll") == 0) break;
+                ulong sleep = TProcess.GetProcAddress(Main.ProcessInstance, "kernel32.dll", "Sleep");
                 if (sleep == 0) break;
 
                 // ---
@@ -123,18 +123,18 @@ public partial class Tools : MainShared
                     #endregion
 
                     byte[] decoded = TArray.DecodeBlock(AsmCode);
-                    RefWriteBytes(ProcessInstance, allocated, decoded);
+                    Main.RefWriteBytes(Main.ProcessInstance, allocated, decoded);
 
-                    RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(fps)); allocated += 0x8;
-                    RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(gEnginePtr)); allocated += 0x8;
-                    RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(setFpsVtableOffset)); allocated += 0x8;
-                    RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(sleep)); allocated += 0x8;
+                    Main.RefWriteBytes(Main.ProcessInstance, allocated, BitConverter.GetBytes(fps)); allocated += 0x8;
+                    Main.RefWriteBytes(Main.ProcessInstance, allocated, BitConverter.GetBytes(gEnginePtr)); allocated += 0x8;
+                    Main.RefWriteBytes(Main.ProcessInstance, allocated, BitConverter.GetBytes(setFpsVtableOffset)); allocated += 0x8;
+                    Main.RefWriteBytes(Main.ProcessInstance, allocated, BitConverter.GetBytes(sleep)); allocated += 0x8;
                     MemoryManager.AddOverwrite(allocated, BitConverter.GetBytes((ulong)1)); allocated += 0x8;
 
                     ulong threadHere = allocated;
                     allocated += (ulong)decoded.Length;
 
-                    TProcess.CreateRemoteThread(ProcessInstance, threadHere);
+                    TProcess.CreateRemoteThread(Main.ProcessInstance, threadHere);
                 }
 
                 // ---
@@ -161,19 +161,19 @@ public partial class Tools : MainShared
         {
             do
             {
-                if (!ReloadProcess()) throw new Exception();
+                if (!Main.ReloadProcess()) throw new Exception();
                 MemoryManager.ClearMemory(uniqueId);
 
                 // ---
                 fps = (int)(fps);
 
                 // ---
-                ulong address = TMemory.ScanSingle(ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 44 0F 28 4C 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
-                if (address == 0) TMemory.ScanSingle(ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
+                ulong address = TMemory.ScanSingle(Main.ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 44 0F 28 4C 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
+                if (address == 0) TMemory.ScanSingle(Main.ProcessInstance, "EB 03 0F 28 C6 48 8B 5C 24 ?? 0F 28 74 24 ?? 44 0F 28 ?? 24 ?? 48 83 C4 ?? 5F C3", null, 0x20);
                 if (address == 0) break;
 
                 // ---
-                byte[] ending = TMemory.ReadMemoryBytes(ProcessInstance, address, 0x100);
+                byte[] ending = TMemory.ReadMemoryBytes(Main.ProcessInstance, address, 0x100);
                 if (ending == null) break;
 
                 Instruction[] instrs = TInstruction.GetInstructions2(ending, address);
@@ -185,26 +185,26 @@ public partial class Tools : MainShared
                 ulong allocated = MemoryManager.AllocateSafe(0x1000, uniqueId);
 
                 address = instrs[2].Offset;
-                int minimumOverwrite = TInstruction.GetMinimumOverwrite(ProcessInstance, address, 14);
+                int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, address, 14);
                 if (minimumOverwrite == 0) break;
 
-                byte[] stolen = TMemory.ReadMemoryBytes(ProcessInstance, address, minimumOverwrite);
+                byte[] stolen = TMemory.ReadMemoryBytes(Main.ProcessInstance, address, minimumOverwrite);
                 if (stolen == null) break;
                 MemoryManager.AddOverwrite(address, stolen, uniqueId);
 
-                RefWriteBytes(ProcessInstance, allocated, BitConverter.GetBytes(fps));
+                Main.RefWriteBytes(Main.ProcessInstance, allocated, BitConverter.GetBytes(fps));
                 allocated += 0x8;
 
                 ulong myCodeStart = allocated;
 
                 byte[] overwriteXmm = new byte[] { 0x50, 0x48, 0x8B, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x66, 0x48, 0x0F, 0x6E, 0xC0, 0x58 };
-                RefWriteBytes(ProcessInstance, allocated, overwriteXmm);
+                Main.RefWriteBytes(Main.ProcessInstance, allocated, overwriteXmm);
                 allocated += (ulong)overwriteXmm.Length;
-                RefWriteBytes(ProcessInstance, allocated, stolen);
+                Main.RefWriteBytes(Main.ProcessInstance, allocated, stolen);
                 allocated += (ulong)stolen.Length;
 
-                TMemory.CreateAbsoluteJump(ProcessInstance, allocated, address + (ulong)minimumOverwrite);
-                TMemory.CreateAbsoluteJump(ProcessInstance, address, myCodeStart);
+                TMemory.CreateAbsoluteJump(Main.ProcessInstance, allocated, address + (ulong)minimumOverwrite);
+                TMemory.CreateAbsoluteJump(Main.ProcessInstance, address, myCodeStart);
 
                 // ---
                 TUtils.Print("Utils | FPS locked to " + fps.ToString());

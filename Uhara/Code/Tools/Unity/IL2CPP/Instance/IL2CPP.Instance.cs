@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using static Tools.Unity.IL2CPP.Instance.InstanceCreation;
 
-public partial class Tools : MainShared
+public partial class Tools
 {
     public partial class Unity
     {
@@ -121,9 +121,9 @@ public partial class Tools : MainShared
                 {
                     try
                     {
-                        while (ProcessInstance.MainWindowHandle == IntPtr.Zero)
+                        while (Main.ProcessInstance.MainWindowHandle == IntPtr.Zero)
                         {
-                            if (!ReloadProcess()) throw new Exception();
+                            if (!Main.ReloadProcess()) throw new Exception();
                             Thread.Sleep(100);
                         }
 
@@ -132,10 +132,10 @@ public partial class Tools : MainShared
                         {
                             do
                             {
-                                if (!ReloadProcess()) throw new Exception();
-                                if (TProcess.GetModuleBase(ProcessInstance, "GameAssembly.dll") == 0) break;
-                                if (TProcess.GetModuleBase(ProcessInstance, "UnityPlayer.dll") == 0) break;
-                                if (TProcess.GetModuleBase(ProcessInstance, "kernel32.dll") == 0) break;
+                                if (!Main.ReloadProcess()) throw new Exception();
+                                if (TProcess.GetModuleBase(Main.ProcessInstance, "GameAssembly.dll") == 0) break;
+                                if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                if (TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll") == 0) break;
                                 success = true;
                             }
                             while (false);

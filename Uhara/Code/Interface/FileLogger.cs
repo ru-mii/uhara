@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Windows.Forms.LinkLabel;
 
-public class FileLogger : MainShared
+public class FileLogger
 {
     string FilePath;
     int MaxLines;
@@ -55,17 +55,17 @@ public class FileLogger : MainShared
             if (!Enabled) return;
 
             // ---
-            string gameName = ProcessInstance.ProcessName;
+            string gameName = Main.ProcessInstance.ProcessName;
             if (string.IsNullOrEmpty(gameName)) throw new Exception("Couldn't retrieve game name for logging");
 
             string stamp = "00:00:00.000";
             {
                 TimeSpan ts = new TimeSpan();
-                if (CurrentState.CurrentTimingMethod == TimingMethod.GameTime && CurrentState.CurrentTime.GameTime.HasValue)
-                    ts = CurrentState.CurrentTime.GameTime.Value;
+                if (Main.CurrentState.CurrentTimingMethod == TimingMethod.GameTime && Main.CurrentState.CurrentTime.GameTime.HasValue)
+                    ts = Main.CurrentState.CurrentTime.GameTime.Value;
 
-                else if (CurrentState.CurrentTimingMethod == TimingMethod.RealTime && CurrentState.CurrentTime.RealTime.HasValue)
-                    ts = CurrentState.CurrentTime.RealTime.Value;
+                else if (Main.CurrentState.CurrentTimingMethod == TimingMethod.RealTime && Main.CurrentState.CurrentTime.RealTime.HasValue)
+                    ts = Main.CurrentState.CurrentTime.RealTime.Value;
 
                 stamp = string.Format(CultureInfo.InvariantCulture,
                 "{0:00}:{1:00}:{2:00}.{3:000}",
@@ -76,7 +76,7 @@ public class FileLogger : MainShared
             }
 
             int liveSplitPid = Process.GetCurrentProcess().Id;
-            int gamePid = ProcessInstance != null ? ProcessInstance.Id : 0;
+            int gamePid = Main.ProcessInstance != null ? Main.ProcessInstance.Id : 0;
 
             message = $"LS[{liveSplitPid}]" + $"GM[{gamePid}] | " + gameName + " | " + stamp + " | " + message;
 
