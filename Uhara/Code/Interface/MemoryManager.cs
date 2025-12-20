@@ -30,7 +30,7 @@ internal class MemoryManager
         {
             if (!TProcess.IsAlive(Main.ProcessInstance)) return;
             string tempToken = TProcess.GetToken(Main.ProcessInstance);
-            for (int i = 0; i < 150; i++) Thread.Sleep(100); // 15 seconds
+            for (int i = 0; i < 100; i++) Thread.Sleep(100); // 10 seconds
             if (!TProcess.IsAlive(Main.ProcessInstance)) return;
             if (tempToken != TProcess.GetToken(Main.ProcessInstance)) return;
             TMemory.FreeMemory(Main.ProcessInstance, address, size);

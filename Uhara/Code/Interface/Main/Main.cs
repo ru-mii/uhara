@@ -129,7 +129,7 @@ public partial class Main
     {
         try
         {
-            Main.MemoryWatchers.Add(watcher);
+            MemoryWatchers.Add(watcher);
         }
         catch { }
     }
@@ -138,7 +138,7 @@ public partial class Main
     {
         try
         {
-            Main.MemoryWatchers.Add(new MemoryWatcher<T>(deepPointer));
+            MemoryWatchers.Add(new MemoryWatcher<T>(deepPointer));
         }
         catch { }
     }
@@ -147,7 +147,7 @@ public partial class Main
     {
         try
         {
-            Main.MemoryWatchers.Add(new MemoryWatcher<T>(new DeepPointer(baseAddress, offsets)));
+            MemoryWatchers.Add(new MemoryWatcher<T>(new DeepPointer(baseAddress, offsets)));
         }
         catch { }
     }
