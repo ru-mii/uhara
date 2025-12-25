@@ -21,6 +21,8 @@ using System.Windows.Forms;
 
 public partial class Main
 {
+    public static string LIB_VERSION = "10";
+
     public ScriptSettings Settings = new ScriptSettings();
     public FileLogger FileLogger = new FileLogger();
 
@@ -98,7 +100,7 @@ public partial class Main
         try
         {
             Thread.Sleep(50);
-            TSaves2.Register("rumii", "uhara");
+            TSaves2.Register("rumii", "uhara" + LIB_VERSION);
             UniqueScriptLoadID = TUtils.GenerateRandomString(32);
             TSaves2.Set(UniqueScriptLoadID, "IDs", "UniqueScriptLoadID");
 
