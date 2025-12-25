@@ -193,42 +193,35 @@ public partial class Main
             }
             if (timerForm == null) return;
 
-            _script = null;
+            bf_script = null;
             CurrentState = timerForm.CurrentState;
 
             if (CurrentState?.Run?.AutoSplitter != null && CurrentState.Run.AutoSplitter.IsActivated)
             {
                 dynamic dynComponent = CurrentState.Run.AutoSplitter.Component;
-                _script = dynComponent.Script;
+                bf_script = dynComponent.Script;
             }
 
-            if (_script == null)
+            if (bf_script == null)
             {
                 foreach (var smth in CurrentState.Layout.LayoutComponents)
                 {
                     dynamic component = smth.Component;
                     if (component.GetType().Name.Contains("ASLComponent"))
                     {
-                        _script = component.Script;
-                        if (_script != null) break;
+                        bf_script = component.Script;
+                        if (bf_script != null) break;
                     }
                 }
             }
 
-            if (_script != null)
+            if (bf_script != null)
             {
-                Vars = _script.Vars;
+                Vars = bf_script.Vars;
 
-                FieldInfo gameField = _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
-                var gameRaw = gameField?.GetValue(_script);
-                ProcessInstance = (Process)gameRaw;
-
-                FieldInfo settingsField = _script.GetType().GetField("_settings", BindingFlags.NonPublic | BindingFlags.Instance);
-                var settingsRaw = settingsField?.GetValue(_script);
+                FieldInfo settingsField = bf_script.GetType().GetField("_settings", BindingFlags.NonPublic | BindingFlags.Instance);
+                var settingsRaw = settingsField?.GetValue(bf_script);
                 _settings = settingsRaw;
-
-                // ---
-                if (ProcessInstance != null) MemoryManager.ClearMemory();
             }
         }
         catch { }
