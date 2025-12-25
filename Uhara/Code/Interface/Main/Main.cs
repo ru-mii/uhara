@@ -124,7 +124,6 @@ public partial class Main
                 File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
         }
         catch { }
-        DebugMode = false;
     }
 
     public static void AddWatcher(MemoryWatcher watcher)
@@ -528,6 +527,15 @@ public partial class Main
                     CurrentState.CurrentTimingMethod = TimingMethod.RealTime;
                 }
             }
+        }
+        catch { }
+    }
+
+    public void DisableDebug()
+    {
+        try
+        {
+            DebugMode = false;
         }
         catch { }
     }
