@@ -120,7 +120,8 @@ public class PtrResolver
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
 
             return deepPointer.Deref<T>(Main.ProcessInstance);
         }
@@ -259,6 +260,46 @@ public class PtrResolver
             else deepPointer = new DeepPointer((IntPtr)_base, offsets);
 
             return deepPointer.DerefString(Main.ProcessInstance, readStringType, length, null);
+        }
+        catch { }
+        return null;
+    }
+    #endregion
+    #region READ_BYTES
+    public byte[] ReadBytes((IntPtr _base, int[] offsets) offsets, int size)
+    {
+        return _ReadBytes(offsets._base, size, offsets: offsets.offsets);
+    }
+
+    public byte[] ReadBytes(object _base, int size, params int[] offsets)
+    {
+        return _ReadBytes(_base, size, offsets: offsets);
+    }
+
+    public byte[] ReadBytes(string moduleName, object _base, int size, params int[] offsets)
+    {
+        return _ReadBytes(_base, size, moduleName, offsets);
+    }
+
+    public byte[] ReadBytes(Module module, object _base, int size, params int[] offsets)
+    {
+        return _ReadBytes(_base, size, module.Name, offsets);
+    }
+
+    private byte[] _ReadBytes(object _base, int size, string moduleName = null, params int[] offsets)
+    {
+        try
+        {
+            DeepPointer deepPointer;
+            if (_base is int)
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+
+            return deepPointer.DerefBytes(Main.ProcessInstance, size);
         }
         catch { }
         return null;

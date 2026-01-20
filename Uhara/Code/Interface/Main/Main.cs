@@ -3,6 +3,7 @@ using LiveSplit.Model;
 using LiveSplit.View;
 using Microsoft.CSharp;
 using Microsoft.VisualBasic;
+using SharpDisasm;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections;
@@ -124,6 +125,26 @@ public partial class Main
                 File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
         }
         catch { }
+    }
+
+    public Instruction[] Disassemble(byte[] bytes)
+    {
+        try
+        {
+            return Disassemble(bytes, IntPtr.Zero);
+        }
+        catch { }
+        return null;
+    }
+
+    public Instruction[] Disassemble(byte[] bytes, IntPtr address)
+    {
+        try
+        {
+            return TInstruction.GetInstructions2(bytes, (ulong)address);
+        }
+        catch { }
+        return null;
     }
 
     public static void AddWatcher(MemoryWatcher watcher)
