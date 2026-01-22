@@ -26,7 +26,7 @@ public partial class Tools
                 private byte[] AsmAdd1RelativeStorage = new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 };
 
                 // mov [rip-8], rdi
-                private byte[] AsmMovRdiRelativeStorage = new byte[] { 0x48, 0x89, 0x3D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 };
+                private byte[] AsmMovRcxRelativeStorage = new byte[] { 0x48, 0x89, 0x0D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 };
 
                 public class Offsets
                 {
@@ -100,37 +100,37 @@ public partial class Tools
 
                 public IntPtr AddInst(string _class)
                 {
-                    return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 0, AsmMovRdiRelativeStorage);
+                    return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, 0, AsmMovRcxRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, short overwriteSize)
                 {
                     return Add(DefAssembly, DefNamespace, _class, "Update", 0, 0, overwriteSize,
-                        AsmMovRdiRelativeStorage);
+                        AsmMovRcxRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, string _method)
                 {
                     return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, 0,
-                        AsmMovRdiRelativeStorage);
+                        AsmMovRcxRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, string _method, short overwriteSize)
                 {
                     return Add(DefAssembly, DefNamespace, _class, _method, -1, 0, overwriteSize,
-                        AsmMovRdiRelativeStorage);
+                        AsmMovRcxRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _class, string _method, short paramCount, short hookOffset, short overwriteSize)
                 {
                     return Add(DefAssembly, DefNamespace, _class, _method, paramCount, hookOffset, overwriteSize,
-                        AsmMovRdiRelativeStorage);
+                        AsmMovRcxRelativeStorage);
                 }
 
                 public IntPtr AddInst(string _namespace, string _class, string _method, short overwriteSize)
                 {
                     return Add(DefAssembly, _namespace, _class, _method, -1, 0, overwriteSize,
-                        AsmMovRdiRelativeStorage);
+                        AsmMovRcxRelativeStorage);
                 }
 
                 public IntPtr Add(string _class, string _method, short paramCount, short hookOffset, short overwriteSize, byte[] bytes)
