@@ -22,11 +22,8 @@ public partial class Tools
             {
                 private ulong AllocSize = 0x10000;
 
-                // add [rip-8], 1
-                private byte[] AsmAdd1RelativeStorage = new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 };
-
-                // mov [rip-8], rdi
-                private byte[] AsmMovRcxRelativeStorage = new byte[] { 0x48, 0x89, 0x0D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 };
+                private byte[] AsmAdd1RelativeStorage = new byte[] { 0x48, 0x83, 0x05, 0xF0, 0xFF, 0xFF, 0xFF, 0x01 }; // add [rip-8], 1
+                private byte[] AsmMovRcxRelativeStorage = new byte[] { 0x48, 0x89, 0x0D, 0xF1, 0xFF, 0xFF, 0xFF, 0x90 }; // mov [rip-8], rcx
 
                 public class Offsets
                 {

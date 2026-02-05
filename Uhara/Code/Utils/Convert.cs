@@ -39,22 +39,22 @@ internal class TConvert
             if (typeof(T) == typeof(bool))
             {
                 bool val = false; if (bool.TryParse(number, out val))
-                    return (T)(object)val;
+                    return (T)(object)(bool)val;
             }
             else if (typeof(T) == typeof(sbyte))
             {
                 sbyte val = 0; if (sbyte.TryParse(number, numberStyle, CultureInfo.InvariantCulture, out val))
-                    return (T)(object)(val * multiplier);
+                    return (T)(object)(sbyte)(val * multiplier);
             }
             else if (typeof(T) == typeof(byte))
             {
                 byte val = 0; if (byte.TryParse(number, numberStyle, CultureInfo.InvariantCulture, out val))
-                    return (T)(object)(val * multiplier);
+                    return (T)(object)(byte)(val * multiplier);
             }
             else if (typeof(T) == typeof(int))
             {
                 int val = 0; if (int.TryParse(number, numberStyle, CultureInfo.InvariantCulture, out val))
-                    return (T)(object)(val * multiplier);
+                    return (T)(object)(int)(val * multiplier);
             }
             else if (typeof(T) == typeof(uint))
             {
@@ -64,7 +64,7 @@ internal class TConvert
             else if (typeof(T) == typeof(long))
             {
                 long val = 0; if (long.TryParse(number, numberStyle, CultureInfo.InvariantCulture, out val))
-                    return (T)(object)(val * multiplier);
+                    return (T)(object)(long)(val * multiplier);
             }
             else if (typeof(T) == typeof(ulong))
             {
@@ -74,12 +74,12 @@ internal class TConvert
             else if (typeof(T) == typeof(float))
             {
                 float val = 0; if (float.TryParse(number, numberStyle, CultureInfo.InvariantCulture, out val))
-                    return (T)(object)(val * multiplier);
+                    return (T)(object)(float)(val * multiplier);
             }
             else if (typeof(T) == typeof(double))
             {
                 double val = 0; if (double.TryParse(number, numberStyle, CultureInfo.InvariantCulture, out val))
-                    return (T)(object)(val * multiplier);
+                    return (T)(object)(double)(val * multiplier);
             }
         }
         catch { }

@@ -17,8 +17,63 @@ public partial class Tools
             private static string ToolUniqueID = "LMYpsRecShieLHhD";
 
             SceneManager sceneManager = null;
+            GameObject gameObject = null;
 
             internal static bool LegacyVersion = false;
+
+            #region PUBLIC_API
+            public GameObject.GameObjectResolvable ConvertInstanceToGameObject(IntPtr instanceAddress, bool isWithinAPointer)
+            {
+                try
+                {
+                    return gameObject?.ConvertInstanceToGameObject(instanceAddress, isWithinAPointer);
+                }
+                catch { }
+                return null;
+            }
+
+            public string GetActiveSceneName()
+            {
+                try
+                {
+                    do
+                    {
+                        return sceneManager?.GetCurrentSceneName();
+                    }
+                    while (false);
+                }
+                catch { }
+                return null;
+            }
+
+            public string GetCurrentSceneName()
+            {
+                try
+                {
+                    do
+                    {
+                        return sceneManager?.GetCurrentSceneName();
+                    }
+                    while (false);
+                }
+                catch { }
+                return null;
+            }
+
+            public string GetLoadingSceneName()
+            {
+                try
+                {
+                    do
+                    {
+                        return sceneManager?.GetLoadingSceneName();
+                    }
+                    while (false);
+                }
+                catch { }
+                return null;
+            }
+            #endregion
 
             #region CONSTRUCTOR
             public Utilities()
@@ -41,6 +96,8 @@ public partial class Tools
                             if (TProcess.GetModuleBase(Main.ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
                             {
                                 if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                byte[] modBytes = TProcess.GetModuleBytes(Main.ProcessInstance, "UnityPlayer.dll");
+                                if (modBytes == null || modBytes.Length == 0) break;
                             }
                             else if (TProcess.GetModuleBase(Main.ProcessInstance, "mono.dll") == 0) break;
                             else LegacyVersion = true;
@@ -56,6 +113,7 @@ public partial class Tools
 
                     // ---
                     sceneManager = new SceneManager();
+                    gameObject = new GameObject();
                 }
                 catch { }
             }

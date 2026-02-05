@@ -75,6 +75,25 @@ internal class TProcess
         }
     }
 
+    internal static byte[] GetModuleBytes(Process process, string name = null)
+    {
+        do
+        {
+            ulong start = GetModuleBase(process, name); if (start == 0) break;
+            ulong size = GetModuleSize(process, name); if (size == 0) break;
+
+            return TMemory.ReadMemoryBytes(process, start, (int)size);
+        }
+        while (false);
+        return null;
+    }
+
+    public static ulong GetModuleSize(Process process, string name = null)
+    {
+        if (name == null) return (ulong)process.MainModule.ModuleMemorySize;
+        return (ulong)GetModule(process, name).ModuleMemorySize;
+    }
+
     internal static ulong GetModuleBase(Process process, string name = null)
     {
         if (name == null)

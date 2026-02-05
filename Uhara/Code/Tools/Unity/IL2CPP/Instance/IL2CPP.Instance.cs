@@ -133,9 +133,15 @@ public partial class Tools
                             do
                             {
                                 if (!Main.ReloadProcess()) throw new Exception();
-                                if (TProcess.GetModuleBase(Main.ProcessInstance, "GameAssembly.dll") == 0) break;
-                                if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
-                                if (TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll") == 0) break;
+                                try
+                                {
+                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "GameAssembly.dll") == 0) break;
+                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                    byte[] modBytes = TProcess.GetModuleBytes(Main.ProcessInstance, "UnityPlayer.dll");
+                                    if (modBytes == null || modBytes.Length == 0) break;
+                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll") == 0) break;
+                                }
+                                catch { break; }
                                 success = true;
                             }
                             while (false);

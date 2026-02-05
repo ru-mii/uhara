@@ -141,15 +141,21 @@ public partial class Tools
                             do
                             {
                                 if (!Main.ReloadProcess()) throw new Exception();
-                                if (Main.ProcessInstance == null) break;
-
-                                if (TProcess.GetModuleBase(Main.ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
+                                try
                                 {
-                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
-                                }
-                                else if (TProcess.GetModuleBase(Main.ProcessInstance, "mono.dll") == 0) break;
+                                    if (Main.ProcessInstance == null) break;
 
-                                if (TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll") == 0) break;
+                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
+                                    {
+                                        if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
+                                        byte[] modBytes = TProcess.GetModuleBytes(Main.ProcessInstance, "UnityPlayer.dll");
+                                        if (modBytes == null || modBytes.Length == 0) break;
+                                    }
+                                    else if (TProcess.GetModuleBase(Main.ProcessInstance, "mono.dll") == 0) break;
+
+                                    if (TProcess.GetModuleBase(Main.ProcessInstance, "kernel32.dll") == 0) break;
+                                }
+                                catch { }
                                 success = true;
                             }
                             while (false);

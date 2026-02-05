@@ -14,50 +14,6 @@ public partial class Tools
 	{
 		public partial class Utilities
 		{
-			#region PUBLIC_API
-			public string GetActiveSceneName()
-			{
-				try
-				{
-					do
-					{
-						return sceneManager.GetCurrentSceneName();
-					}
-					while (false);
-				}
-				catch { }
-				return null;
-			}
-
-			public string GetCurrentSceneName()
-			{
-				try
-				{
-					do
-					{
-						return sceneManager.GetCurrentSceneName();
-					}
-					while (false);
-				}
-				catch { }
-				return null;
-			}
-
-			public string GetLoadingSceneName()
-			{
-				try
-				{
-					do
-					{
-						return sceneManager.GetLoadingSceneName();
-					}
-					while (false);
-				}
-				catch { }
-				return null;
-			}
-			#endregion
-
 			private class SceneManager
 			{
 				#region VARIABLES
@@ -316,12 +272,12 @@ public partial class Tools
 							}
 							catch { }
 						}
-
-						if (success) TUtils.Print("Unity.Utils | SceneManager loaded seccessfuly");
-						else TUtils.Print("Unity.Utils | SceneManager loading failed");
 					}
 					catch { }
-					return success;
+
+                    if (success) TUtils.Print("Unity.Utils | SceneManager loaded successfuly");
+                    else TUtils.Print("Unity.Utils | SceneManager loading failed");
+                    return success;
 				}
 				#endregion
 
