@@ -19,18 +19,25 @@ public partial class Tools
                 bool IsLoaded = false;
 
                 static int OffsetCachePtr = 0x10;
+
                 static int OffsetGameObjectManaged;
+
                 static int OffsetActiveSelf;
                 static int OffsetName;
+
+                static int OffsetTransform = 0x8;
+                static int OffsetTransformInternal;
+                static int OffsetPosition = 0x90;
+                static int OffsetLocalScale = 0xB0;
                 #endregion
 
                 #region INTERNAL_API
-                internal GameObjectResolvable ConvertInstanceToGameObject(IntPtr instanceAddress, bool isWithinAPointer)
+                internal GameObjectResolvable InstanceToGameObject(IntPtr instanceAddress, bool isWithinAPointer)
                 {
-                    return ConvertInstanceToGameObject((ulong)instanceAddress, isWithinAPointer);
+                    return InstanceToGameObject((ulong)instanceAddress, isWithinAPointer);
                 }
 
-                internal GameObjectResolvable ConvertInstanceToGameObject(ulong instanceAddress, bool isWithinAPointer)
+                internal GameObjectResolvable InstanceToGameObject(ulong instanceAddress, bool isWithinAPointer)
                 {
                     return IsLoaded ? new GameObjectResolvable(isWithinAPointer, instanceAddress) : null;
                 }
@@ -41,6 +48,8 @@ public partial class Tools
                 {
                     private bool IsInstanceWithinPointer = false;
                     public ulong InstanceAddress = 0;
+
+                    public Transform transform;
 
                     public bool active { get { return activeSelf; } }
                     public bool activeSelf
@@ -89,6 +98,182 @@ public partial class Tools
                         }
                     }
 
+                    public class Transform
+                    {
+                        public Position position;
+                        public LocalScale localScale;
+
+                        private GameObjectResolvable _owner;
+                        public Transform(GameObjectResolvable owner)
+                        {
+                            _owner = owner;
+                            position = new Position(this);
+                            localScale = new LocalScale(this);
+                        }
+
+                        public class Position
+                        {
+                            public float x
+                            {
+                                get
+                                {
+                                    try
+                                    {
+                                        do
+                                        {
+                                            ulong instance = _owner._owner.DerefInstanceIfWithinPtr();
+                                            if (instance == 0) break;
+
+                                            DeepPointer dp = new DeepPointer((IntPtr)(instance + (ulong)OffsetCachePtr),
+                                                OffsetGameObjectManaged, OffsetGameObjectManaged,
+                                                OffsetTransform, OffsetTransformInternal, OffsetPosition + 0x0);
+
+                                            return dp.Deref<float>(Main.ProcessInstance, 0);
+                                        }
+                                        while (false);
+                                    }
+                                    catch { }
+                                    return 0;
+                                }
+                            }
+
+                            public float y
+                            {
+                                get
+                                {
+                                    try
+                                    {
+                                        do
+                                        {
+                                            ulong instance = _owner._owner.DerefInstanceIfWithinPtr();
+                                            if (instance == 0) break;
+
+                                            DeepPointer dp = new DeepPointer((IntPtr)(instance + (ulong)OffsetCachePtr),
+                                                OffsetGameObjectManaged, OffsetGameObjectManaged,
+                                                OffsetTransform, OffsetTransformInternal, OffsetPosition + 0x4);
+
+                                            return dp.Deref<float>(Main.ProcessInstance, 0);
+                                        }
+                                        while (false);
+                                    }
+                                    catch { }
+                                    return 0;
+                                }
+                            }
+
+                            public float z
+                            {
+                                get
+                                {
+                                    try
+                                    {
+                                        do
+                                        {
+                                            ulong instance = _owner._owner.DerefInstanceIfWithinPtr();
+                                            if (instance == 0) break;
+
+                                            DeepPointer dp = new DeepPointer((IntPtr)(instance + (ulong)OffsetCachePtr),
+                                                OffsetGameObjectManaged, OffsetGameObjectManaged,
+                                                OffsetTransform, OffsetTransformInternal, OffsetPosition + 0x8);
+
+                                            return dp.Deref<float>(Main.ProcessInstance, 0);
+                                        }
+                                        while (false);
+                                    }
+                                    catch { }
+                                    return 0;
+                                }
+                            }
+
+                            private Transform _owner;
+                            public Position(Transform owner)
+                            {
+                                _owner = owner;
+                            }
+                        }
+
+                        public class LocalScale
+                        {
+                            public float x
+                            {
+                                get
+                                {
+                                    try
+                                    {
+                                        do
+                                        {
+                                            ulong instance = _owner._owner.DerefInstanceIfWithinPtr();
+                                            if (instance == 0) break;
+
+                                            DeepPointer dp = new DeepPointer((IntPtr)(instance + (ulong)OffsetCachePtr),
+                                                OffsetGameObjectManaged, OffsetGameObjectManaged,
+                                                OffsetTransform, OffsetTransformInternal, OffsetLocalScale + 0x0);
+
+                                            return dp.Deref<float>(Main.ProcessInstance, 0);
+                                        }
+                                        while (false);
+                                    }
+                                    catch { }
+                                    return 0;
+                                }
+                            }
+
+                            public float y
+                            {
+                                get
+                                {
+                                    try
+                                    {
+                                        do
+                                        {
+                                            ulong instance = _owner._owner.DerefInstanceIfWithinPtr();
+                                            if (instance == 0) break;
+
+                                            DeepPointer dp = new DeepPointer((IntPtr)(instance + (ulong)OffsetCachePtr),
+                                                OffsetGameObjectManaged, OffsetGameObjectManaged,
+                                                OffsetTransform, OffsetTransformInternal, OffsetLocalScale + 0x4);
+
+                                            return dp.Deref<float>(Main.ProcessInstance, 0);
+                                        }
+                                        while (false);
+                                    }
+                                    catch { }
+                                    return 0;
+                                }
+                            }
+
+                            public float z
+                            {
+                                get
+                                {
+                                    try
+                                    {
+                                        do
+                                        {
+                                            ulong instance = _owner._owner.DerefInstanceIfWithinPtr();
+                                            if (instance == 0) break;
+
+                                            DeepPointer dp = new DeepPointer((IntPtr)(instance + (ulong)OffsetCachePtr),
+                                                OffsetGameObjectManaged, OffsetGameObjectManaged,
+                                                OffsetTransform, OffsetTransformInternal, OffsetLocalScale + 0x8);
+
+                                            return dp.Deref<float>(Main.ProcessInstance, 0);
+                                        }
+                                        while (false);
+                                    }
+                                    catch { }
+                                    return 0;
+                                }
+                            }
+
+                            private Transform _owner;
+                            public LocalScale(Transform owner)
+                            {
+                                _owner = owner;
+                            }
+                        }
+                    }
+
                     public ulong DerefInstanceIfWithinPtr()
                     {
                         do
@@ -108,6 +293,7 @@ public partial class Tools
                     {
                         IsInstanceWithinPointer = isInstanceWithinPointer;
                         InstanceAddress = instanceAddress;
+                        transform = new Transform(this);
                     }
                 }
                 #endregion
@@ -127,7 +313,11 @@ public partial class Tools
                                 "UnityPlayer.dll", 0x20); if (result == 0) break;
 
                                 byte offset = TMemory.ReadMemoryBytes(Main.ProcessInstance, result + 0x11, 1)[0];
-                                if (offset != 0) OffsetGameObjectManaged = offset;
+                                if (offset != 0)
+                                {
+                                    OffsetGameObjectManaged = offset;
+                                    OffsetTransformInternal = OffsetGameObjectManaged + 0x8;
+                                }
                                 else break;
                             }
 

@@ -22,11 +22,11 @@ public partial class Tools
             internal static bool LegacyVersion = false;
 
             #region PUBLIC_API
-            public GameObject.GameObjectResolvable ConvertInstanceToGameObject(IntPtr instanceAddress, bool isWithinAPointer)
+            public GameObject.GameObjectResolvable InstanceToGameObject(IntPtr instanceAddress, bool isWithinAPointer)
             {
                 try
                 {
-                    return gameObject?.ConvertInstanceToGameObject(instanceAddress, isWithinAPointer);
+                    return gameObject?.InstanceToGameObject(instanceAddress, isWithinAPointer);
                 }
                 catch { }
                 return null;
