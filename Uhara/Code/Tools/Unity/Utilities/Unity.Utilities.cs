@@ -17,21 +17,10 @@ public partial class Tools
             private static string ToolUniqueID = "LMYpsRecShieLHhD";
 
             SceneManager sceneManager = null;
-            GameObject gameObject = null;
 
             internal static bool LegacyVersion = false;
 
             #region PUBLIC_API
-            public GameObject.GameObjectResolvable InstanceToGameObject(IntPtr instanceAddress, bool isWithinAPointer)
-            {
-                try
-                {
-                    return gameObject?.InstanceToGameObject(instanceAddress, isWithinAPointer);
-                }
-                catch { }
-                return null;
-            }
-
             public string GetActiveSceneName()
             {
                 try
@@ -113,7 +102,6 @@ public partial class Tools
 
                     // ---
                     sceneManager = new SceneManager();
-                    gameObject = new GameObject();
                 }
                 catch { }
             }

@@ -23,6 +23,16 @@ internal class ToolsShared
         {
             internal static readonly string[] Data = new string[] { "unity", "unityengine", "unity3d" };
 
+            internal class Default
+            {
+                internal static readonly string[] Data = new string[] { "default" };
+
+                internal class GameObject
+                {
+                    internal static readonly string[] Data = new string[] { "gameobject" };
+                }
+            }
+
             internal class Utils
             {
                 internal static readonly string[] Data = new string[] { "utils", "utilities" };

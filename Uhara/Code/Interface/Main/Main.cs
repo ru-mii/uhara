@@ -837,6 +837,7 @@ public partial class Main
             type = type.ToLower();
             tool = tool.ToLower();
 
+            // unity
             if (ToolsShared.ToolNames.Unity.Data.Contains(engine))
             {
                 if (ToolsShared.ToolNames.Unity.DotNet.Data.Contains(type))
@@ -865,12 +866,21 @@ public partial class Main
                     }
                 }
 
+                if (ToolsShared.ToolNames.Unity.Default.Data.Contains(type))
+                {
+                    if (ToolsShared.ToolNames.Unity.Default.GameObject.Data.Contains(tool))
+                    {
+                        return new Tools.Unity.Default.GameObject();
+                    }
+                }
+
                 if (ToolsShared.ToolNames.Unity.Utils.Data.Contains(tool))
                 {
                     return new Tools.Unity.Utilities();
                 }
             }
 
+            // unreal engine
             if (ToolsShared.ToolNames.UnrealEngine.Data.Contains(engine))
             {
                 if (ToolsShared.ToolNames.UnrealEngine.Default.Data.Contains(type))

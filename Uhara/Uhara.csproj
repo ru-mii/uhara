@@ -102,6 +102,8 @@
     <Compile Include="Code\Interface\ScanUtility.cs" />
     <Compile Include="Code\Interface\ToolsShared.cs" />
     <Compile Include="Code\Other\AsmBlocks.cs" />
+    <Compile Include="Code\Tools\Unity\Default\GameObject\GameObject.Converter.cs" />
+    <Compile Include="Code\Tools\Unity\Default\GameObject\GameObject.cs" />
     <Compile Include="Code\Tools\Unity\DotNet\Instance\DotNet.Instance.cs" />
     <Compile Include="Code\Tools\Unity\DotNet\Instance\DotNet.Instance.InstanceDestroy.cs" />
     <Compile Include="Code\Tools\Unity\IL2CPP\Instance\IL2CPP.Instance.cs" />
@@ -109,7 +111,6 @@
     <Compile Include="Code\Tools\Unity\IL2CPP\Instance\IL2CPP.Instance.InstanceCreation.cs" />
     <Compile Include="Code\Tools\Unity\IL2CPP\Instance\IL2CPP.Instance.InstanceDestroy.cs" />
     <Compile Include="Code\Tools\Unity\IL2CPP\Instance\IL2CPP.Instance.OffsetResolver.cs" />
-    <Compile Include="Code\Tools\Unity\Utilities\Unity.Utilities.GameObject.cs" />
     <Compile Include="Code\Tools\Unity\Utilities\Unity.Utilities.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.FunctionCall.cs" />
