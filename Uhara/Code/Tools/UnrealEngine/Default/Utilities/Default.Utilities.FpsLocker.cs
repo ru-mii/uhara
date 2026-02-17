@@ -1,0 +1,164 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+public partial class Tools
+{
+    public partial class UnrealEngine
+    {
+        public partial class Default
+        {
+            public partial class Utilities
+            {
+                public class FpsLocker
+                {
+                    #region VARIABLES
+                    static ulong AllocateSize = 0x1000;
+
+                    static ulong AddressAllocateStart = 0;
+                    static ulong AddressFreeUse = 0;
+
+                    ulong EndDrawing = 0;
+
+                    public enum InitResults
+                    {
+                        None = 0,
+                        Tried = 1,
+                        Loaded = 2
+                    }
+                    InitResults InitResult = InitResults.None;
+
+                    const ulong HK_EndDrawing = 0x42;
+                    const ulong ARG_FpsLimitMicroS = 0x0;
+                    #endregion
+
+                    #region ASM_CODE
+                    byte[] AsmCode = new byte[] {
+0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x48, 0x90, 0x83, 0x90, 0xEC, 0x90, 0x28, 0x90, 0x49, 0x90, 0xC7, 0x90, 0xC0, 0x90, 0x14, 0x90, 0x00, 0x90, 0xFE, 0x90, 0x7F, 0x90, 0x41, 0x90, 0x8B, 0x90, 0x40, 0x90, 0x04, 0x90, 0x41, 0x90, 0x8B, 0x90, 0x10, 0x90, 0x41, 0x90, 0x8B, 0x90, 0x48, 0x90, 0x08, 0x90, 0x39, 0x90, 0xC8, 0x90, 0x75, 0x90, 0xF1, 0x90, 0x48, 0x90, 0xC1, 0x90, 0xE0, 0x90, 0x20, 0x90, 0x48, 0x90, 0x09, 0x90, 0xD0, 0x90, 0x31, 0x90, 0xD2, 0x90, 0x48, 0x90, 0xC7, 0x90, 0xC1, 0x90, 0x0A, 0x90, 0x00, 0x90, 0x00, 0x90, 0x00, 0x90, 0x48, 0x90, 0xF7, 0x90, 0xF1, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC4, 0x90, 0x28, 0x90, 0xC3, 0x90, 0x50, 0x90, 0x53, 0x90, 0x51, 0x90, 0x52, 0x90, 0x56, 0x90, 0x57, 0x90, 0x55, 0x90, 0x54, 0x90, 0x41, 0x90, 0x50, 0x90, 0x41, 0x90, 0x51, 0x90, 0x41, 0x90, 0x52, 0x90, 0x41, 0x90, 0x53, 0x90, 0x41, 0x90, 0x54, 0x90, 0x41, 0x90, 0x55, 0x90, 0x41, 0x90, 0x56, 0x90, 0x41, 0x90, 0x57, 0x90, 0x9C, 0x90, 0x48, 0x90, 0x83, 0x90, 0xEC, 0x90, 0x08, 0x90, 0x48, 0x90, 0x83, 0x90, 0xEC, 0x90, 0x28, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x05, 0x90, 0xA6, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xD0, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x1D, 0x90, 0x95, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x48, 0x90, 0x8B, 0x90, 0x1B, 0x90, 0x48, 0x90, 0x85, 0x90, 0xDB, 0x90, 0x74, 0x90, 0x3E, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x15, 0x90, 0x7E, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x4C, 0x90, 0x8B, 0x90, 0x22, 0x90, 0x4D, 0x90, 0x85, 0x90, 0xE4, 0x90, 0x74, 0x90, 0x39, 0x90, 0x4C, 0x90, 0x01, 0x90, 0xE3, 0x90, 0x49, 0x90, 0x89, 0x90, 0xDD, 0x90, 0x4D, 0x90, 0x01, 0x90, 0xE5, 0x90, 0x4C, 0x90, 0x39, 0x90, 0xE8, 0x90, 0x7E, 0x90, 0x05, 0x90, 0x48, 0x90, 0x89, 0x90, 0xC3, 0x90, 0xEB, 0x90, 0x10, 0x90, 0x48, 0x90, 0x39, 0x90, 0xD8, 0x90, 0x7D, 0x90, 0x0B, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x05, 0x90, 0x67, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xD0, 0x90, 0xEB, 0x90, 0xF0, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x05, 0x90, 0x54, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x48, 0x90, 0x89, 0x90, 0x18, 0x90, 0xEB, 0x90, 0x0A, 0x90, 0x48, 0x90, 0x8D, 0x90, 0x15, 0x90, 0x48, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0xFF, 0x90, 0x48, 0x90, 0x89, 0x90, 0x02, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC4, 0x90, 0x28, 0x90, 0x48, 0x90, 0x83, 0x90, 0xC4, 0x90, 0x08, 0x90, 0x9D, 0x90, 0x41, 0x90, 0x5F, 0x90, 0x41, 0x90, 0x5E, 0x90, 0x41, 0x90, 0x5D, 0x90, 0x41, 0x90, 0x5C, 0x90, 0x41, 0x90, 0x5B, 0x90, 0x41, 0x90, 0x5A, 0x90, 0x41, 0x90, 0x59, 0x90, 0x41, 0x90, 0x58, 0x90, 0x5C, 0x90, 0x5D, 0x90, 0x5F, 0x90, 0x5E, 0x90, 0x5A, 0x90, 0x59, 0x90, 0x5B, 0x90, 0x58
+};
+                    #endregion
+
+                    #region INTERNAL_API
+                    internal void SetFpsLimit(double fps)
+                    {
+                        if (!Initiate()) return;
+
+                        // ---
+                        ulong fpsLimitMicro = (fps == 0 || fps < 0) ? 0 : (ulong)((1000 / fps) * 1000);
+                        Main.RefWriteBytes(Main.ProcessInstance, AddressAllocateStart + ARG_FpsLimitMicroS, BitConverter.GetBytes(fpsLimitMicro));
+                    }
+                    #endregion
+                    #region PRIVATE_API
+                    private bool Initiate()
+                    {
+                        bool success = false;
+                        do
+                        {
+                            if (InitResult != InitResults.None)
+                            {
+                                if (InitResult == InitResults.Loaded) return true;
+                                else if (InitResult == InitResults.Tried) return false;
+                            }
+                            InitResult = InitResults.Tried;
+
+                            // ---
+                            if (!ScanData()) break;
+                            if (!Allocate()) break;
+                            if (!WriteHookCode()) break;
+
+                            // ---
+                            success = true;
+                            InitResult = InitResults.Loaded;
+                        }
+                        while (false);
+                        if (success) TUtils.Print("UnrealEngine.Utils | FPSLocker loaded successfuly");
+                        else TUtils.Print("UnrealEngine.Utils | FPSLocker loading failed");
+                        return success;
+                    }
+
+                    private bool ScanData()
+                    {
+                        bool success = false;
+                        try
+                        {
+                            do
+                            {
+                                EndDrawing = TMemory.ScanSingle(Main.ProcessInstance, "2B 05 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? C6 05 ?? ?? ?? ?? 00 48 8B 5C 24 38");
+                                if (EndDrawing == 0) break;
+
+                                EndDrawing = TMemory.GetFunctionStart(Main.ProcessInstance, EndDrawing);
+                                if (EndDrawing == 0) break;
+
+                                success = true;
+                            }
+                            while (false);
+                        }
+                        catch { }
+                        return success;
+                    }
+
+                    private bool Allocate()
+                    {
+                        bool success = false;
+                        try
+                        {
+                            do
+                            {
+                                AddressAllocateStart = MemoryManager.AllocateSafe((int)AllocateSize, ToolUniqueID);
+                                if (AddressAllocateStart == 0) throw new Exception();
+
+                                AddressFreeUse = AddressAllocateStart;
+
+                                success = true;
+                            }
+                            while (false);
+                        }
+                        catch { }
+                        return success;
+                    }
+
+                    private bool WriteHookCode()
+                    {
+                        bool success = false;
+                        try
+                        {
+                            do
+                            {
+                                ulong jumpTo = AddressFreeUse + HK_EndDrawing;
+
+                                byte[] decodedAsm = TArray.DecodeBlock(AsmCode);
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressAllocateStart, decodedAsm);
+                                AddressFreeUse += (ulong)decodedAsm.Length;
+
+                                int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, EndDrawing, 14);
+                                if (minimumOverwrite == 0) break;
+
+                                byte[] enemyCode = TMemory.ReadMemoryBytes(Main.ProcessInstance, EndDrawing, minimumOverwrite);
+                                if (enemyCode == null || enemyCode.Length == 0) throw new Exception();
+
+                                MemoryManager.AddOverwrite(EndDrawing, enemyCode, ToolUniqueID);
+
+                                // ---
+                                Main.RefWriteBytes(Main.ProcessInstance, AddressFreeUse, enemyCode);
+                                AddressFreeUse += (ulong)enemyCode.Length;
+
+                                AddressFreeUse += TMemory.CreateAbsoluteJump(Main.ProcessInstance, AddressFreeUse, EndDrawing + (ulong)minimumOverwrite);
+                                TMemory.CreateAbsoluteJump(Main.ProcessInstance, EndDrawing, jumpTo);
+
+                                // ---
+                                success = true;
+                            }
+                            while (false);
+                        }
+                        catch { }
+                        return success;
+                    }
+                    #endregion
+                }
+            }
+        }
+    }
+}

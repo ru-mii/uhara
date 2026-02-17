@@ -115,6 +115,7 @@
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.FunctionCall.cs" />
     <Compile Include="Code\Tools\UnrealEngine\Default\Events\Default.Events.InstanceCreation.cs" />
+    <Compile Include="Code\Tools\UnrealEngine\Default\Utilities\Default.Utilities.FpsLocker.cs" />
     <Compile Include="Code\Tools\UnrealEngine\UnrealEngine.cs" />
     <Compile Include="Code\Utils\Array.cs" />
     <Compile Include="Code\Utils\DynamicVars.cs" />

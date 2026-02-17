@@ -15,10 +15,20 @@ public partial class Tools
 				internal static string DebugClass = "Utilities";
 				internal static string ToolUniqueID = "UCyEljVfhjUoJhDU";
 
-				private DataRetriever dataRetriever = new DataRetriever();
-				private TextReader textReader = new TextReader();
+				private DataRetriever dataRetriever;
+				private TextReader textReader;
+				private FpsLocker fpsLocker;
 
                 #region PUBLIC_API
+				public void SetFpsLimit(double fps)
+				{
+					try
+					{
+						fpsLocker.SetFpsLimit(fps);
+					}
+					catch { }
+				}
+
                 public string FNameToStringLegacy(object fName)
                 {
                     try
@@ -162,8 +172,17 @@ public partial class Tools
 				public Utilities()
 				{
 					if (!Main.ReloadProcess()) throw new Exception();
+					ulong modBase = TProcess.GetModuleBase(Main.ProcessInstance);
+					if (modBase == 0) throw new Exception();
+
+					// ---
 					MemoryManager.ClearMemory(ToolUniqueID);
-				}
+
+					// ---
+                    dataRetriever = new DataRetriever();
+                    textReader = new TextReader();
+                    fpsLocker = new FpsLocker();
+                }
 			}
 		}
 	}
