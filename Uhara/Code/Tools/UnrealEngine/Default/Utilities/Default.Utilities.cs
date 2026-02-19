@@ -101,6 +101,8 @@ public partial class Tools
 							return _GEngine;
 						}
 					}
+
+					set { _GEngine = value; }
 				}
 
 				IntPtr _GWorld = IntPtr.Zero;
@@ -115,6 +117,8 @@ public partial class Tools
 							return _GWorld;
 						}
 					}
+
+					set { _GWorld = value; }
 				}
 
                 IntPtr _FNamePool = IntPtr.Zero;
@@ -129,6 +133,8 @@ public partial class Tools
                             return _FNamePool;
                         }
                     }
+
+                    set { _FNamePool = value; }
                 }
                 IntPtr _FNames = IntPtr.Zero;
 				public IntPtr FNames
@@ -142,7 +148,9 @@ public partial class Tools
 							return _FNames;
 						}
 					}
-				}
+
+                    set { _FNames = value; }
+                }
 
 				IntPtr _GSync = IntPtr.Zero;
 				public IntPtr GSync
@@ -156,7 +164,9 @@ public partial class Tools
 							return _GSync;
 						}
 					}
-				}
+
+                    set { _GSync = value; }
+                }
 
 				public IntPtr FindData(string dataName)
 				{
