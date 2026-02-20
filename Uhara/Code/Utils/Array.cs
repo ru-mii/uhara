@@ -6,6 +6,34 @@ using System.Threading.Tasks;
 
 class TArray
 {
+    internal static byte[] CreateFilled(int size, byte filler)
+    {
+        byte[] arr = new byte[size];
+        for (int i = 0; i < size; i++)
+        {
+            arr[i] = filler;
+        }
+        return arr;
+    }
+
+    internal static byte[] CreateFilled(int size, byte[] filler)
+    {
+        byte[] arr = new byte[size];
+
+        int lastIndex = 0;
+
+        for (int i = 0; i < size; i++)
+        {
+            arr[i] = filler[lastIndex];
+
+            lastIndex++;
+            if (lastIndex == filler.Length)
+                lastIndex = 0;
+        }
+
+        return arr;
+    }
+
     internal static byte[] DecodeBlock(byte[] asmBlock)
     {
         List<byte> decoded = new List<byte>();

@@ -22,6 +22,7 @@ public partial class Tools
                 {
                     #region VARIABLES
                     string SubToolID = "cjuvgtrc";
+                    ulong CommunicationSignature = 17384560806586690957;
 
                     public enum InitResults
                     {
@@ -416,50 +417,132 @@ public partial class Tools
                                 Main.RefWriteBytes(Main.ProcessInstance, AddressNativeCode, decoded);
                                 AddressNativeCode += (ulong)decoded.Length;
 
+                                byte[] callFiller = new byte[] { 0xEB, 0x17, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+                                    0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+
+                                // process event
                                 {
-                                    ulong jumpNative = AddressAllocateStart + GeneratedOffsets.HK_UObjectProcessEvent;
                                     ulong hookAddress = ToolsShared.ToolData.UnrealEngine.F_UObjectProcessEvent;
-                                    ulong jumpHook = AddressInterfaceCode;
+                                    ulong jumpNative = AddressAllocateStart + GeneratedOffsets.HK_UObjectProcessEvent;
 
-                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, hookAddress, 14);
-                                    if (minimumOverwrite == 0) break;
+                                    ulong communicationHeader = 0;
+                                    try
+                                    {
+                                        byte[] funcHeader = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, 6);
+                                        if (funcHeader[0] == 0xFF && funcHeader[1] == 0x25)
+                                        {
+                                            if (BitConverter.ToInt32(funcHeader, 2) == 0)
+                                            {
+                                                ulong _communicationHeader = TMemory.ReadMemory<ulong>(Main.ProcessInstance, hookAddress + 6);
+                                                ulong foundSignature = TMemory.ReadMemory<ulong>(Main.ProcessInstance, _communicationHeader + 14);
 
-                                    byte[] stolenCode = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, minimumOverwrite);
-                                    if (stolenCode == null) break;
-                                    MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
+                                                if (foundSignature == CommunicationSignature) communicationHeader = _communicationHeader;
+                                            }
+                                        }
+                                    }
+                                    catch { }
 
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteCall(Main.ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
-                                    Main.RefWriteBytes(Main.ProcessInstance, AddressInterfaceCode, stolenCode);
-                                    AddressInterfaceCode += (ulong)stolenCode.Length;
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteJump(Main.ProcessInstance, AddressInterfaceCode, hookAddress + (ulong)minimumOverwrite);
+                                    if (communicationHeader == 0)
+                                    {
+                                        int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, hookAddress, 14);
+                                        if (minimumOverwrite == 0) break;
 
-                                    TMemory.CreateAbsoluteJump(Main.ProcessInstance, hookAddress, jumpHook);
+                                        byte[] stolenCode = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, minimumOverwrite);
+                                        if (stolenCode == null) break;
+
+                                        // ---
+                                        ulong jumpTable = Main.RefAllocateMemory(Main.ProcessInstance, 0x1000);
+                                        ulong codeCallerStart = jumpTable;
+
+                                        jumpTable += TMemory.CreateAbsoluteJump(Main.ProcessInstance, jumpTable, jumpTable + 22);
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable, BitConverter.GetBytes(CommunicationSignature));
+                                        jumpTable += (ulong)BitConverter.GetBytes(CommunicationSignature).Length;
+
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable + 0, callFiller);
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable + 25, callFiller);
+
+                                        MemoryManager.AddOverwrite(jumpTable, callFiller, ToolUniqueID);
+                                        TMemory.CreateAbsoluteCall(Main.ProcessInstance, jumpTable, jumpNative, 0x28);
+                                        jumpTable += 50;
+
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable, stolenCode);
+                                        jumpTable += (ulong)stolenCode.Length;
+
+                                        jumpTable += TMemory.CreateAbsoluteJump(Main.ProcessInstance, jumpTable, hookAddress + (ulong)minimumOverwrite);
+                                        TMemory.CreateAbsoluteJump(Main.ProcessInstance, hookAddress, codeCallerStart);
+                                    }
+                                    else
+                                    {
+                                        ulong ourSlot = communicationHeader + 22 + 0;
+                                        MemoryManager.AddOverwrite(ourSlot, callFiller, ToolUniqueID);
+                                        TMemory.CreateAbsoluteCall(Main.ProcessInstance, ourSlot, jumpNative, 0x28);
+                                    }
 
                                     //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
                                         //" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
                                 }
 
+                                // object destroy
                                 {
-                                    ulong jumpNative = AddressAllocateStart + GeneratedOffsets.HK_UObjectBeginDestroy;
                                     ulong hookAddress = ToolsShared.ToolData.UnrealEngine.F_UObjectBeginDestroy;
-                                    ulong jumpHook = AddressInterfaceCode;
+                                    ulong jumpNative = AddressAllocateStart + GeneratedOffsets.HK_UObjectBeginDestroy;
 
-                                    int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, hookAddress, 14);
-                                    if (minimumOverwrite == 0) break;
+                                    ulong communicationHeader = 0;
+                                    try
+                                    {
+                                        byte[] funcHeader = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, 6);
+                                        if (funcHeader[0] == 0xFF && funcHeader[1] == 0x25)
+                                        {
+                                            if (BitConverter.ToInt32(funcHeader, 2) == 0)
+                                            {
+                                                ulong _communicationHeader = TMemory.ReadMemory<ulong>(Main.ProcessInstance, hookAddress + 6);
+                                                ulong foundSignature = TMemory.ReadMemory<ulong>(Main.ProcessInstance, _communicationHeader + 14);
 
-                                    byte[] stolenCode = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, minimumOverwrite);
-                                    if (stolenCode == null) break;
-                                    MemoryManager.AddOverwrite(hookAddress, stolenCode, ToolUniqueID);
+                                                if (foundSignature == CommunicationSignature) communicationHeader = _communicationHeader;
+                                            }
+                                        }
+                                    }
+                                    catch { }
 
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteCall(Main.ProcessInstance, AddressInterfaceCode, jumpNative, 0x28);
-                                    Main.RefWriteBytes(Main.ProcessInstance, AddressInterfaceCode, stolenCode);
-                                    AddressInterfaceCode += (ulong)stolenCode.Length;
-                                    AddressInterfaceCode += TMemory.CreateAbsoluteJump(Main.ProcessInstance, AddressInterfaceCode, hookAddress + (ulong)minimumOverwrite);
+                                    if (communicationHeader == 0)
+                                    {
+                                        int minimumOverwrite = TInstruction.GetMinimumOverwrite(Main.ProcessInstance, hookAddress, 14);
+                                        if (minimumOverwrite == 0) break;
 
-                                    TMemory.CreateAbsoluteJump(Main.ProcessInstance, hookAddress, jumpHook);
+                                        byte[] stolenCode = TMemory.ReadMemoryBytes(Main.ProcessInstance, hookAddress, minimumOverwrite);
+                                        if (stolenCode == null) break;
+
+                                        // ---
+                                        ulong jumpTable = Main.RefAllocateMemory(Main.ProcessInstance, 0x1000);
+                                        ulong codeCallerStart = jumpTable;
+
+                                        jumpTable += TMemory.CreateAbsoluteJump(Main.ProcessInstance, jumpTable, jumpTable + 22);
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable, BitConverter.GetBytes(CommunicationSignature));
+                                        jumpTable += (ulong)BitConverter.GetBytes(CommunicationSignature).Length;
+
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable + 0, callFiller);
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable + 25, callFiller);
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable + 50, callFiller);
+
+                                        MemoryManager.AddOverwrite(jumpTable + 25, callFiller, ToolUniqueID);
+                                        TMemory.CreateAbsoluteCall(Main.ProcessInstance, jumpTable + 25, jumpNative, 0x28);
+                                        jumpTable += 75;
+
+                                        Main.RefWriteBytes(Main.ProcessInstance, jumpTable, stolenCode);
+                                        jumpTable += (ulong)stolenCode.Length;
+
+                                        jumpTable += TMemory.CreateAbsoluteJump(Main.ProcessInstance, jumpTable, hookAddress + (ulong)minimumOverwrite);
+                                        TMemory.CreateAbsoluteJump(Main.ProcessInstance, hookAddress, codeCallerStart);
+                                    }
+                                    else
+                                    {
+                                        ulong ourSlot = communicationHeader + 22 + 25;
+                                        MemoryManager.AddOverwrite(ourSlot, callFiller, ToolUniqueID);
+                                        TMemory.CreateAbsoluteCall(Main.ProcessInstance, ourSlot, jumpNative, 0x28);
+                                    }
 
                                     //TUtils.Print("Events." + GetType().Name + "." + MethodBase.GetCurrentMethod().Name +
-                                        //" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
+                                    //" | " + "Hook: " + "0x" + hookAddress.ToString("X"));
                                 }
 
                                 success = true;
