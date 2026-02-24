@@ -417,8 +417,7 @@ public partial class Tools
                                 Main.RefWriteBytes(Main.ProcessInstance, AddressNativeCode, decoded);
                                 AddressNativeCode += (ulong)decoded.Length;
 
-                                byte[] callFiller = new byte[] { 0xEB, 0x17, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
-                                    0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+                                byte[] callFiller = new byte[] { 0xEB, 0x17 };
 
                                 // process event
                                 {
