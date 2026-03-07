@@ -20,6 +20,16 @@ public partial class Tools
 				private FpsLocker fpsLocker;
 
                 #region PUBLIC_API
+				public void ExpandScanUtilitySignatures(string name, string signature)
+				{
+					try
+					{
+						if (ScanUtility.ExpandSignatures.ContainsKey(name)) ScanUtility.ExpandSignatures[name].Add(signature);
+						else ScanUtility.ExpandSignatures[name] = new List<string> { signature };
+                    }
+					catch { }
+                }
+
 				public void SetFpsLimit(double fps)
 				{
 					try

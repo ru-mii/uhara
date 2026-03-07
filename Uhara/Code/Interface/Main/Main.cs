@@ -100,6 +100,9 @@ public partial class Main
     {
         try
         {
+            HashSet<string> test = new HashSet<string>();
+            var rest = test.Except(test).ToHashSet();
+
             Thread.Sleep(50);
             TSaves2.Register("rumii", "uhara" + LIB_VERSION);
             UniqueScriptLoadID = TUtils.GenerateRandomString(32);
@@ -465,12 +468,12 @@ public partial class Main
         return 0;
     }
 
-    public string GetMD5Hash(string path)
+    public string GetMD5Hash(string modulePath = null)
     {
         try
         {
-            if (!File.Exists(path)) path = Path.Combine(Path.GetDirectoryName(ProcessInstance.MainModule.FileName), path);
-            return GetHash(path);
+            if (string.IsNullOrEmpty(modulePath) || !File.Exists(modulePath)) modulePath = ProcessInstance.MainModule.FileName;
+            return GetHash(modulePath);
         }
         catch { }
         return null;
