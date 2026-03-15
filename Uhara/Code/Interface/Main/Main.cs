@@ -82,7 +82,7 @@ public partial class Main
         private set
         {
             Process tempProcess = value;
-            Process newProcess = Process.GetProcessById(tempProcess.Id); ;
+            Process newProcess = Process.GetProcessById(tempProcess.Id);
 
             if (!TProcess.IsSameProcess(tempProcess, newProcess)) throw new Exception();
             else bf_ProcessInstance = newProcess;
