@@ -78,26 +78,24 @@ public partial class Tools
                                         ulong result = TMemory.ScanSingle(Main.ProcessInstance, "E8 ???????? 4C 8B C8 41 8B ?? 99 81 E2 FF 3F 00 00");
                                         if (result == 0) break;
 
-                                        {
-                                            int value = TMemory.ReadMemory<int>(Main.ProcessInstance, result + 1);
-                                            result = (ulong)((long)result + value + 5);
+                                        int value = TMemory.ReadMemory<int>(Main.ProcessInstance, result + 1);
+                                        result = (ulong)((long)result + value + 5);
 
-                                            byte[] bytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, result, 50);
-                                            if (bytes == null) break;
+                                        byte[] bytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, result, 50);
+                                        if (bytes == null) break;
 
-                                            Instruction[] instrs = TInstruction.GetInstructions2(bytes, result);
-                                            if (instrs == null || instrs.Length < 2) break;
+                                        Instruction[] instrs = TInstruction.GetInstructions2(bytes, result);
+                                        if (instrs == null || instrs.Length < 2) break;
 
-                                            if (instrs[1].Length != 7) break;
-                                            if (!instrs[1].ToString().Contains("rax, [")) break;
+                                        if (instrs[1].Length != 7) break;
+                                        if (!instrs[1].ToString().Contains("rax, [")) break;
 
-                                            result = instrs[1].Offset;
+                                        result = instrs[1].Offset;
 
-                                            value = TMemory.ReadMemory<int>(Main.ProcessInstance, result + 3);
-                                            if (value == 0) break;
+                                        value = TMemory.ReadMemory<int>(Main.ProcessInstance, result + 3);
+                                        if (value == 0) break;
 
-                                            address = (ulong)((long)result + value + 7);
-                                        }
+                                        address = (ulong)((long)result + value + 7);
                                     }
                                     while (false);
                                 }

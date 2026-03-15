@@ -62,17 +62,21 @@ public partial class Main
     {
         get
         {
-            if (bf_ProcessInstance == null || bf_ProcessInstance.HasExited)
+            do
             {
+                if (bf_ProcessInstance != null && !bf_ProcessInstance.HasExited) break;
                 FieldInfo gameField = _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
-                var gameInstance = gameField?.GetValue(_script);
-                bf_ProcessInstance = (Process)gameInstance;
+                Process gameInstance = (Process)(gameField?.GetValue(_script));
+                if (gameInstance == null) break;
+                bf_ProcessInstance = Process.GetProcessById(gameInstance.Id);
             }
+            while (false);
             return bf_ProcessInstance;
         }
-        set
+        private set
         {
-            bf_ProcessInstance = value;
+            Process tempProcess = value;
+            bf_ProcessInstance = Process.GetProcessById(tempProcess.Id);
         }
     }
 
@@ -128,6 +132,18 @@ public partial class Main
                 File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
         }
         catch { }
+    }
+
+    public class Vector3
+    {
+        public float x, y, z;
+
+        public Vector3(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
     }
 
     public Instruction[] Disassemble(byte[] bytes)
@@ -908,7 +924,7 @@ public partial class Main
     {
         try
         {
-            ProcessInstance = process;
+            ProcessInstance = Process.GetProcessById(process.Id);
         }
         catch { }
     }
