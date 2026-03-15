@@ -10,6 +10,11 @@ using System.Windows.Forms;
 
 internal class TProcess
 {
+    internal static bool IsSameProcess(Process process1, Process process2)
+    {
+        return GetToken(process1) == GetToken(process2);
+    }
+
     internal static bool Is64Bit(Process process)
     {
         IntPtr processHandle = TImports.OpenProcess(0x0400 | 0x0010, false, process.Id);

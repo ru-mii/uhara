@@ -65,10 +65,16 @@ public partial class Main
             do
             {
                 if (bf_ProcessInstance != null && !bf_ProcessInstance.HasExited) break;
+
                 FieldInfo gameField = _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
                 Process gameInstance = (Process)(gameField?.GetValue(_script));
                 if (gameInstance == null) break;
-                bf_ProcessInstance = Process.GetProcessById(gameInstance.Id);
+
+                Process tempProcess = Process.GetProcessById(gameInstance.Id);
+                if (tempProcess == null) throw new Exception();
+
+                if (TProcess.IsSameProcess(tempProcess, gameInstance)) bf_ProcessInstance = tempProcess;
+                else throw new Exception();
             }
             while (false);
             return bf_ProcessInstance;
@@ -76,7 +82,10 @@ public partial class Main
         private set
         {
             Process tempProcess = value;
-            bf_ProcessInstance = Process.GetProcessById(tempProcess.Id);
+            Process newProcess = Process.GetProcessById(tempProcess.Id);
+
+            if (!TProcess.IsSameProcess(tempProcess, newProcess)) throw new Exception();
+            else bf_ProcessInstance = newProcess;
         }
     }
 
