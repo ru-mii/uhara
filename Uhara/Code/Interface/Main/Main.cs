@@ -65,16 +65,16 @@ public partial class Main
             do
             {
                 if (bf_ProcessInstance != null && !bf_ProcessInstance.HasExited) break;
+                bf_ProcessInstance = null;
 
                 FieldInfo gameField = _script.GetType().GetField("_game", BindingFlags.NonPublic | BindingFlags.Instance);
                 Process gameInstance = (Process)(gameField?.GetValue(_script));
                 if (gameInstance == null) break;
 
-                Process tempProcess = Process.GetProcessById(gameInstance.Id);
-                if (tempProcess == null) throw new Exception();
+                Process tempProcess = null;
+                try { tempProcess = Process.GetProcessById(gameInstance.Id); } catch { }
 
                 if (TProcess.IsSameProcess(tempProcess, gameInstance)) bf_ProcessInstance = tempProcess;
-                else throw new Exception();
             }
             while (false);
             return bf_ProcessInstance;
@@ -82,10 +82,10 @@ public partial class Main
         private set
         {
             Process tempProcess = value;
-            Process newProcess = Process.GetProcessById(tempProcess.Id);
+            Process newProcess = null;
 
-            if (!TProcess.IsSameProcess(tempProcess, newProcess)) throw new Exception();
-            else bf_ProcessInstance = newProcess;
+            try { newProcess = Process.GetProcessById(tempProcess.Id); } catch { }
+            bf_ProcessInstance = newProcess;
         }
     }
 
@@ -212,7 +212,7 @@ public partial class Main
             string lastToken = TProcess.GetToken(ProcessInstance);
             if (string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(lastToken)) break;
 
-            ProcessInstance = Process.GetProcessById(ProcessInstance.Id);
+            try { ProcessInstance = Process.GetProcessById(ProcessInstance.Id); } catch { };
             if (ProcessInstance == null || ProcessInstance.HasExited) break;
 
             string currentName = ProcessInstance.ProcessName;
@@ -933,7 +933,7 @@ public partial class Main
     {
         try
         {
-            ProcessInstance = Process.GetProcessById(process.Id);
+            try { ProcessInstance = Process.GetProcessById(process.Id); } catch { };
         }
         catch { }
     }

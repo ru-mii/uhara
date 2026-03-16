@@ -12,7 +12,8 @@ internal class TProcess
 {
     internal static bool IsSameProcess(Process process1, Process process2)
     {
-        return GetToken(process1) == GetToken(process2);
+        if (process1 == null || process2 == null) return false;
+        else return GetToken(process1) == GetToken(process2);
     }
 
     internal static bool Is64Bit(Process process)
