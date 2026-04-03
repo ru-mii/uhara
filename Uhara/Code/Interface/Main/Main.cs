@@ -522,6 +522,34 @@ public partial class Main
         return null;
     }
 
+    public string GetHashRelative(string filePath)
+    {
+        try
+        {
+            do
+            {
+                string mainModulePath = ProcessInstance.MainModule.FileName;
+                if (string.IsNullOrEmpty(mainModulePath)) break;
+
+                string mainModuleDir = Path.GetDirectoryName(mainModulePath);
+                filePath = Path.Combine(mainModuleDir, filePath);
+
+                if (!File.Exists(filePath)) return null;
+
+                byte[] bytes = new byte[0];
+                using (var md5 = MD5.Create())
+                {
+                    using (var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        bytes = md5.ComputeHash(file);
+                }
+                return bytes.Select(x => x.ToString("X2")).Aggregate((a, b) => a + b);
+            }
+            while (false);
+        }
+        catch { }
+        return null;
+    }
+
     public void Log(string message)
     {
         try
