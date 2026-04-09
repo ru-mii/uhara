@@ -144,7 +144,7 @@ public partial class Tools
                         if (!_assembly.EndsWith(".dll")) _assembly += ".dll";
 
                         string exeDir = Path.GetDirectoryName(Main.ProcessInstance.MainModule.FileName);
-                        string assemblyPath = UPath.FindFile(exeDir, _assembly);
+                        string assemblyPath = TPath.FindFile(exeDir, _assembly);
 
                         if (assemblyPath == "") return IntPtr.Zero;
 

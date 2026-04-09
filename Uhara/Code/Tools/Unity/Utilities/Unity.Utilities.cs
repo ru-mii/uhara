@@ -21,6 +21,20 @@ public partial class Tools
             internal static bool LegacyVersion = false;
 
             #region PUBLIC_API
+            public string[] GetAllSceneNames()
+            {
+                try
+                {
+                    do
+                    {
+                        return sceneManager?.GetAllSceneNames();
+                    }
+                    while (false);
+                }
+                catch { }
+                return null;
+            }
+
             public string GetActiveSceneName()
             {
                 try

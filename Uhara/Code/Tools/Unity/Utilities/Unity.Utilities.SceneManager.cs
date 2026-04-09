@@ -1,6 +1,8 @@
 ﻿using SharpDisasm;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -26,6 +28,58 @@ public partial class Tools
                 #endregion
 
                 #region INTERNAL_API
+				internal string[] GetAllSceneNames()
+				{
+                    try
+                    {
+                        do
+                        {
+							string exePath = Main.ProcessInstance.MainModule.FileName;
+                            if (string.IsNullOrEmpty(exePath)) break;
+
+                            string exeDir = Path.GetDirectoryName(exePath);
+
+							string globalgamemanagersPath = TPath.FindFile(exeDir, "globalgamemanagers");
+							if (string.IsNullOrEmpty(globalgamemanagersPath)) break;
+
+							byte[] globalgamemanagersBytes = File.ReadAllBytes(globalgamemanagersPath);
+
+							byte[] searchStartBytes = TSignature.GetBytes("41 73 73 65 74 73 2F 53 63 65 6E 65 73 2F");
+							byte[] searchEndBytes = TSignature.GetBytes("2E 75 6E 69 74 79");
+
+							List<string> sceneNames = new List<string>();
+
+							int offset = 0;
+							while (true)
+							{
+								offset = TMemory.FindInArray(globalgamemanagersBytes, searchStartBytes, startPosition: offset);
+								if (offset < 1) break;
+
+								int offsetEnd = TMemory.FindInArray(globalgamemanagersBytes, searchEndBytes, startPosition: offset);
+								if (offsetEnd < 1)
+								{
+                                    offset += searchStartBytes.Length;
+									continue;
+                                }
+
+								if (offsetEnd <= offset) break;
+
+								byte[] extractNameBytes = TArray.Extract(globalgamemanagersBytes, offset, offsetEnd - offset);
+								string sceneNamePath = TUtils.MultibyteToString(extractNameBytes);
+								string sceneName = Path.GetFileNameWithoutExtension(sceneNamePath);
+
+								sceneNames.Add(sceneName);
+								offset += searchStartBytes.Length;
+                            }
+
+							return sceneNames.ToArray();
+                        }
+                        while (false);
+                    }
+                    catch { }
+					return null;
+                }
+
                 internal string GetCurrentSceneName()
 				{
 					try
