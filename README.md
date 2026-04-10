@@ -11,7 +11,7 @@ Livesplit asl library.
 - https://github.com/ru-mii/UEdev
   
 ### Unity
-- https://github.com/ru-mii/Unity-Logger
+- https://github.com/ru-mii/Unity-Logger (very unstable, still in the works)
 
 # Reasoning for versions
 - "pre" version is designed for testing, can cause livesplit & game crashes
