@@ -47,7 +47,7 @@ public partial class Tools
 							byte[] searchStartBytes = TSignature.GetBytes("41 73 73 65 74 73 2F 53 63 65 6E 65 73 2F");
 							byte[] searchEndBytes = TSignature.GetBytes("2E 75 6E 69 74 79");
 
-							List<string> sceneNames = new List<string>();
+							HashSet<string> sceneNames = new HashSet<string>();
 
 							int offset = 0;
 							while (true)
