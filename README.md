@@ -16,5 +16,5 @@ Livesplit asl library.
 # Reasoning for versions
 - "pre" version is designed for testing, can cause livesplit & game crashes
 - next version can receive new features and changes to previous code including API
-- current newest downloadable version can receive new features and code changes but no changes to the API
+- current version can receive new features and code changes but no changes to the API
 - previous versions won't be updated (unless LiveSplit update breaks things) and are considered stable
