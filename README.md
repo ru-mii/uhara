@@ -14,7 +14,6 @@ Livesplit asl library.
 - https://github.com/ru-mii/Unity-Logger (very unstable, still in the works)
 
 # Reasoning for versions
-- "pre" version is designed for testing, can cause livesplit & game crashes
 - next version can receive new features and changes to previous code including API
 - current version can receive new features and code changes but no changes to the API
 - previous versions won't be updated (unless LiveSplit update breaks things) and are considered stable
