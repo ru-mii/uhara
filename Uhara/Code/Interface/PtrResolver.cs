@@ -2,10 +2,13 @@
 using Microsoft.CSharp;
 using System;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -75,7 +78,7 @@ public class PtrResolver
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
-            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             IntPtr result = deepPointer.Deref<IntPtr>(Main.ProcessInstance);
             if (result != IntPtr.Zero) return result + addition;
@@ -121,7 +124,7 @@ public class PtrResolver
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
-            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             return deepPointer.Deref<T>(Main.ProcessInstance);
         }
@@ -165,7 +168,7 @@ public class PtrResolver
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
 
             T value;
@@ -178,6 +181,78 @@ public class PtrResolver
         catch { }
         result = default;
         return false;
+    }
+    #endregion
+    #region READ_LIST
+    public List<T> ReadList<T>((IntPtr _base, int[] offsets) offsets) where T : unmanaged
+    {
+        return _ReadList<T>(typeof(T), offsets._base, offsets: offsets.offsets);
+    }
+
+    public List<T> ReadList<T>(object _base, params int[] offsets) where T : unmanaged
+    {
+        return _ReadList<T>(typeof(T), _base, offsets: offsets);
+    }
+
+    public List<T> ReadList<T>(string moduleName, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _ReadList<T>(typeof(T), _base, moduleName, offsets);
+    }
+
+    public List<T> ReadList<T>(Module module, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _ReadList<T>(typeof(T), _base, module.Name, offsets);
+    }
+
+    public List<T> ReadList<T>(object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        return _ReadList<T>(typeof(T), _base, moduleName, offsets);
+    }
+
+    private List<T> _ReadList<T>(Type type, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            do
+            {
+                DeepPointer deepPointer;
+                if (_base.GetType() == typeof(int))
+                {
+                    if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                    else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+                }
+                else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+                else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
+
+                // ---
+                ulong listAddr = deepPointer.Deref<ulong>(Main.ProcessInstance);
+                if (listAddr == 0) break;
+
+                int itemSize = Marshal.SizeOf(type);
+                int count = TMemory.ReadMemory<ushort>(Main.ProcessInstance, listAddr + 0x18);
+                int size = count * itemSize;
+
+                ulong listItemsAddr = TMemory.ReadMemory<ulong>(Main.ProcessInstance, listAddr + 0x10);
+                byte[] listBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, listItemsAddr + 0x20, size);
+                if (listBytes == null || listBytes.Length == 0) break;
+
+                // race safety check
+                if (listAddr != deepPointer.Deref<ulong>(Main.ProcessInstance)) break;
+
+                // ---
+                List<T> list = new List<T>();
+                for (int i = 0; i < size; i += itemSize)
+                {
+                    byte[] extract = TArray.Extract(listBytes, i, itemSize);
+                    list.Add(BytesToType<T>(extract));
+                }
+
+                return list;
+            }
+            while (false);
+        }
+        catch { }
+        return new List<T>();
     }
     #endregion
     #region READ_STRING
@@ -257,7 +332,7 @@ public class PtrResolver
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             return deepPointer.DerefString(Main.ProcessInstance, readStringType, length, null);
         }
@@ -297,29 +372,12 @@ public class PtrResolver
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
-            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             return deepPointer.DerefBytes(Main.ProcessInstance, size);
         }
         catch { }
         return null;
-    }
-    #endregion
-    #region CHECK_FLAG
-    public bool CheckFlag(string watcherName)
-    {
-        try
-        {
-            do
-            {
-                ulong curr = Convert.ToUInt64(Main.current[watcherName]);
-                ulong ol = Convert.ToUInt64(Main.old[watcherName]);
-                return curr != ol && curr != 0;
-            }
-            while (false);
-        }
-        catch { }
-        return false;
     }
     #endregion
 
@@ -366,7 +424,7 @@ public class PtrResolver
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
-            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             MemoryWatcher memoryWatcher = new MemoryWatcher<T>(deepPointer);
             memoryWatcher.Name = name;
@@ -415,12 +473,12 @@ public class PtrResolver
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
-            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
             memoryWatcher.Name = name;
             memoryWatcher.Current = IntPtr.Zero;
-            Main.ListWatchers.Add((typeof(T), memoryWatcher));
+            Main.ListWatchers.Add((typeof(T), memoryWatcher, deepPointer));
             Main.current[name] = new List<T>();
         }
         catch { }
@@ -516,7 +574,7 @@ public class PtrResolver
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
             else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
-            else deepPointer = new DeepPointer((IntPtr)Convert.ToUInt64(_base), offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             StringWatcher stringWatcher = new StringWatcher(deepPointer, readStringType, length);
             stringWatcher.Name = name;
@@ -629,6 +687,45 @@ public class PtrResolver
             Main.current[name] = null;
         }
         catch { }
+    }
+    #endregion
+
+    #region UTILITIES
+    public bool CheckFlag(string watcherName)
+    {
+        try
+        {
+            do
+            {
+                ulong curr = Convert.ToUInt64(Main.current[watcherName]);
+                ulong ol = Convert.ToUInt64(Main.old[watcherName]);
+                return curr != ol && curr != 0;
+            }
+            while (false);
+        }
+        catch { }
+        return false;
+    }
+
+    public T BytesToType<T>(byte[] bytes) where T : unmanaged
+    {
+        Type type = typeof(T);
+        if (type == typeof(IntPtr)) return (T)(object)new IntPtr(BitConverter.ToInt64(bytes, 0));
+        else if (type == typeof(UIntPtr)) return (T)(object)new UIntPtr(BitConverter.ToUInt64(bytes, 0));
+        else if (type == typeof(bool)) return (T)(object)BitConverter.ToBoolean(bytes, 0);
+        else if (type == typeof(byte)) return (T)(object)bytes[0];
+        else if (type == typeof(sbyte)) return (T)(object)(sbyte)bytes[0];
+        else if (type == typeof(char)) return (T)(object)BitConverter.ToChar(bytes, 0);
+        else if (type == typeof(short)) return (T)(object)BitConverter.ToInt16(bytes, 0);
+        else if (type == typeof(ushort)) return (T)(object)BitConverter.ToUInt16(bytes, 0);
+        else if (type == typeof(int)) return (T)(object)BitConverter.ToInt32(bytes, 0);
+        else if (type == typeof(uint)) return (T)(object)BitConverter.ToUInt32(bytes, 0);
+        else if (type == typeof(long)) return (T)(object)BitConverter.ToInt64(bytes, 0);
+        else if (type == typeof(ulong)) return (T)(object)BitConverter.ToUInt64(bytes, 0);
+        else if (type == typeof(float)) return (T)(object)BitConverter.ToSingle(bytes, 0);
+        else if (type == typeof(double)) return (T)(object)BitConverter.ToDouble(bytes, 0);
+        else if (type == typeof(decimal)) return (T)(object)TUtils.ToDecimal(bytes, 0);
+        return default(T);
     }
     #endregion
 }
