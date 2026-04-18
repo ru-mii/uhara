@@ -168,6 +168,7 @@ public class PtrResolver
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
             else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
 
@@ -332,6 +333,7 @@ public class PtrResolver
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
             else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             return deepPointer.DerefString(Main.ProcessInstance, readStringType, length, null);
@@ -678,7 +680,8 @@ public class PtrResolver
                 if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
                 else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
             }
-            else deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
 
             StringWatcher stringWatcher = new StringWatcher(deepPointer, 128);
             stringWatcher.Name = name;
