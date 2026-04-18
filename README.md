@@ -11,7 +11,7 @@ Livesplit asl library.
 - https://github.com/ru-mii/UEdev
   
 ### Unity
-- https://github.com/ru-mii/Unity-Logger (very unstable, still in the works)
+- https://github.com/ru-mii/Unity-Logger
 
 # Reasoning for versions
 - next version can receive new features and changes to previous code including API
