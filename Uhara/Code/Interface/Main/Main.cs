@@ -634,7 +634,7 @@ public partial class Main
     {
         UpdateCounter++;
 
-        do
+        /*do
         {
             ulong newAttemptStartTime = 0;
             DateTime? dt = CurrentState?.AttemptStarted.Time;
@@ -646,7 +646,7 @@ public partial class Main
 
             if (flag) TimerStartedAction();
         }
-        while (false);
+        while (false);*/
 
         try
         {
