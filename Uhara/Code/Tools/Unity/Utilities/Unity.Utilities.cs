@@ -63,6 +63,34 @@ public partial class Tools
                 return null;
             }
 
+            public string GetActiveSceneName2()
+            {
+                try
+                {
+                    do
+                    {
+                        return sceneManager?.GetCurrentSceneName2();
+                    }
+                    while (false);
+                }
+                catch { }
+                return null;
+            }
+
+            public string GetCurrentSceneName2()
+            {
+                try
+                {
+                    do
+                    {
+                        return sceneManager?.GetCurrentSceneName2();
+                    }
+                    while (false);
+                }
+                catch { }
+                return null;
+            }
+
             public string GetLoadingSceneName()
             {
                 try

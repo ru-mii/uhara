@@ -106,7 +106,43 @@ public partial class Tools
 					return LastCurrentSceneName;
 				}
 
-				internal string GetLoadingSceneName()
+                internal string GetCurrentSceneName2()
+                {
+                    try
+                    {
+                        do
+                        {
+                            if (!IsLoaded) break;
+
+                            ulong address = TMemory.ReadMemory<ulong>(Main.ProcessInstance, SceneManagerPtr);
+                            if (address == 0) break;
+
+                            address = TMemory.DerefPointer(Main.ProcessInstance, SceneManagerPtr, 0x48);
+                            if (address == 0) break; address += 0x38;
+
+							ulong inside = TMemory.DerefPointer(Main.ProcessInstance, address);
+
+                            bool isLongName = false;
+							byte[] bytesLongNameCheck = BitConverter.GetBytes(inside);
+							foreach (byte b in bytesLongNameCheck) if (b == 0) { isLongName = true; break; }
+							if (isLongName) address = inside;
+
+							byte[] nameBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, address, 128);
+							if (nameBytes == null || nameBytes.Length == 0) break;
+
+							string name = TUtils.MultibyteToString2(nameBytes);
+                            if (string.IsNullOrEmpty(name)) break;
+
+                            LastCurrentSceneName = name;
+                            return name;
+                        }
+                        while (false);
+                    }
+                    catch { }
+                    return LastCurrentSceneName;
+                }
+
+                internal string GetLoadingSceneName()
 				{
 					try
 					{
