@@ -22,6 +22,7 @@ public partial class Tools
 				bool IsLoaded = false;
 
 				ulong SceneManagerPtr = 0;
+				string LastSolidScene = null;
 				string LastCurrentSceneName = null;
 				string LastLoadingSceneName = null;
                 int ConfirmedNameOffset = -1;
@@ -133,13 +134,13 @@ public partial class Tools
 							string name = TUtils.MultibyteToString2(nameBytes);
                             if (string.IsNullOrEmpty(name)) break;
 
-                            LastCurrentSceneName = name;
+                            LastSolidScene = name;
                             return name;
                         }
                         while (false);
                     }
                     catch { }
-                    return LastCurrentSceneName;
+                    return LastSolidScene;
                 }
 
                 internal string GetLoadingSceneName()
