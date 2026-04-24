@@ -100,6 +100,75 @@ public partial class Tools
                     catch { }
                     return null;
                 }
+
+                public string[] GetPathString(string fullName, params string[] fieldNames)
+                {
+                    try
+                    {
+                        do
+                        {
+                            int[] offs = GetPathInt(fullName, fieldNames);
+                            if (offs == null || offs.Length == 0) break;
+
+                            string[] strs = new string[offs.Length];
+                            for (int i = 0; i < offs.Length; i++)
+                                strs[i] = "0x" + offs[i].ToString("X");
+
+                            return strs;
+                        }
+                        while (false);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public int[] GetPathInt(string fullName, params string[] fieldNames)
+                {
+                    try
+                    {
+                        do
+                        {
+                            string[] nameData = fullName.Split(':');
+                            if (nameData.Length > 3) break;
+
+                            string[] fullNameData = TArray.Merge(new string[3 - nameData.Length], nameData);
+                            string imageName = fullNameData[0] ?? instanceCreation.DefaultImage;
+                            string namespaceName = fullNameData[1] ?? instanceCreation.DefaultNamespace;
+                            string className = fullNameData[2] ?? instanceCreation.DefaultClass;
+
+                            var pathInfo = offsetResolver.GetPath(imageName, namespaceName, className, fieldNames);
+                            if (pathInfo == null) break;
+                            if (pathInfo.Offsets == null) break;
+                            if (pathInfo.Offsets.Length == 0) break;
+                            if (pathInfo.Offsets.Length < fieldNames.Length) break;
+
+                            // ---
+                            List<int> offsets = new List<int>();
+                            for (int i = 0; i < fieldNames.Length; i++)
+                                offsets.Add(pathInfo.Offsets[i]);
+
+                            return offsets.ToArray();
+                        }
+                        while (false);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public int[] GetPath(string fullName, params string[] fieldNames)
+                {
+                    try
+                    {
+                        TUtils.Print("GetPath is obsolete, use GetPathInt");
+                        do
+                        {
+                            return GetPathInt(fullName, fieldNames);
+                        }
+                        while (false);
+                    }
+                    catch { }
+                    return null;
+                }
                 #endregion
 
                 internal static string DebugClass = "Instance";

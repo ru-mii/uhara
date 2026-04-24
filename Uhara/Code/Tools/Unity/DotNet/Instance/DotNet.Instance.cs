@@ -103,7 +103,28 @@ public partial class Tools
 
                 }
 
-                public int[] GetPath(string fullName, params string[] fieldNames)
+                public string[] GetPathString(string fullName, params string[] fieldNames)
+                {
+                    try
+                    {
+                        do
+                        {
+                            int[] offs = GetPathInt(fullName, fieldNames);
+                            if (offs == null || offs.Length == 0) break;
+
+                            string[] strs = new string[offs.Length];
+                            for (int i = 0; i < offs.Length; i++)
+                                strs[i] = "0x" + offs[i].ToString("X");
+
+                            return strs;
+                        }
+                        while (false);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public int[] GetPathInt(string fullName, params string[] fieldNames)
                 {
                     try
                     {
@@ -129,6 +150,21 @@ public partial class Tools
                                 offsets.Add(pathInfo.Offsets[i]);
 
                             return offsets.ToArray();
+                        }
+                        while (false);
+                    }
+                    catch { }
+                    return null;
+                }
+
+                public int[] GetPath(string fullName, params string[] fieldNames)
+                {
+                    try
+                    {
+                        TUtils.Print("GetPath is obsolete, use GetPathInt");
+                        do
+                        {
+                            return GetPathInt(fullName, fieldNames);
                         }
                         while (false);
                     }
