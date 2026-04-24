@@ -33,8 +33,15 @@ public partial class Main
     internal static ulong UpdateCounter = 0;
     internal static string UniqueScriptLoadID;
 
+    internal class CountableStyle
+    {
+        internal static readonly int None = 0;
+        internal static readonly int Array = 1;
+        internal static readonly int List = 2;
+    }
+
     internal static List<MemoryWatcher> MemoryWatchers = new List<MemoryWatcher>();
-    internal static List<(Type type, MemoryWatcher memoryWatcher, DeepPointer deepPointer)> ListWatchers = new List<(Type, MemoryWatcher, DeepPointer)>();
+    internal static List<(int style, Type type, MemoryWatcher memoryWatcher, DeepPointer deepPointer)> CountableWatchers = new List<(int, Type, MemoryWatcher, DeepPointer)>();
     internal static List<StringWatcher> StringWatchers = new List<StringWatcher>();
 
     internal static dynamic Vars;
@@ -668,7 +675,7 @@ public partial class Main
                         current[watcher.Name] = watcher.Current;
                     }
 
-                    foreach (var watcher in ListWatchers)
+                    foreach (var watcher in CountableWatchers)
                     {
                         MemoryWatcher memWatcher = watcher.memoryWatcher;
 
@@ -685,7 +692,10 @@ public partial class Main
                         int count = TMemory.ReadMemory<ushort>(ProcessInstance, listAddr + 0x18);
                         int size = count * itemSize;
 
-                        ulong listItemsAddr = TMemory.ReadMemory<ulong>(ProcessInstance, listAddr + 0x10);
+                        ulong listItemsAddr = 0;
+                        if (watcher.style == CountableStyle.Array) listItemsAddr = listAddr;
+                        else if (watcher.style == CountableStyle.List) listItemsAddr = TMemory.ReadMemory<ulong>(ProcessInstance, listAddr + 0x10);
+
                         byte[] listBytes = TMemory.ReadMemoryBytes(ProcessInstance, listItemsAddr + 0x20, size);
                         if (listBytes == null || listBytes.Length == 0) continue; 
 

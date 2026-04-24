@@ -184,6 +184,78 @@ public class PtrResolver
         return false;
     }
     #endregion
+    #region READ_ARRAY
+    public List<T> ReadArray<T>((IntPtr _base, int[] offsets) offsets) where T : unmanaged
+    {
+        return _ReadArray<T>(typeof(T), offsets._base, offsets: offsets.offsets);
+    }
+
+    public List<T> ReadArray<T>(object _base, params int[] offsets) where T : unmanaged
+    {
+        return _ReadArray<T>(typeof(T), _base, offsets: offsets);
+    }
+
+    public List<T> ReadArray<T>(string moduleName, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _ReadArray<T>(typeof(T), _base, moduleName, offsets);
+    }
+
+    public List<T> ReadArray<T>(Module module, object _base, params int[] offsets) where T : unmanaged
+    {
+        return _ReadArray<T>(typeof(T), _base, module.Name, offsets);
+    }
+
+    public List<T> ReadArray<T>(object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        return _ReadArray<T>(typeof(T), _base, moduleName, offsets);
+    }
+
+    private List<T> _ReadArray<T>(Type type, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            do
+            {
+                DeepPointer deepPointer;
+                if (_base.GetType() == typeof(int))
+                {
+                    if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                    else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+                }
+                else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+                else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
+
+                // ---
+                ulong listAddr = deepPointer.Deref<ulong>(Main.ProcessInstance);
+                if (listAddr == 0) break;
+
+                int itemSize = Marshal.SizeOf(type);
+                int count = TMemory.ReadMemory<ushort>(Main.ProcessInstance, listAddr + 0x18);
+                int size = count * itemSize;
+
+                ulong listItemsAddr = listAddr;
+                byte[] listBytes = TMemory.ReadMemoryBytes(Main.ProcessInstance, listItemsAddr + 0x20, size);
+                if (listBytes == null || listBytes.Length == 0) break;
+
+                // race safety check
+                if (listAddr != deepPointer.Deref<ulong>(Main.ProcessInstance)) break;
+
+                // ---
+                List<T> list = new List<T>();
+                for (int i = 0; i < size; i += itemSize)
+                {
+                    byte[] extract = TArray.Extract(listBytes, i, itemSize);
+                    list.Add(BytesToType<T>(extract));
+                }
+
+                return list;
+            }
+            while (false);
+        }
+        catch { }
+        return new List<T>();
+    }
+    #endregion
     #region READ_LIST
     public List<T> ReadList<T>((IntPtr _base, int[] offsets) offsets) where T : unmanaged
     {
@@ -437,6 +509,55 @@ public class PtrResolver
         catch { }
     }
     #endregion
+    #region WATCH_ARRAY
+    public void WatchArray<T>(string name, object _base, params int[] offsets) where T : unmanaged
+    {
+        _WatchArray<T>(name, _base, offsets: offsets);
+    }
+
+    public void WatchArray<T>(string name, string moduleName, object _base, params int[] offsets) where T : unmanaged
+    {
+        _WatchArray<T>(name, _base, moduleName, offsets);
+    }
+
+    public void WatchArray<T>(string name, Module module, object _base, params int[] offsets) where T : unmanaged
+    {
+        _WatchArray<T>(name, _base, module.Name, offsets);
+    }
+
+    public void WatchArray<T>(string name, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        _WatchArray<T>(name, _base, moduleName, offsets);
+    }
+
+    private void _WatchArray<T>(string name, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var oldWatcher = Main.MemoryWatchers.FirstOrDefault(m => m.Name == name);
+                if (oldWatcher != null) Main.MemoryWatchers.Remove(oldWatcher);
+            }
+
+            DeepPointer deepPointer;
+            if (_base.GetType() == typeof(int))
+            {
+                if (string.IsNullOrEmpty(moduleName)) deepPointer = new DeepPointer((int)_base, offsets);
+                else deepPointer = new DeepPointer(moduleName, (int)_base, offsets);
+            }
+            else if (_base.GetType() == typeof(IntPtr)) deepPointer = new DeepPointer((IntPtr)_base, offsets);
+            else deepPointer = new DeepPointer((IntPtr)Convert.ToInt64(_base), offsets);
+
+            MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
+            memoryWatcher.Name = name;
+            memoryWatcher.Current = IntPtr.Zero;
+            Main.CountableWatchers.Add((Main.CountableStyle.Array, typeof(T), memoryWatcher, deepPointer));
+            Main.current[name] = new List<T>();
+        }
+        catch { }
+    }
+    #endregion
     #region WATCH_LIST
     public void WatchList<T>(string name, object _base, params int[] offsets) where T : unmanaged
     {
@@ -480,7 +601,7 @@ public class PtrResolver
             MemoryWatcher memoryWatcher = new MemoryWatcher<IntPtr>(deepPointer);
             memoryWatcher.Name = name;
             memoryWatcher.Current = IntPtr.Zero;
-            Main.ListWatchers.Add((typeof(T), memoryWatcher, deepPointer));
+            Main.CountableWatchers.Add((Main.CountableStyle.List, typeof(T), memoryWatcher, deepPointer));
             Main.current[name] = new List<T>();
         }
         catch { }
