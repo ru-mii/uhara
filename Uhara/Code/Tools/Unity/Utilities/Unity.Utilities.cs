@@ -124,7 +124,8 @@ public partial class Tools
                         do
                         {
                             if (!Main.ReloadProcess()) throw new Exception();
-                            if (TProcess.GetModuleBase(Main.ProcessInstance, "mono-2.0-bdwgc.dll") != 0)
+                            if (TProcess.GetModuleBase(Main.ProcessInstance, "mono-2.0-bdwgc.dll") != 0 ||
+                                TProcess.GetModuleBase(Main.ProcessInstance, "GameAssembly.dll") != 0)
                             {
                                 if (TProcess.GetModuleBase(Main.ProcessInstance, "UnityPlayer.dll") == 0) break;
                                 byte[] modBytes = TProcess.GetModuleBytes(Main.ProcessInstance, "UnityPlayer.dll");
