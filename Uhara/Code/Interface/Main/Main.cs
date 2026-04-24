@@ -678,151 +678,197 @@ public partial class Main
 
                     foreach (var watcher in CountableWatchers)
                     {
-                        MemoryWatcher memWatcher = watcher.memoryWatcher;
-
-                        memWatcher.Update(ProcessInstance);
-                        if (memWatcher.Current == null) continue;
-                        if ((IntPtr)memWatcher.Current == IntPtr.Zero) continue;
-
-                        ulong listAddr = (ulong)(IntPtr)(memWatcher.Current);
-                        if (listAddr == 0) continue;
-
                         Type type = watcher.type;
+                        bool success = false;
 
-                        int itemSize = Marshal.SizeOf(type);
-                        int count = TMemory.ReadMemory<ushort>(ProcessInstance, listAddr + 0x18);
-                        int size = count * itemSize;
-
-                        ulong listItemsAddr = 0;
-                        if (watcher.style == CountableStyle.Array) listItemsAddr = listAddr;
-                        else if (watcher.style == CountableStyle.List) listItemsAddr = TMemory.ReadMemory<ulong>(ProcessInstance, listAddr + 0x10);
-
-                        byte[] listBytes = TMemory.ReadMemoryBytes(ProcessInstance, listItemsAddr + 0x20, size);
-                        if (listBytes == null || listBytes.Length == 0) continue; 
-
-                        // race safety check
-                        ulong repeatListPtr = watcher.deepPointer.Deref<ulong>(ProcessInstance);
-                        if (repeatListPtr != listAddr) continue;
-
-                        // ---
-                        if (type == typeof(IntPtr))
+                        do
                         {
-                            List<IntPtr> list = new List<IntPtr>();
-                            for (int i = 0; i < size; i += itemSize) list.Add((IntPtr)BitConverter.ToInt64(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            MemoryWatcher memWatcher = watcher.memoryWatcher;
+
+                            memWatcher.Update(ProcessInstance);
+                            if (memWatcher.Current == null) break;
+                            if ((IntPtr)memWatcher.Current == IntPtr.Zero) break;
+
+                            ulong listAddr = (ulong)(IntPtr)(memWatcher.Current);
+                            if (listAddr == 0) break;
+
+                            int itemSize = Marshal.SizeOf(type);
+                            int count = TMemory.ReadMemory<ushort>(ProcessInstance, listAddr + 0x18);
+                            int size = count * itemSize;
+
+                            ulong listItemsAddr = 0;
+                            if (watcher.style == CountableStyle.Array) listItemsAddr = listAddr;
+                            else if (watcher.style == CountableStyle.List) listItemsAddr = TMemory.ReadMemory<ulong>(ProcessInstance, listAddr + 0x10);
+
+                            byte[] listBytes = TMemory.ReadMemoryBytes(ProcessInstance, listItemsAddr + 0x20, size);
+                            if (listBytes == null || listBytes.Length == 0) break;
+
+                            // race safety check
+                            ulong repeatListPtr = watcher.deepPointer.Deref<ulong>(ProcessInstance);
+                            if (repeatListPtr != listAddr) break;
+
+                            // ---
+                            if (type == typeof(IntPtr))
+                            {
+                                List<IntPtr> list = new List<IntPtr>();
+                                for (int i = 0; i < size; i += itemSize) list.Add((IntPtr)BitConverter.ToInt64(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(UIntPtr))
+                            {
+                                List<UIntPtr> list = new List<UIntPtr>();
+                                for (int i = 0; i < size; i += itemSize) list.Add((UIntPtr)BitConverter.ToUInt64(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(bool))
+                            {
+                                List<bool> list = new List<bool>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToBoolean(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(byte))
+                            {
+                                List<byte> list = new List<byte>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(listBytes[i]);
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(sbyte))
+                            {
+                                List<sbyte> list = new List<sbyte>();
+                                for (int i = 0; i < size; i += itemSize) list.Add((sbyte)listBytes[i]);
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(char))
+                            {
+                                List<char> list = new List<char>();
+                                for (int i = 0; i < size; i += itemSize) list.Add((char)listBytes[i]);
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(short))
+                            {
+                                List<short> list = new List<short>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToInt16(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(ushort))
+                            {
+                                List<ushort> list = new List<ushort>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToUInt16(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(int))
+                            {
+                                List<int> list = new List<int>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToInt32(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(uint))
+                            {
+                                List<uint> list = new List<uint>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToUInt32(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(long))
+                            {
+                                List<long> list = new List<long>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToInt64(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(ulong))
+                            {
+                                List<ulong> list = new List<ulong>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToUInt64(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(float))
+                            {
+                                List<float> list = new List<float>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToSingle(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(double))
+                            {
+                                List<double> list = new List<double>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToDouble(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            else if (type == typeof(decimal))
+                            {
+                                List<decimal> list = new List<decimal>();
+                                for (int i = 0; i < size; i += itemSize) list.Add(TUtils.ToDecimal(listBytes, i));
+                                if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
+                                else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            }
+
+                            success = true;
                         }
+                        while (false);
 
-                        else if (type == typeof(UIntPtr))
+                        if (success) continue;
+                        else if (watcher.memoryWatcher.FailAction == MemoryWatcher.ReadFailAction.SetZeroOrNull) current[watcher.memoryWatcher.Name] = null;
+                        else if (watcher.style == CountableStyle.Array)
                         {
-                            List<UIntPtr> list = new List<UIntPtr>();
-                            for (int i = 0; i < size; i += itemSize) list.Add((UIntPtr)BitConverter.ToUInt64(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            if (type == typeof(IntPtr)) current[watcher.memoryWatcher.Name] = new List<IntPtr>().ToArray();
+                            else if (type == typeof(UIntPtr)) current[watcher.memoryWatcher.Name] = new List<UIntPtr>().ToArray();
+                            else if (type == typeof(bool)) current[watcher.memoryWatcher.Name] = new List<bool>().ToArray();
+                            else if (type == typeof(byte)) current[watcher.memoryWatcher.Name] = new List<byte>().ToArray();
+                            else if (type == typeof(sbyte)) current[watcher.memoryWatcher.Name] = new List<sbyte>().ToArray();
+                            else if (type == typeof(char)) current[watcher.memoryWatcher.Name] = new List<char>().ToArray();
+                            else if (type == typeof(short)) current[watcher.memoryWatcher.Name] = new List<short>().ToArray();
+                            else if (type == typeof(ushort)) current[watcher.memoryWatcher.Name] = new List<ushort>().ToArray();
+                            else if (type == typeof(int)) current[watcher.memoryWatcher.Name] = new List<int>().ToArray();
+                            else if (type == typeof(uint)) current[watcher.memoryWatcher.Name] = new List<uint>().ToArray();
+                            else if (type == typeof(long)) current[watcher.memoryWatcher.Name] = new List<long>().ToArray();
+                            else if (type == typeof(ulong)) current[watcher.memoryWatcher.Name] = new List<ulong>().ToArray();
+                            else if (type == typeof(float)) current[watcher.memoryWatcher.Name] = new List<float>().ToArray();
+                            else if (type == typeof(double)) current[watcher.memoryWatcher.Name] = new List<double>().ToArray();
+                            else if (type == typeof(decimal)) current[watcher.memoryWatcher.Name] = new List<decimal>().ToArray();
                         }
-
-                        else if (type == typeof(bool))
+                        else if (watcher.style == CountableStyle.List)
                         {
-                            List<bool> list = new List<bool>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToBoolean(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(byte))
-                        {
-                            List<byte> list = new List<byte>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(listBytes[i]);
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(sbyte))
-                        {
-                            List<sbyte> list = new List<sbyte>();
-                            for (int i = 0; i < size; i += itemSize) list.Add((sbyte)listBytes[i]);
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(char))
-                        {
-                            List<char> list = new List<char>();
-                            for (int i = 0; i < size; i += itemSize) list.Add((char)listBytes[i]);
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(short))
-                        {
-                            List<short> list = new List<short>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToInt16(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(ushort))
-                        {
-                            List<ushort> list = new List<ushort>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToUInt16(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(int))
-                        {
-                            List<int> list = new List<int>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToInt32(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(uint))
-                        {
-                            List<uint> list = new List<uint>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToUInt32(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(long))
-                        {
-                            List<long> list = new List<long>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToInt64(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(ulong))
-                        {
-                            List<ulong> list = new List<ulong>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToUInt64(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(float))
-                        {
-                            List<float> list = new List<float>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToSingle(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(double))
-                        {
-                            List<double> list = new List<double>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(BitConverter.ToDouble(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
-                        }
-
-                        else if (type == typeof(decimal))
-                        {
-                            List<decimal> list = new List<decimal>();
-                            for (int i = 0; i < size; i += itemSize) list.Add(TUtils.ToDecimal(listBytes, i));
-                            if (watcher.style == CountableStyle.Array) current[watcher.memoryWatcher.Name] = list.ToArray();
-                            else if (watcher.style == CountableStyle.List) current[watcher.memoryWatcher.Name] = list;
+                            if (type == typeof(IntPtr)) current[watcher.memoryWatcher.Name] = new List<IntPtr>();
+                            else if (type == typeof(UIntPtr)) current[watcher.memoryWatcher.Name] = new List<UIntPtr>();
+                            else if (type == typeof(bool)) current[watcher.memoryWatcher.Name] = new List<bool>();
+                            else if (type == typeof(byte)) current[watcher.memoryWatcher.Name] = new List<byte>();
+                            else if (type == typeof(sbyte)) current[watcher.memoryWatcher.Name] = new List<sbyte>();
+                            else if (type == typeof(char)) current[watcher.memoryWatcher.Name] = new List<char>();
+                            else if (type == typeof(short)) current[watcher.memoryWatcher.Name] = new List<short>();
+                            else if (type == typeof(ushort)) current[watcher.memoryWatcher.Name] = new List<ushort>();
+                            else if (type == typeof(int)) current[watcher.memoryWatcher.Name] = new List<int>();
+                            else if (type == typeof(uint)) current[watcher.memoryWatcher.Name] = new List<uint>();
+                            else if (type == typeof(long)) current[watcher.memoryWatcher.Name] = new List<long>();
+                            else if (type == typeof(ulong)) current[watcher.memoryWatcher.Name] = new List<ulong>();
+                            else if (type == typeof(float)) current[watcher.memoryWatcher.Name] = new List<float>();
+                            else if (type == typeof(double)) current[watcher.memoryWatcher.Name] = new List<double>();
+                            else if (type == typeof(decimal)) current[watcher.memoryWatcher.Name] = new List<decimal>();
                         }
                     }
                 }
