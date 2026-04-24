@@ -185,32 +185,32 @@ public class PtrResolver
     }
     #endregion
     #region READ_ARRAY
-    public List<T> ReadArray<T>((IntPtr _base, int[] offsets) offsets) where T : unmanaged
+    public T[] ReadArray<T>((IntPtr _base, int[] offsets) offsets) where T : unmanaged
     {
         return _ReadArray<T>(typeof(T), offsets._base, offsets: offsets.offsets);
     }
 
-    public List<T> ReadArray<T>(object _base, params int[] offsets) where T : unmanaged
+    public T[] ReadArray<T>(object _base, params int[] offsets) where T : unmanaged
     {
         return _ReadArray<T>(typeof(T), _base, offsets: offsets);
     }
 
-    public List<T> ReadArray<T>(string moduleName, object _base, params int[] offsets) where T : unmanaged
+    public T[] ReadArray<T>(string moduleName, object _base, params int[] offsets) where T : unmanaged
     {
         return _ReadArray<T>(typeof(T), _base, moduleName, offsets);
     }
 
-    public List<T> ReadArray<T>(Module module, object _base, params int[] offsets) where T : unmanaged
+    public T[] ReadArray<T>(Module module, object _base, params int[] offsets) where T : unmanaged
     {
         return _ReadArray<T>(typeof(T), _base, module.Name, offsets);
     }
 
-    public List<T> ReadArray<T>(object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    public T[] ReadArray<T>(object _base, string moduleName = null, params int[] offsets) where T : unmanaged
     {
         return _ReadArray<T>(typeof(T), _base, moduleName, offsets);
     }
 
-    private List<T> _ReadArray<T>(Type type, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
+    private T[] _ReadArray<T>(Type type, object _base, string moduleName = null, params int[] offsets) where T : unmanaged
     {
         try
         {
@@ -248,12 +248,12 @@ public class PtrResolver
                     list.Add(BytesToType<T>(extract));
                 }
 
-                return list;
+                return list.ToArray();
             }
             while (false);
         }
         catch { }
-        return new List<T>();
+        return new List<T>().ToArray();
     }
     #endregion
     #region READ_LIST
