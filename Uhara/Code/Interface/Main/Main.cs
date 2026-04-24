@@ -659,7 +659,8 @@ public partial class Main
         {
             do
             {
-                if (ProcessInstance != null && !ProcessInstance.HasExited && ProcessInstance.Handle != IntPtr.Zero)
+                //if (ProcessInstance != null && !ProcessInstance.HasExited && ProcessInstance.Handle != IntPtr.Zero)
+                if (true)
                 {
                     foreach (var watcher in MemoryWatchers)
                     {

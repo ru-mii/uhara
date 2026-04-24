@@ -553,7 +553,7 @@ public class PtrResolver
             memoryWatcher.Name = name;
             memoryWatcher.Current = IntPtr.Zero;
             Main.CountableWatchers.Add((Main.CountableStyle.Array, typeof(T), memoryWatcher, deepPointer));
-            Main.current[name] = new List<T>();
+            Main.current[name] = new List<T>().ToArray();
         }
         catch { }
     }
