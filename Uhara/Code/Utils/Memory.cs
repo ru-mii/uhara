@@ -39,6 +39,7 @@ internal class TMemory
     {
         do
         {
+            if (address == 0) break;
             address = ReadMemory<ulong>(process, address);
             if (address == 0) break;
 
