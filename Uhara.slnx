@@ -1,0 +1,17 @@
+<Solution>
+
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+
+  <Folder Name="/lib/">
+    <Project Path="lib/LiveSplit/src/LiveSplit.Core/LiveSplit.Core.csproj" />
+    <Project Path="lib/LiveSplit/src/LiveSplit.View/LiveSplit.View.csproj" />
+    <Project Path="lib/LiveSplit/src/UpdateManager/UpdateManager.csproj" />
+
+    <Project Path="lib/LiveSplit/components/LiveSplit.ScriptableAutoSplit/src/LiveSplit.ScriptableAutoSplit/LiveSplit.ScriptableAutoSplit.csproj" />
+  </Folder>
+
+  <Project Path="Uhara/Uhara.csproj" />
+
+</Solution>
