@@ -141,10 +141,6 @@ public partial class Main
             _RefReadBytes = extensionMethodsType.GetMethod("ReadBytes", new Type[] { typeof(Process), typeof(IntPtr), typeof(int) });
             _RefWriteBytes = extensionMethodsType.GetMethod("WriteBytes", new Type[] { typeof(Process), typeof(IntPtr), typeof(byte[]) });
             _RefCreateThread = extensionMethodsType.GetMethod("CreateThread", new Type[] { typeof(Process), typeof(IntPtr) });
-
-            // ---
-            if (!File.Exists("SharpDisasm.dll"))
-                File.WriteAllBytes("SharpDisasm.dll", AsmBlocks.SharpDisasm);
         }
         catch { }
     }
